@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>PipServices.Rpc</id>
+    <version>2.4.4</version>
+    <title>PipServices.Rpc</title>
+    <authors>Sergey Seroukhov, Volodymyr Tkachenko, Alex Mazur</authors>
+    <projectUrl>https://github.com/pip-services/pip-services-rpc-dotnet</projectUrl>
+    <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
+    <iconUrl>https://raw.githubusercontent.com/pip-services/pip-services/master/design/Icon.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Communication components for Pip.Services in .NET</description>
+    <releaseNotes>Release</releaseNotes>
+    <copyright>Conceptual Vision Consulting LLC. 2018</copyright>
+    <tags>pip-services microservices framework</tags>
+    <dependencies>
+      <group targetFramework=".NETStandard2.0">
+        <dependency id="Microsoft.AspNetCore" version="2.0.2" />
+        <dependency id="PipServices.Commons" version="2.3.15" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="obj\PipServices.Rpc.deps.json" target="lib\netstandard2.0" />
+    <file src="obj\PipServices.Rpc.dll" target="lib\netstandard2.0" />
+    <file src="obj\PipServices.Rpc.pdb" target="lib\netstandard2.0" />
+  </files>
+</package>

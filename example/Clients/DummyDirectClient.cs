@@ -2,7 +2,7 @@
 using PipServices.Commons.Data;
 using PipServices.Commons.Refer;
 
-namespace PipServices.Rpc.Direct
+namespace PipServices.Rpc.Clients
 {
     public class DummyDirectClient : DirectClient<IDummyController>, IDummyClient
     {

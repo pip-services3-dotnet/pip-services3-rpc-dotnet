@@ -1,6 +1,6 @@
 ﻿using PipServices.Commons.Refer;
 
-namespace PipServices.Rpc.Rest
+namespace PipServices.Rpc.Services
 {
     public sealed class DummyCommandableHttpServiceV2 : CommandableHttpService
     {
