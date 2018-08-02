@@ -131,7 +131,11 @@ namespace PipServices.Rpc.Services
         private void ConfigureServices(IServiceCollection services)
         {
             services.AddRouting();
-            services.AddCors();
+            services.AddCors(cors => cors.AddPolicy("CorsPolicy", builder => {
+                builder.AllowAnyHeader()
+                       .AllowAnyMethod()
+                       .AllowAnyOrigin();
+            }));
         }
 
         private void ConfigureApplication(IApplicationBuilder applicationBuilder)
@@ -146,7 +150,7 @@ namespace PipServices.Rpc.Services
 
             var routes = _routeBuilder.Build();
             applicationBuilder
-                .UseCors(builder => builder.WithOrigins("*"))
+                .UseCors("CorsPolicy")
                 .UseRouter(routes);
             _routeBuilder = null;
         }
