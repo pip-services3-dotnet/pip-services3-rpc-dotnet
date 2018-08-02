@@ -4,13 +4,13 @@ Set-StrictMode -Version latest
 $ErrorActionPreference = "Stop"
 
 $component = Get-Content -Path "component.json" | ConvertFrom-Json
-$version = (Get-Content -Path src/src.csproj | ConvertFrom-Xml).Project.PropertyGroup[0].Version
+$version = ([xml](Get-Content -Path src/src.csproj)).Project.PropertyGroup.Version
 
 if ($component.version -ne $version) {
     throw "Versions in component.json and src.csproj do not match"
 }
 
-$package = $component.$version.nupkg
+$package = "$component.$version.nupkg"
 
 # # Automatically login to server
 # if ($env:NPM_USER -ne $null -and $env:NPM_PASS -ne $null) {

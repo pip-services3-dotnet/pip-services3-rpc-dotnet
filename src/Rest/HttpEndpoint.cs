@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.Extensions.DependencyInjection;
 using PipServices.Commons.Config;
 using PipServices.Commons.Errors;
@@ -130,6 +131,7 @@ namespace PipServices.Rpc.Services
         private void ConfigureServices(IServiceCollection services)
         {
             services.AddRouting();
+            services.AddCors();
         }
 
         private void ConfigureApplication(IApplicationBuilder applicationBuilder)
@@ -143,7 +145,9 @@ namespace PipServices.Rpc.Services
             }
 
             var routes = _routeBuilder.Build();
-            applicationBuilder.UseRouter(routes);
+            applicationBuilder
+                .UseCors(builder => builder.WithOrigins("*"))
+                .UseRouter(routes);
             _routeBuilder = null;
         }
 

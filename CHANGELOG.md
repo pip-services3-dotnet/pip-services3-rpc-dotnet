@@ -5,6 +5,9 @@
 ### Breaking Changes
 * Moved to a separate package
 
+### Features
+* Added CORS support to RestService
+
 ## <a name="2.3.4"></a> 2.3.4 (2018-06-11)
 * **status** Added StatusRestService
 * **status** Added HeartbeatRestService
