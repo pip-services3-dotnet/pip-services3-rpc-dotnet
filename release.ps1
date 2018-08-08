@@ -5,7 +5,7 @@ $ErrorActionPreference = "Stop"
 
 $component = Get-Content -Path "component.json" | ConvertFrom-Json
 [xml]$xml = Get-Content -Path src/src.csproj
-$version = $xml.Project.PropertyGroup[0].Version
+$version = $xml.Project.PropertyGroup.Version
 
 if ($component.version -ne $version) {
     throw "Versions in component.json and src.csproj do not match"
