@@ -86,14 +86,14 @@ namespace PipServices.Rpc.Services
             return _counters.BeginTiming(name + ".exec_time");
         }
 
-        public bool IsOpened()
+        public bool IsOpen()
         {
             return _opened;
         }
 
         public async virtual Task OpenAsync(string correlationId)
         {
-            if (IsOpened()) return;
+            if (IsOpen()) return;
 
             if (_endpoint == null)
             {
@@ -117,7 +117,7 @@ namespace PipServices.Rpc.Services
 
         public virtual Task CloseAsync(string correlationId)
         {
-            if (!IsOpened())
+            if (!IsOpen())
             {
                 if (_endpoint == null)
                 {

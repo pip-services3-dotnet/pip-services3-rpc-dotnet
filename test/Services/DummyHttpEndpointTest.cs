@@ -74,7 +74,7 @@ namespace PipServices.Rpc.Services
 
         public void It_Should_Be_Opened()
         {
-            Assert.True(_httpEndpoint.IsOpened());
+            Assert.True(_httpEndpoint.IsOpen());
         }
 
         public void It_Should_Create_Dummy_Async()

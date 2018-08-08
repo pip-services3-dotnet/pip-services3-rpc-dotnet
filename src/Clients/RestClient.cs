@@ -66,7 +66,7 @@ namespace PipServices.Rpc.Clients
             return _counters.BeginTiming(typeName + "." + methodName + ".call_time");
         }
 
-        public virtual bool IsOpened()
+        public virtual bool IsOpen()
         {
             return _client != null;
         }

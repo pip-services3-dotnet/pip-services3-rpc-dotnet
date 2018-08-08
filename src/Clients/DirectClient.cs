@@ -36,14 +36,14 @@ namespace PipServices.Rpc.Clients
             _controller = _dependencyResolver.GetOneRequired<T>("controller");
         }
 
-        public virtual bool IsOpened()
+        public virtual bool IsOpen()
         {
             return _opened;
         }
 
         public virtual Task OpenAsync(string correlationId)
         {
-            if (IsOpened())
+            if (IsOpen())
             {
                 return Task.Delay(0);
             }
@@ -61,7 +61,7 @@ namespace PipServices.Rpc.Clients
 
         public virtual Task CloseAsync(string correlationId)
         {
-            if (IsOpened())
+            if (IsOpen())
             {
                 _logger.Debug(correlationId, "Closed Direct client {0}", this.GetType().Name);
             }
