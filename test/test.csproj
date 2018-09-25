@@ -27,4 +27,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Clients\DummyCommandableHttpByUriClientTest.cs" />
+  </ItemGroup>
 </Project>
