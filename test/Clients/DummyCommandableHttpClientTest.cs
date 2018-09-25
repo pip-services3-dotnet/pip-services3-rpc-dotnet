@@ -65,7 +65,7 @@ namespace PipServices.Rpc.Clients
         {
             try
             {
-                _client.RaiseException("123").Wait();
+                _client.RaiseExceptionAsync("123").Wait();
             }
             catch (Exception ex)
             {

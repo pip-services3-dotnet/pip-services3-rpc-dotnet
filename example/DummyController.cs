@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 
 using PipServices.Commons.Data;
 using PipServices.Commons.Commands;
-using PipServices.Rpc.Commands;
 using PipServices.Commons.Errors;
 
 namespace PipServices.Rpc
@@ -26,7 +25,7 @@ namespace PipServices.Rpc
 		    return _commandSet;
 	    }
 
-        public DataPage<Dummy> GetPageByFilter(string correlationId, FilterParams filter, PagingParams paging)
+        public async Task<DataPage<Dummy>> GetPageByFilterAsync(string correlationId, FilterParams filter, PagingParams paging)
         {
             filter = filter != null ? filter : new FilterParams();
             var key = filter.GetAsNullableString("key");
@@ -53,11 +52,13 @@ namespace PipServices.Rpc
                     result.Add(entity);
                 }
             }
-            return new DataPage<Dummy>(result);
+            return await Task.FromResult(new DataPage<Dummy>(result));
         }
 
-        public Dummy GetOneById(string correlationId, string id)
+        public async Task<Dummy> GetOneByIdAsync(string correlationId, string id)
         {
+            await Task.Delay(0);
+
             lock(_lock)
             {
                 foreach(var entity in _entities)
@@ -66,11 +67,14 @@ namespace PipServices.Rpc
                         return entity;
                 }
             }
+
             return null;
         }
 
-        public Dummy Create(string correlationId, Dummy entity)
+        public async Task<Dummy> CreateAsync(string correlationId, Dummy entity)
         {
+            await Task.Delay(0);
+
             lock(_lock)
             {
                 if (entity.Id == null)
@@ -81,8 +85,10 @@ namespace PipServices.Rpc
             return entity;
         }
 
-        public Dummy Update(string correlationId, Dummy newEntity)
+        public async Task<Dummy> UpdateAsync(string correlationId, Dummy newEntity)
         {
+            await Task.Delay(0);
+
             lock(_lock)
             {
                 for (int index = 0; index < _entities.Count; index++)
@@ -98,8 +104,10 @@ namespace PipServices.Rpc
             return null;
         }
 
-        public Dummy DeleteById(string correlationId, string id)
+        public async Task<Dummy> DeleteByIdAsync(string correlationId, string id)
         {
+            await Task.Delay(0);
+
             lock(_lock)
             {
                 for (int index = 0; index < _entities.Count; index++)
@@ -115,7 +123,7 @@ namespace PipServices.Rpc
             return null;
         }
 
-        public void RaiseException(string correlationId)
+        public Task RaiseExceptionAsync(string correlationId)
         {
             throw new NotFoundException(correlationId, "TEST_ERROR", "Dummy error in controller!");
         }

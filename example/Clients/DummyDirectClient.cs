@@ -11,53 +11,52 @@ namespace PipServices.Rpc.Clients
             _dependencyResolver.Put("controller", new Descriptor("pip-services-dummies", "controller", "*", "*", "*"));
         }
 
-        public Task<DataPage<Dummy>> GetPageByFilterAsync(string correlationId, FilterParams filter, PagingParams paging)
+        public async Task<DataPage<Dummy>> GetPageByFilterAsync(string correlationId, FilterParams filter, PagingParams paging)
         {
             filter = filter ?? new FilterParams();
             paging = paging ?? new PagingParams();
 
             using (var timing = Instrument(correlationId, "dummy.get_page_by_filter"))
             {
-                return Task.FromResult(_controller.GetPageByFilter(correlationId, filter, paging));
+                return await _controller.GetPageByFilterAsync(correlationId, filter, paging);
             }
         }
 
-        public Task<Dummy> GetOneByIdAsync(string correlationId, string id)
+        public async Task<Dummy> GetOneByIdAsync(string correlationId, string id)
         {
             using (var timing = Instrument(correlationId, "dummy.get_one_by_id"))
             {
-                return Task.FromResult(_controller.GetOneById(correlationId, id));
+                return await _controller.GetOneByIdAsync(correlationId, id);
             }
         }
 
-        public Task<Dummy> CreateAsync(string correlationId, Dummy entity)
+        public async Task<Dummy> CreateAsync(string correlationId, Dummy entity)
         {
             using (var timing = Instrument(correlationId, "dummy.create"))
             {
-                return Task.FromResult(_controller.Create(correlationId, entity));
+                return await _controller.CreateAsync(correlationId, entity);
             }
         }
 
-        public Task<Dummy> UpdateAsync(string correlationId, Dummy entity)
+        public async Task<Dummy> UpdateAsync(string correlationId, Dummy entity)
         {
             using (var timing = Instrument(correlationId, "dummy.update"))
             {
-                return Task.FromResult(_controller.Update(correlationId, entity));
+                return await _controller.UpdateAsync(correlationId, entity);
             }
         }
 
-        public Task<Dummy> DeleteByIdAsync(string correlationId, string id)
+        public async Task<Dummy> DeleteByIdAsync(string correlationId, string id)
         {
             using (var timing = Instrument(correlationId, "dummy.delete_by_id"))
             {
-                return Task.FromResult(_controller.DeleteById(correlationId, id));
+                return await _controller.DeleteByIdAsync(correlationId, id);
             }
         }
 
-        public Task RaiseException(string correlationId)
+        public async Task RaiseExceptionAsync(string correlationId)
         {
-            _controller.RaiseException(correlationId);
-            return Task.Delay(0);
+            await _controller.RaiseExceptionAsync(correlationId);
         }
     }
 }

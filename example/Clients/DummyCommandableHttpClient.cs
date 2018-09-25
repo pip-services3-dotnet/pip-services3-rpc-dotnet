@@ -69,7 +69,7 @@ namespace PipServices.Rpc.Clients
             return CallCommandAsync<Dummy>("delete_dummy", correlationId, requestEntity);
         }
 
-        public Task RaiseException(string correlationId)
+        public Task RaiseExceptionAsync(string correlationId)
         {
             return CallCommandAsync<object>("raise_exception", correlationId, null);
         }

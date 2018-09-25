@@ -5,12 +5,12 @@ namespace PipServices.Rpc
 {
     public interface IDummyController
     {
-        DataPage<Dummy> GetPageByFilter(string correlationId, FilterParams filter, PagingParams paging);
-        Dummy GetOneById(string correlationId, string id);
-        Dummy Create(string correlationId, Dummy entity);
-        Dummy Update(string correlationId, Dummy entity);
-        Dummy DeleteById(string correlationId, string id);
-        void RaiseException(string correlationId);
+        Task<DataPage<Dummy>> GetPageByFilterAsync(string correlationId, FilterParams filter, PagingParams paging);
+        Task<Dummy> GetOneByIdAsync(string correlationId, string id);
+        Task<Dummy> CreateAsync(string correlationId, Dummy entity);
+        Task<Dummy> UpdateAsync(string correlationId, Dummy entity);
+        Task<Dummy> DeleteByIdAsync(string correlationId, string id);
+        Task RaiseExceptionAsync(string correlationId);
 
         Task<bool> PingAsync();
     }

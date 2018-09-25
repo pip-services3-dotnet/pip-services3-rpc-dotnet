@@ -6,7 +6,7 @@ using PipServices.Commons.Run;
 using PipServices.Commons.Validate;
 using PipServices.Commons.Data;
 
-namespace PipServices.Rpc.Commands
+namespace PipServices.Rpc
 {
     public class DummyCommandSet : CommandSet
     {
@@ -30,8 +30,6 @@ namespace PipServices.Rpc.Commands
             AddCommand(MakePingCommand());
         }
 
-        #region Commands
-
         private ICommand MakeGetPageByFilterCommand()
         {
             return new Command(
@@ -40,7 +38,13 @@ namespace PipServices.Rpc.Commands
                     .WithOptionalProperty("correlation_id", typeof(string))
                     .WithOptionalProperty("filter", new FilterParamsSchema())
                     .WithOptionalProperty("paging", new PagingParamsSchema()),
-                GetDummies);
+                async (correlationId, args) => 
+                {
+                    var filter = FilterParams.FromValue(args.Get("filter"));
+                    var paging = PagingParams.FromValue(args.Get("paging"));
+
+                    return await _controller.GetPageByFilterAsync(correlationId, filter, paging);    
+                });
         }
 
         private ICommand MakeGetOneByIdCommand()
@@ -49,7 +53,11 @@ namespace PipServices.Rpc.Commands
                 "get_dummy_by_id",
                 new ObjectSchema()
                     .WithRequiredProperty("dummy_id", Commons.Convert.TypeCode.String),
-                GetOneDummy);
+                async (correlationId, args) => 
+                {
+                    var dummyId = args.GetAsString("dummy_id");
+                    return await _controller.GetOneByIdAsync(correlationId, dummyId);                    
+                });
         }
 
         private ICommand MakeCreateCommand()
@@ -58,7 +66,11 @@ namespace PipServices.Rpc.Commands
                 "create_dummy",
                 new ObjectSchema()
                     .WithRequiredProperty("dummy", new DummySchema()),
-                CreateDummy);
+                async (correlationId, args) => 
+                {
+                    var dummy = ExtractDummy(args);
+                    return await _controller.CreateAsync(correlationId, dummy);
+                });
         }
 
         private ICommand MakeUpdateCommand()
@@ -67,7 +79,11 @@ namespace PipServices.Rpc.Commands
                 "update_dummy",
                 new ObjectSchema()
                     .WithRequiredProperty("dummy", new DummySchema()),
-                UpdateDummy);
+                async (correlationId, args) =>
+                {
+                    var dummy = ExtractDummy(args);
+                    return await _controller.UpdateAsync(correlationId, dummy);
+                });
         }
 
         private ICommand MakeDeleteByIdCommand()
@@ -76,7 +92,12 @@ namespace PipServices.Rpc.Commands
                 "delete_dummy",
                 new ObjectSchema()
                     .WithRequiredProperty("dummy_id", Commons.Convert.TypeCode.String),
-                DeleteDummy);
+                async (correlationId, args) => 
+                {
+                    var dummyId = args.GetAsString("dummy_id");
+
+                    return await _controller.DeleteByIdAsync(correlationId, dummyId);
+                });
         }
 
         private ICommand MakeCreateWithoutValidationCommand()
@@ -108,9 +129,9 @@ namespace PipServices.Rpc.Commands
             return new Command(
                 "raise_exception",
                 new ObjectSchema(),
-                (correlationId, parameters) =>
+                async (correlationId, parameters) =>
                 {
-                    _controller.RaiseException(correlationId);
+                    await _controller.RaiseExceptionAsync(correlationId);
                     return null;
                 });
         }
@@ -126,46 +147,6 @@ namespace PipServices.Rpc.Commands
                 });
         }
 
-        #endregion
-
-        #region Helper Methods
-
-        private Task<object> GetDummies(string correlationId, Parameters args)
-        {
-            var filter = FilterParams.FromValue(args.Get("filter"));
-            var paging = PagingParams.FromValue(args.Get("paging"));
-
-            return Convert(Task.FromResult(_controller.GetPageByFilter(correlationId, filter, paging)));
-        }
-
-        private Task<object> GetOneDummy(string correlationId, Parameters args)
-        {
-            var dummyId = args.GetAsString("dummy_id");
-
-            return Convert(Task.FromResult(_controller.GetOneById(correlationId, dummyId)));
-        }
-
-        private Task<object> CreateDummy(string correlationId, Parameters args)
-        {
-            var dummy = ExtractDummy(args);
-
-            return Convert(Task.FromResult(_controller.Create(correlationId, dummy)));
-        }
-
-        private Task<object> UpdateDummy(string correlationId, Parameters args)
-        {
-            var dummy = ExtractDummy(args);
-
-            return Convert(Task.FromResult(_controller.Update(correlationId, dummy)));
-        }
-
-        private Task<object> DeleteDummy(string correlationId, Parameters args)
-        {
-            var dummyId = args.GetAsString("dummy_id");
-
-            return Convert(Task.FromResult(_controller.DeleteById(correlationId, dummyId)));
-        }
-
         private static Dummy ExtractDummy(Parameters args)
         {
             var map = args.GetAsMap("dummy");
@@ -178,18 +159,6 @@ namespace PipServices.Rpc.Commands
             var dummy = new Dummy(id, key, content, flag);
             return dummy;
         }
-
-        private async Task<object> Convert<T>(Task<T> task)
-        {
-            return await task;
-        }
-
-        private async Task<object> Convert(Task task)
-        {
-            return await task.ContinueWith(obj => { return new object(); });
-        }
-
-        #endregion
 
     }
 }
