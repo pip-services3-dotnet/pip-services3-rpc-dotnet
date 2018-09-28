@@ -8,14 +8,60 @@ using PipServices.Components.Connect;
 
 namespace PipServices.Rpc.Connect
 {
+    /// <summary>
+    /// Helper class to retrieve connections for HTTP-based services abd clients.
+    /// 
+    /// In addition to regular functions of ConnectionResolver is able to parse http:// URIs
+    /// and validate connection parameters before returning them.
+    /// 
+    /// ### Configuration parameters ###
+    /// 
+    /// connection:    
+    /// discovery_key:               (optional) a key to retrieve the connection from IDiscovery
+    /// ...                          other connection parameters
+    /// 
+    /// connections:                   alternative to connection
+    /// [connection params 1]:       first connection parameters
+    /// ...
+    /// [connection params N]:       Nth connection parameters
+    /// ...
+    /// 
+    /// ### References ###
+    /// 
+    /// - *:discovery:*:*:1.0            (optional) IDiscovery services
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// var config = ConfigParams.fromTuples(
+    /// "connection.host", "10.1.1.100",
+    /// "connection.port", 8080 );
+    /// 
+    /// var connectionResolver = new HttpConnectionResolver();
+    /// connectionResolver.Configure(config);
+    /// connectionResolver.SetReferences(references);
+    /// 
+    /// var params = connectionResolver.ResolveAsync("123");
+    /// </code>
+    /// </example>
     public class HttpConnectionResolver : IReferenceable, IConfigurable {
+        /// <summary>
+        /// The base connection resolver.
+        /// </summary>
         protected ConnectionResolver _connectionResolver = new ConnectionResolver();
 
+        /// <summary>
+        /// Sets references to dependent components.
+        /// </summary>
+        /// <param name="references">references to locate the component dependencies.</param>
         public void SetReferences(IReferences references)
         {
             _connectionResolver.SetReferences(references);
         }
 
+        /// <summary>
+        /// Configures component by passing configuration parameters.
+        /// </summary>
+        /// <param name="config">configuration parameters to be set.</param>
         public void Configure(ConfigParams config)
         {
             _connectionResolver.Configure(config);
@@ -65,6 +111,12 @@ namespace PipServices.Rpc.Connect
             }
         }
 
+        /// <summary>
+        /// Resolves a single component connection. If connections are configured to be
+        /// retrieved from Discovery service it finds a IDiscovery and resolves the connection there.
+        /// </summary>
+        /// <param name="correlationId">(optional) transaction id to trace execution through call chain.</param>
+        /// <returns>resolved connection.</returns>
         public async Task<ConnectionParams> ResolveAsync(string correlationId)
         {
             var connection = await _connectionResolver.ResolveAsync(correlationId);
@@ -73,6 +125,12 @@ namespace PipServices.Rpc.Connect
             return connection;
         }
 
+        /// <summary>
+        /// Resolves all component connection. If connections are configured to be
+        /// retrieved from Discovery service it finds a IDiscovery and resolves the connection there.
+        /// </summary>
+        /// <param name="correlationId">(optional) transaction id to trace execution through call chain.</param>
+        /// <returns>resolved connections.</returns>
         public async Task<List<ConnectionParams>> ResolveAllAsync(string correlationId)
         {
             var connections = await _connectionResolver.ResolveAllAsync(correlationId);
@@ -84,6 +142,11 @@ namespace PipServices.Rpc.Connect
             return connections;
         }
 
+        /// <summary>
+        /// Registers the given connection in all referenced discovery services. This
+        /// method can be used for dynamic service discovery.
+        /// </summary>
+        /// <param name="correlationId">(optional) transaction id to trace execution through call chain.</param>
         public async Task RegisterAsync(string correlationId)
         {
             var connection = await _connectionResolver.ResolveAsync(correlationId);

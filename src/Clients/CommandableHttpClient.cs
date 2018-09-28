@@ -4,27 +4,78 @@ using System.Threading.Tasks;
 namespace PipServices.Rpc.Clients
 {
     /// <summary>
-    /// Commandable HTTP Client
+    /// Abstract client that calls commandable HTTP service.
+    /// Commandable services are generated automatically for ICommandable objects. 
+    /// Each command is exposed as POST operation that receives all parameters
+    /// in body object.
+    /// 
+    /// ### Configuration parameters ###
+    /// 
+    /// base_route:              base route for remote URI
+    /// connection(s):           
+    /// discovery_key:         (optional) a key to retrieve the connection from IDiscovery
+    /// protocol:              connection protocol: http or https
+    /// host:                  host name or IP address
+    /// port:                  port number
+    /// uri:                   resource URI or connection string with all parameters in it
+    /// options:
+    /// retries:               number of retries (default: 3)
+    /// connect_timeout:       connection timeout in milliseconds(default: 10 sec)
+    /// timeout:               invocation timeout in milliseconds(default: 10 sec)
+    /// 
+    /// ### References ###
+    /// 
+    /// - *:logger:*:*:1.0         (optional) ILogger components to pass log messages
+    /// - *:counters:*:*:1.0         (optional) ICounters components to pass collected measurements
+    /// - *:discovery:*:*:1.0        (optional) IDiscovery services to resolve connection
     /// </summary>
-    /// <seealso cref="PipServices.Rpc.Rest.RestClient" />
+    /// <example>
+    /// <code>
+    /// class MyCommandableHttpClient: CommandableHttpClient, IMyClient 
+    /// {
+    ///     ...
+    ///     public MyData GetData(string correlationId, string id)
+    ///     {
+    ///         return await CallCommandAsync<DataPage<MyData>>(        
+    ///         "get_data",
+    ///         correlationId,
+    ///         new {mydata.id = id}
+    ///     );        
+    ///     }
+    /// ...
+    /// }
+    /// 
+    /// var client = new MyCommandableHttpClient();
+    /// client.Configure(ConfigParams.fromTuples(
+    /// "connection.protocol", "http",
+    /// "connection.host", "localhost",
+    /// "connection.port", 8080 ));
+    /// 
+    /// var data = client.GetData("123", "1");
+    /// ...
+    /// </code>
+    /// </example>
     public class CommandableHttpClient : RestClient
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="CommandableHttpClient"/> class.
+        /// Creates a new instance of the client.
         /// </summary>
-        /// <param name="baseRoute">The base route.</param>
+        /// <param name="baseRoute">a base route for remote service.</param>
         public CommandableHttpClient(string baseRoute)
         {
             _baseRoute = baseRoute;
         }
 
         /// <summary>
-        /// Calls the command.
+        /// Calls a remote method via HTTP commadable protocol. The call is made via POST
+        /// operation and all parameters are sent in body object. The complete route to
+        /// remote method is defined as baseRoute + "/" + name.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="route">The command route.</param>
-        /// <param name="correlationId">The correlation identifier.</param>
-        /// <param name="requestEntity">The request entity.</param>
+        /// <typeparam name="T">the class type</typeparam>
+        /// <param name="route">a name of the command to call.</param>
+        /// <param name="correlationId">(optional) transaction id to trace execution through call chain.</param>
+        /// <param name="requestEntity">body object.</param>
+        /// <returns>result of the command.</returns>
         public Task<T> CallCommandAsync<T>(string route, string correlationId, object requestEntity)
             where T : class
         {

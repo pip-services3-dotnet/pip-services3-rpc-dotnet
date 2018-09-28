@@ -18,6 +18,44 @@ using PipServices.Rpc.Connect;
 
 namespace PipServices.Rpc.Services
 {
+    /// <summary>
+    /// Used for creating HTTP endpoints. An endpoint is a URL, at which a given service can be accessed by a client. 
+    /// 
+    /// ### Configuration parameters ###
+    /// 
+    /// Parameters to pass to the configure() method for component configuration:
+    /// 
+    /// - __connection(s)__ - the connection resolver's connections;
+    /// - "connection.discovery_key" - the key to use for connection resolving in a discovery service;
+    /// - "connection.protocol" - the connection's protocol;
+    /// - "connection.host" - the target host;
+    /// - "connection.port" - the target port;
+    /// - "connection.uri" - the target URI.
+    /// 
+    /// ### References ###
+    /// 
+    /// A logger, counters, and a connection resolver can be referenced by passing the
+    /// following references to the object's setReferences() method:
+    /// 
+    /// - logger: <code>"\*:logger:\*:\*:1.0"</code>;
+    /// - counters: <code>"\*:counters:\*:\*:1.0"</code>;
+    /// - discovery: <code>"\*:discovery:\*:\*:1.0"</code> (for the connection resolver).
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// public MyMethod(string correlationId, ConfigParams _config, IReferences _references) 
+    /// {
+    ///     var endpoint = new HttpEndpoint();
+    ///     if (this._config)
+    ///         endpoint.Configure(this._config);
+    ///     if (this._references)
+    ///         endpoint.SetReferences(this._references);
+    ///     ...
+    ///     this._endpoint.Open(correlationId);
+    ///     ...
+    /// }
+    /// </code>
+    /// </example>
     public class HttpEndpoint : IOpenable, IConfigurable, IReferenceable
     {
         private static readonly ConfigParams _defaultConfig = ConfigParams.FromTuples(
@@ -25,7 +63,7 @@ namespace PipServices.Rpc.Services
             "connection.host", "0.0.0.0",
             "connection.port", 3000,
 
-            "options.request_max_size", 1024*1024,
+            "options.request_max_size", 1024 * 1024,
             "options.connect_timeout", 60000,
             "options.debug", true
         );
@@ -41,6 +79,15 @@ namespace PipServices.Rpc.Services
 
         private IList<IRegisterable> _registrations = new List<IRegisterable>();
 
+        /// <summary>
+        /// Sets references to this endpoint's logger, counters, and connection resolver.
+        /// 
+        /// __References:__ - logger: <code>"\*:logger:\*:\*:1.0"</code> - counters:
+        /// <code>"\*:counters:\*:\*:1.0"</code> - discovery:
+        /// <code>"\*:discovery:\*:\*:1.0"</code> (for the connection resolver)
+        /// </summary>
+        /// <param name="references">an IReferences object, containing references to a logger, 
+        /// counters, and a connection resolver.</param>
         public virtual void SetReferences(IReferences references)
         {
             _logger.SetReferences(references);
@@ -49,6 +96,17 @@ namespace PipServices.Rpc.Services
             _connectionResolver.SetReferences(references);
         }
 
+        /// <summary>
+        /// Configures this HttpEndpoint using the given configuration parameters.
+        /// 
+        /// __Configuration parameters:__ - __connection(s)__ - the connection resolver's
+        /// connections; - "connection.discovery_key" - the key to use for connection
+        /// resolving in a discovery service; - "connection.protocol" - the connection's
+        /// protocol; - "connection.host" - the target host; - "connection.port" - the
+        /// target port; - "connection.uri" - the target URI.
+        /// </summary>
+        /// <param name="config">configuration parameters, containing a "connection(s)" section.</param>
+        /// See <see cref="ConfigParams"/>
         public virtual void Configure(ConfigParams config)
         {
             config = config.SetDefaults(_defaultConfig);
@@ -56,17 +114,33 @@ namespace PipServices.Rpc.Services
             _connectionResolver.Configure(config);
         }
 
+        /// <summary>
+        /// Adds instrumentation to log calls and measure call time. It returns a Timing 
+        /// object that is used to end the time measurement.
+        /// </summary>
+        /// <param name="correlationId">(optional) transaction id to trace execution through call chain.</param>
+        /// <param name="name">a method name.</param>
+        /// <returns>Timing object to end the time measurement.</returns>
         protected Timing Instrument(string correlationId, string name)
         {
             _logger.Trace(correlationId, "Executing {0} method", name);
             return _counters.BeginTiming(name + ".exec_time");
         }
 
+        /// <summary>
+        /// Checks if the component is opened.
+        /// </summary>
+        /// <returns>whether or not this endpoint is open with an actively listening REST server.</returns>
         public virtual bool IsOpen()
         {
             return _server != null;
         }
 
+        /// <summary>
+        /// Opens a connection using the parameters resolved by the referenced connection
+        /// resolver and creates a REST server(service) using the set options and parameters.
+        /// </summary>
+        /// <param name="correlationId">(optional) transaction id to trace execution through call chain.</param>
         public async virtual Task OpenAsync(string correlationId)
         {
             if (IsOpen()) return;
@@ -106,6 +180,10 @@ namespace PipServices.Rpc.Services
             }
         }
 
+        /// <summary>
+        /// Closes this endpoint and the REST server (service) that was opened earlier.
+        /// </summary>
+        /// <param name="correlationId">(optional) transaction id to trace execution through call chain.</param>
         public virtual Task CloseAsync(string correlationId)
         {
             if (_server != null)
@@ -131,7 +209,8 @@ namespace PipServices.Rpc.Services
         private void ConfigureServices(IServiceCollection services)
         {
             services.AddRouting();
-            services.AddCors(cors => cors.AddPolicy("CorsPolicy", builder => {
+            services.AddCors(cors => cors.AddPolicy("CorsPolicy", builder =>
+            {
                 builder.AllowAnyHeader()
                        .AllowAnyMethod()
                        .AllowAnyOrigin();
@@ -155,16 +234,30 @@ namespace PipServices.Rpc.Services
             _routeBuilder = null;
         }
 
+        /// <summary>
+        /// Registers a registerable object for dynamic endpoint discovery.
+        /// </summary>
+        /// <param name="registration">the registration to add.</param>
         public void Register(IRegisterable registration)
         {
             _registrations.Add(registration);
         }
 
+        /// <summary>
+        /// Unregisters a registerable object, so that it is no longer used in dynamic endpoint discovery.
+        /// </summary>
+        /// <param name="registration">the registration to remove.</param>
         public void Unregister(IRegisterable registration)
         {
             _registrations.Remove(registration);
         }
 
+        /// <summary>
+        /// Registers an action in this objects REST server (service) by the given method and route.
+        /// </summary>
+        /// <param name="method">the HTTP method of the route.</param>
+        /// <param name="route">the route to register in this object's REST server (service).</param>
+        /// <param name="action">the action to perform at the given route.</param>
         public void RegisterRoute(string method, string route,
              Func<HttpRequest, HttpResponse, RouteData, Task> action)
         {

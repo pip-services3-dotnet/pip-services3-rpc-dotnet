@@ -7,8 +7,17 @@ using PipServices.Commons.Errors;
 
 namespace PipServices.Rpc.Services
 {
+    /// <summary>
+    /// Helper class that handles HTTP-based responses.
+    /// </summary>
     public static class HttpResponseSender
     {
+        /// <summary>
+        /// Sends error serialized as ErrorDescription object and appropriate HTTP status
+        /// code.If status code is not defined, it uses 500 status code.
+        /// </summary>
+        /// <param name="response">a Http response</param>
+        /// <param name="ex">an error object to be sent.</param>
         public static async Task SendErrorAsync(HttpResponse response, Exception ex)
         {
             // Unwrap exception
@@ -35,6 +44,15 @@ namespace PipServices.Rpc.Services
             }
         }
 
+        /// <summary>
+        /// Creates a callback function that sends result as JSON object. That callack
+        /// function call be called directly or passed as a parameter to business logic components.
+        /// 
+        /// If object is not null it returns 200 status code. For null results it returns
+        /// 204 status code. If error occur it sends ErrorDescription with approproate status code.
+        /// </summary>
+        /// <param name="response">a Http response</param>
+        /// <param name="result">a body object to result.</param>
         public static async Task SendResultAsync(HttpResponse response, object result)
         {
             if (result == null)
@@ -50,6 +68,11 @@ namespace PipServices.Rpc.Services
             }
         }
 
+        /// <summary>
+        /// Creates a callback function that sends an empty result with 204 status code.
+        /// If error occur it sends ErrorDescription with approproate status code.
+        /// </summary>
+        /// <param name="response">aHttp response</param>
         public static async Task SendEmptyResultAsync(HttpResponse response)
         {
             response.ContentType = "application/json";
@@ -57,6 +80,15 @@ namespace PipServices.Rpc.Services
             await Task.Delay(0);
         }
 
+        /// <summary>
+        /// Creates a callback function that sends newly created object as JSON. That
+        /// callack function call be called directly or passed as a parameter to business logic components.
+        /// 
+        /// If object is not null it returns 201 status code. For null results it returns
+        /// 204 status code. If error occur it sends ErrorDescription with approproate status code.
+        /// </summary>
+        /// <param name="response">a Http response</param>
+        /// <param name="result">a body object to created result</param>
         public static async Task SendCreatedResultAsync(HttpResponse response, object result)
         {
             if (result == null)
@@ -72,6 +104,15 @@ namespace PipServices.Rpc.Services
             }
         }
 
+        /// <summary>
+        /// Creates a callback function that sends deleted object as JSON. That callack
+        /// function call be called directly or passed as a parameter to business logic components.
+        /// 
+        /// If object is not null it returns 200 status code. For null results it returns
+        /// 204 status code. If error occur it sends ErrorDescription with approproate status code.
+        /// </summary>
+        /// <param name="response">a Http response</param>
+        /// <param name="result">a body object to deleted result</param>
         public static async Task SendDeletedResultAsync(HttpResponse response, object result)
         {
             if (result == null)

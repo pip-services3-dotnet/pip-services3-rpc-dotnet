@@ -18,6 +18,55 @@ using PipServices.Rpc.Connect;
 
 namespace PipServices.Rpc.Clients
 {
+    /// <summary>
+    /// Abstract client that calls remove endpoints using HTTP/REST protocol.
+    /// 
+    /// ### Configuration parameters ###
+    /// 
+    /// base_route:              base route for remote URI
+    /// connection(s):           
+    /// discovery_key:         (optional) a key to retrieve the connection from IDiscovery
+    /// protocol:              connection protocol: http or https
+    /// host:                  host name or IP address
+    /// port:                  port number
+    /// uri:                   resource URI or connection string with all parameters in it 
+    /// options:
+    /// retries:               number of retries(default: 3)
+    /// connect_timeout:       connection timeout in milliseconds(default: 10 sec)
+    /// timeout:               invocation timeout in milliseconds(default: 10 sec)
+    /// 
+    /// ### References ###
+    /// 
+    /// - *:logger:*:*:1.0         (optional) ILogger components to pass log messages
+    /// - *:counters:*:*:1.0         (optional) ICounters components to pass collected measurements
+    /// - *:discovery:*:*:1.0        (optional) IDiscovery services to resolve connection
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// class MyRestClient: RestClient, IMyClient 
+    /// {
+    ///     ...
+    /// 
+    ///     public MyData GetData(string correlationId, string id)
+    ///     {
+    ///         var timing = this.Instrument(correlationId, 'myclient.get_data');
+    ///         var result = this.ExecuteAsync<MyData>(correlationId, HttpMethod.Post, "/get_data", new MyData(id));
+    ///         timing.EndTiming();
+    ///         return result;        
+    ///     }
+    ///     ...
+    /// }
+    /// 
+    /// var client = new MyRestClient();
+    /// client.Configure(ConfigParams.fromTuples(
+    /// "connection.protocol", "http",
+    /// "connection.host", "localhost",
+    /// "connection.port", 8080 ));
+    /// 
+    /// var data = client.GetData("123", "1");
+    /// ...
+    /// </code>
+    /// </example>
     public class RestClient : IOpenable, IConfigurable, IReferenceable
     {
         private static readonly ConfigParams _defaultConfig = ConfigParams.FromTuples(
@@ -31,16 +80,44 @@ namespace PipServices.Rpc.Clients
             "options.debug", true
         );
 
+        /// <summary>
+        /// The connection resolver.
+        /// </summary>
         protected HttpConnectionResolver _connectionResolver = new HttpConnectionResolver();
+        /// <summary>
+        /// The logger.
+        /// </summary>
         protected CompositeLogger _logger = new CompositeLogger();
+        /// <summary>
+        /// The performance counters.
+        /// </summary>
         protected CompositeCounters _counters = new CompositeCounters();
+        /// <summary>
+        /// The configuration options.
+        /// </summary>
         protected ConfigParams _options = new ConfigParams();
+        /// <summary>
+        /// The base route.
+        /// </summary>
         protected string _baseRoute;
+        /// <summary>
+        /// The number of retries.
+        /// </summary>
         protected int _retries = 1;
 
+        /// <summary>
+        /// The HTTP client.
+        /// </summary>
         protected HttpClient _client;
+        /// <summary>
+        /// The remote service uri which is calculated on open.
+        /// </summary>
         protected string _address;
 
+        /// <summary>
+        /// Configures component by passing configuration parameters.
+        /// </summary>
+        /// <param name="config">configuration parameters to be set.</param>
         public virtual void Configure(ConfigParams config)
         {
             config = config.SetDefaults(_defaultConfig);
@@ -52,6 +129,10 @@ namespace PipServices.Rpc.Clients
             _baseRoute = config.GetAsStringWithDefault("base_route", _baseRoute);
         }
 
+        /// <summary>
+        /// Sets references to dependent components.
+        /// </summary>
+        /// <param name="references">references to locate the component dependencies.</param>
         public virtual void SetReferences(IReferences references)
         {
             _connectionResolver.SetReferences(references);
@@ -59,6 +140,13 @@ namespace PipServices.Rpc.Clients
             _counters.SetReferences(references);
         }
 
+        /// <summary>
+        /// Adds instrumentation to log calls and measure call time. It returns a Timing
+        /// object that is used to end the time measurement.
+        /// </summary>
+        /// <param name="correlationId">(optional) transaction id to trace execution through call chain.</param>
+        /// <param name="methodName">a method name.</param>
+        /// <returns>Timing object to end the time measurement.</returns>
         protected Timing Instrument(string correlationId, [CallerMemberName]string methodName = null)
         {
             var typeName = GetType().Name;
@@ -66,11 +154,19 @@ namespace PipServices.Rpc.Clients
             return _counters.BeginTiming(typeName + "." + methodName + ".call_time");
         }
 
+        /// <summary>
+        /// Checks if the component is opened.
+        /// </summary>
+        /// <returns>true if the component has been opened and false otherwise.</returns>
         public virtual bool IsOpen()
         {
             return _client != null;
         }
 
+        /// <summary>
+        /// Opens the component.
+        /// </summary>
+        /// <param name="correlationId">(optional) transaction id to trace execution through call chain.</param>
         public async virtual Task OpenAsync(string correlationId)
         {
             var connection = await _connectionResolver.ResolveAsync(correlationId);
@@ -95,6 +191,10 @@ namespace PipServices.Rpc.Clients
             _logger.Debug(correlationId, "Connected via REST to {0}", _address);
         }
 
+        /// <summary>
+        /// Closes component and frees used resources.
+        /// </summary>
+        /// <param name="correlationId">(optional) transaction id to trace execution through call chain.</param>
         public virtual Task CloseAsync(string correlationId)
         {
             _client?.Dispose();
@@ -154,6 +254,12 @@ namespace PipServices.Rpc.Clients
             return builder.ToString();
         }
 
+        /// <summary>
+        /// Adds a correlation id (correlation_id) to invocation parameter map.
+        /// </summary>
+        /// <param name="route">invocation parameters.</param>
+        /// <param name="correlationId">(optional) a correlation id to be added.</param>
+        /// <returns>invocation parameters with added correlation id.</returns>
         protected string AddCorrelationId(string route, string correlationId)
         {
             var pos = route.IndexOf('?');
@@ -166,6 +272,12 @@ namespace PipServices.Rpc.Clients
             return path + "?" + query;
         }
 
+        /// <summary>
+        /// Adds filter parameters (with the same name as they defined) to invocation parameter map.
+        /// </summary>
+        /// <param name="route">invocation parameters.</param>
+        /// <param name="filter">(optional) filter parameters</param>
+        /// <returns>invocation parameters with added filter parameters.</returns>
         protected string AddFilterParams(string route, FilterParams filter)
         {
             var pos = route.IndexOf('?');
@@ -183,6 +295,12 @@ namespace PipServices.Rpc.Clients
             return path + "?" + query;
         }
 
+        /// <summary>
+        /// Adds paging parameters (skip, take, total) to invocation parameter map.
+        /// </summary>
+        /// <param name="route">invocation parameters.</param>
+        /// <param name="paging">(optional) paging parameters</param>
+        /// <returns>invocation parameters with added paging parameters.</returns>
         protected string AddPagingParams(string route, PagingParams paging)
         {
             var pos = route.IndexOf('?');
@@ -271,6 +389,12 @@ namespace PipServices.Rpc.Clients
             return result;
         }
 
+        /// <summary>
+        /// Executes a remote method via HTTP/REST protocol.
+        /// </summary>
+        /// <param name="correlationId">(optional) transaction id to trace execution through call chain.</param>
+        /// <param name="method">HTTP method: "get", "head", "post", "put", "delete"</param>
+        /// <param name="route">a command route. Base route will be added to this route</param>
         protected async Task ExecuteAsync(string correlationId, HttpMethod method, string route)
         {
             route = AddCorrelationId(route, correlationId);
@@ -279,6 +403,13 @@ namespace PipServices.Rpc.Clients
             await ExecuteRequestAsync(correlationId, method, uri);
         }
 
+        /// <summary>
+        /// Executes a remote method via HTTP/REST protocol.
+        /// </summary>
+        /// <param name="correlationId">(optional) transaction id to trace execution through call chain.</param>
+        /// <param name="method">HTTP method: "get", "head", "post", "put", "delete"</param>
+        /// <param name="route">a command route. Base route will be added to this route</param>
+        /// <param name="requestEntity">request body object.</param>
         protected async Task ExecuteAsync(string correlationId, HttpMethod method, string route, object requestEntity)
         {
             route = AddCorrelationId(route, correlationId);
@@ -304,6 +435,14 @@ namespace PipServices.Rpc.Clients
             }
         }
 
+        /// <summary>
+        /// Executes a remote method via HTTP/REST protocol.
+        /// </summary>
+        /// <typeparam name="T">the class type</typeparam>
+        /// <param name="correlationId">(optional) transaction id to trace execution through call chain.</param>
+        /// <param name="method">HTTP method: "get", "head", "post", "put", "delete"</param>
+        /// <param name="route">a command route. Base route will be added to this route</param>
+        /// <returns>result object.</returns>
         protected async Task<T> ExecuteAsync<T>(string correlationId, HttpMethod method, string route)
             where T : class
         {
@@ -342,6 +481,15 @@ namespace PipServices.Rpc.Clients
             }
         }
 
+        /// <summary>
+        /// Executes a remote method via HTTP/REST protocol.
+        /// </summary>
+        /// <typeparam name="T">the class type</typeparam>
+        /// <param name="correlationId">(optional) transaction id to trace execution through call chain.</param>
+        /// <param name="method">HTTP method: "get", "head", "post", "put", "delete"</param>
+        /// <param name="route">a command route. Base route will be added to this route</param>
+        /// <param name="requestEntity">request body object.</param>
+        /// <returns>result object.</returns>
         protected async Task<T> ExecuteAsync<T>(
             string correlationId, HttpMethod method, string route, object requestEntity)
             where T : class
