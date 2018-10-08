@@ -190,9 +190,9 @@ Static Private Attributes</h2></td></tr>
 <h3>References</h3>
 <p>A logger, counters, and a connection resolver can be referenced by passing the following references to the object's setReferences() method:</p>
 <ul>
-<li>logger: <code>"\*:logger:\*:\*:1.0"</code>;</li>
-<li>counters: <code>"\*:counters:\*:\*:1.0"</code>;</li>
-<li>discovery: <code>"\*:discovery:\*:\*:1.0"</code> (for the connection resolver). </li>
+<li>logger: <code>"*:logger:*:*:1.0"</code>;</li>
+<li>counters: <code>"*:counters:*:*:1.0"</code>;</li>
+<li>discovery: <code>"*:discovery:*:*:1.0"</code> (for the connection resolver). </li>
 </ul>
 <div class="fragment"><div class="line"><span class="keyword">public</span> MyMethod(<span class="keywordtype">string</span> correlationId, ConfigParams _config, IReferences _references) </div><div class="line">{</div><div class="line">    var endpoint = <span class="keyword">new</span> HttpEndpoint();</div><div class="line">    <span class="keywordflow">if</span> (this._config)</div><div class="line">        endpoint.Configure(this._config);</div><div class="line">    <span class="keywordflow">if</span> (this._references)</div><div class="line">        endpoint.SetReferences(this._references);</div><div class="line">    ...</div><div class="line">    this._endpoint.Open(correlationId);</div><div class="line">    ...</div><div class="line">}</div></div><!-- fragment --> </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="ac807a5b734fd2a0ee86e90e9fc328ffe"></a>

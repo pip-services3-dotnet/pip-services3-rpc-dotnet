@@ -37,9 +37,9 @@ namespace PipServices.Rpc.Services
     /// A logger, counters, and a connection resolver can be referenced by passing the
     /// following references to the object's setReferences() method:
     /// 
-    /// - logger: <code>"\*:logger:\*:\*:1.0"</code>;
-    /// - counters: <code>"\*:counters:\*:\*:1.0"</code>;
-    /// - discovery: <code>"\*:discovery:\*:\*:1.0"</code> (for the connection resolver).
+    /// - logger: <code>"*:logger:*:*:1.0"</code>;
+    /// - counters: <code>"*:counters:*:*:1.0"</code>;
+    /// - discovery: <code>"*:discovery:*:*:1.0"</code> (for the connection resolver).
     /// </summary>
     /// <example>
     /// <code>

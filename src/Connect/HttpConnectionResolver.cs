@@ -16,7 +16,7 @@ namespace PipServices.Rpc.Connect
     /// 
     /// ### Configuration parameters ###
     /// 
-    /// connection:    
+    /// connection:
     /// - discovery_key:               (optional) a key to retrieve the connection from <a href="https://rawgit.com/pip-services-dotnet/pip-services-components-dotnet/master/doc/api/interface_pip_services_1_1_components_1_1_connect_1_1_i_discovery.html">IDiscovery</a>
     /// - ...                          other connection parameters
     /// 
