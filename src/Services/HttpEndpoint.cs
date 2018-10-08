@@ -23,9 +23,9 @@ namespace PipServices.Rpc.Services
     /// 
     /// ### Configuration parameters ###
     /// 
-    /// Parameters to pass to the configure() method for component configuration:
+    /// Parameters to pass to the <c>Configure()</c> method for component configuration:
     /// 
-    /// - __connection(s)__ - the connection resolver's connections;
+    /// connection(s) - the connection resolver's connections;
     /// - "connection.discovery_key" - the key to use for connection resolving in a discovery service;
     /// - "connection.protocol" - the connection's protocol;
     /// - "connection.host" - the target host;

@@ -18,12 +18,12 @@ namespace PipServices.Rpc.Clients
     /// ### Configuration parameters ###
     /// 
     /// dependencies:
-    /// controller:            override controller descriptor
+    /// - controller:            override controller descriptor
     /// 
     /// ### References ###
     /// 
-    /// - *:logger:*:*:1.0         (optional) ILogger components to pass log messages
-    /// - *:counters:*:*:1.0       (optional) ICounters components to pass collected measurements
+    /// - *:logger:*:*:1.0         (optional) <a href="https://rawgit.com/pip-services-dotnet/pip-services-components-dotnet/master/doc/api/interface_pip_services_1_1_components_1_1_log_1_1_i_logger.html">ILogger</a> components to pass log messages
+    /// - *:counters:*:*:1.0         (optional) <a href="https://rawgit.com/pip-services-dotnet/pip-services-components-dotnet/master/doc/api/interface_pip_services_1_1_components_1_1_count_1_1_i_counters.html">ICounters</a> components to pass collected measurements
     /// - *:controller:*:*:1.0     controller to call business methods
     /// </summary>
     /// <typeparam name="T">the class type</typeparam>

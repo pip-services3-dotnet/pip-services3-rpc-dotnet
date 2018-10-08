@@ -134,11 +134,18 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>UpdateConnection</b> 
 <p>In addition to regular functions of ConnectionResolver is able to parse <a href="http://">http://</a> URIs and validate connection parameters before returning them.</p>
 <h3>Configuration parameters</h3>
 <p>connection: <br />
-discovery_key: (optional) a key to retrieve the connection from IDiscovery ... other connection parameters</p>
-<p>connections: alternative to connection [connection params 1]: first connection parameters ... [connection params N]: Nth connection parameters ...</p>
+- discovery_key: (optional) a key to retrieve the connection from <a href="https://rawgit.com/pip-services-dotnet/pip-services-components-dotnet/master/doc/api/interface_pip_services_1_1_components_1_1_connect_1_1_i_discovery.html">IDiscovery</a></p><ul>
+<li>... other connection parameters</li>
+</ul>
+<p>connections: alternative to connection</p><ul>
+<li>[connection params 1]: first connection parameters</li>
+<li>...</li>
+<li>[connection params N]: Nth connection parameters</li>
+<li>...</li>
+</ul>
 <h3>References</h3>
 <ul>
-<li>*:discovery:*:*:1.0 (optional) IDiscovery services </li>
+<li>*:discovery:*:*:1.0 (optional) <a href="https://rawgit.com/pip-services-dotnet/pip-services-components-dotnet/master/doc/api/interface_pip_services_1_1_components_1_1_connect_1_1_i_discovery.html">IDiscovery</a> services </li>
 </ul>
 <div class="fragment"><div class="line">var config = ConfigParams.fromTuples(</div><div class="line"><span class="stringliteral">&quot;connection.host&quot;</span>, <span class="stringliteral">&quot;10.1.1.100&quot;</span>,</div><div class="line"><span class="stringliteral">&quot;connection.port&quot;</span>, 8080 );</div><div class="line"></div><div class="line">var connectionResolver = <span class="keyword">new</span> HttpConnectionResolver();</div><div class="line">connectionResolver.Configure(config);</div><div class="line">connectionResolver.SetReferences(references);</div><div class="line"></div><div class="line">var params = connectionResolver.ResolveAsync(<span class="stringliteral">&quot;123&quot;</span>);</div></div><!-- fragment --> </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="af458f3a6fe33eec11654fe9199c4d515"></a>

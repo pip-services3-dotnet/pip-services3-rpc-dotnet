@@ -145,11 +145,13 @@ Protected Attributes</h2></td></tr>
 <div class="textblock"><p>Abstract client that calls controller directly in the same memory space. </p>
 <p>It is used when multiple microservices are deployed in a single container(monolyth) and communication between them can be done by direct calls rather then through the network.</p>
 <h3>Configuration parameters</h3>
-<p>dependencies: controller: override controller descriptor</p>
+<p>dependencies:</p><ul>
+<li>controller: override controller descriptor</li>
+</ul>
 <h3>References</h3>
 <ul>
-<li>*:logger:*:*:1.0 (optional) ILogger components to pass log messages</li>
-<li>*:counters:*:*:1.0 (optional) ICounters components to pass collected measurements</li>
+<li>*:logger:*:*:1.0 (optional) <a href="https://rawgit.com/pip-services-dotnet/pip-services-components-dotnet/master/doc/api/interface_pip_services_1_1_components_1_1_log_1_1_i_logger.html">ILogger</a> components to pass log messages</li>
+<li>*:counters:*:*:1.0 (optional) <a href="https://rawgit.com/pip-services-dotnet/pip-services-components-dotnet/master/doc/api/interface_pip_services_1_1_components_1_1_count_1_1_i_counters.html">ICounters</a> components to pass collected measurements</li>
 <li>*:controller:*:*:1.0 controller to call business methods </li>
 </ul>
 <dl class="tparams"><dt>Template Parameters</dt><dd>

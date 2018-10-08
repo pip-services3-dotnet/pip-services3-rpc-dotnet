@@ -184,14 +184,25 @@ Additional Inherited Members</h2></td></tr>
 <p>The service responds on /heartbeat route(can be changed) with a string with the current time in UTC.</p>
 <p>This service route can be used to health checks by loadbalancers and container orchestrators.</p>
 <h3>Configuration parameters</h3>
-<p>base_route: base route for remote URI(default: "") route: route to heartbeat operation(default: "heartbeat") dependencies: endpoint: override for HTTP Endpoint dependency connection(s): <br />
-discovery_key: (optional) a key to retrieve the connection from IDiscovery protocol: connection protocol: http or https host: host name or IP address port: port number uri: resource URI or connection string with all parameters in it</p>
+<ul>
+<li>base_route: base route for remote URI(default: "")</li>
+<li>route: route to heartbeat operation(default: "heartbeat")</li>
+</ul>
+<p>dependencies:</p><ul>
+<li>endpoint: override for HTTP Endpoint dependency</li>
+<li>connection(s): <br />
+- discovery_key: (optional) a key to retrieve the connection from <a href="https://rawgit.com/pip-services-dotnet/pip-services-components-dotnet/master/doc/api/interface_pip_services_1_1_components_1_1_connect_1_1_i_discovery.html">IDiscovery</a></li>
+<li>protocol: connection protocol: http or https</li>
+<li>host: host name or IP address</li>
+<li>port: port number</li>
+<li>uri: resource URI or connection string with all parameters in it</li>
+</ul>
 <h3>References</h3>
 <ul>
-<li>*:logger:*:*:1.0 (optional) ILogger components to pass log messages</li>
-<li>*:counters:*:*:1.0 (optional) ICounters components to pass collected measurements</li>
-<li>*:discovery:*:*:1.0 (optional) IDiscovery services to resolve connection</li>
-<li>*:endpoint:http:*:1.0 (optional) <a class="el" href="class_pip_services_1_1_rpc_1_1_services_1_1_http_endpoint.html" title="Used for creating HTTP endpoints. An endpoint is a URL, at which a given service can be accessed by a...">HttpEndpoint</a> reference </li>
+<li>*:logger:*:*:1.0 (optional) <a href="https://rawgit.com/pip-services-dotnet/pip-services-components-dotnet/master/doc/api/interface_pip_services_1_1_components_1_1_log_1_1_i_logger.html">ILogger</a> components to pass log messages</li>
+<li>*:counters:*:*:1.0 (optional) <a href="https://rawgit.com/pip-services-dotnet/pip-services-components-dotnet/master/doc/api/interface_pip_services_1_1_components_1_1_count_1_1_i_counters.html">ICounters</a> components to pass collected measurements</li>
+<li>*:discovery:*:*:1.0 (optional) <a href="https://rawgit.com/pip-services-dotnet/pip-services-components-dotnet/master/doc/api/interface_pip_services_1_1_components_1_1_connect_1_1_i_discovery.html">IDiscovery</a> services to resolve connection</li>
+<li>*:endpoint:http:*:1.0 (optional) <a href="https://rawgit.com/pip-services-dotnet/pip-services-rpc-dotnet/master/doc/api/class_pip_services_1_1_rpc_1_1_services_1_1_http_endpoint.html">HttpEndpoint</a> reference </li>
 </ul>
 <div class="fragment"><div class="line">var service = <span class="keyword">new</span> HeartbeatService();</div><div class="line">service.Configure(ConfigParams.fromTuples(</div><div class="line"><span class="stringliteral">&quot;route&quot;</span>, <span class="stringliteral">&quot;ping&quot;</span>,</div><div class="line"><span class="stringliteral">&quot;connection.protocol&quot;</span>, <span class="stringliteral">&quot;http&quot;</span>,</div><div class="line"><span class="stringliteral">&quot;connection.host&quot;</span>, <span class="stringliteral">&quot;localhost&quot;</span>,</div><div class="line"><span class="stringliteral">&quot;connection.port&quot;</span>, 8080 ));</div><div class="line"></div><div class="line">service.Open(<span class="stringliteral">&quot;123&quot;</span>);</div><div class="line">Console.Out.WriteLine(<span class="stringliteral">&quot;The Heartbeat service is accessible at http://+:8080/ping&quot;</span>);</div></div><!-- fragment --> </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="adc3dbc6e4ab522d7c53ebb67b13f4f2a"></a>

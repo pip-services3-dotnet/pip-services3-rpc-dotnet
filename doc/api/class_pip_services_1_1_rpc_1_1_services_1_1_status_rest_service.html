@@ -190,16 +190,40 @@ Additional Inherited Members</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Service that returns microservice status information via HTTP/REST protocol. </p>
-<p>The service responds on /status route(can be changed) with a JSON object: { "id": unique container id(usually hostname) "name": container name(from ContextInfo) "description": container description(from ContextInfo) "start_time": time when container was started "current_time": current time in UTC "uptime": duration since container start time in milliseconds "properties": additional container properties(from ContextInfo) "components": descriptors of components registered in the container }</p>
+<p>The service responds on /status route(can be changed) with a JSON object:</p>
+<p>{</p><ul>
+<li>"id": unique container id(usually hostname)</li>
+<li>"name": container name(from ContextInfo)</li>
+<li>"description": container description(from ContextInfo)</li>
+<li>"start_time": time when container was started</li>
+<li>"current_time": current time in UTC</li>
+<li>"uptime": duration since container start time in milliseconds</li>
+<li>"properties": additional container properties(from ContextInfo)</li>
+<li>"components": descriptors of components registered in the container</li>
+</ul>
+<p>}</p>
 <h3>Configuration parameters</h3>
-<p>base_route: base route for remote URI route: status route(default: "status") dependencies: endpoint: override for HTTP Endpoint dependency controller: override for Controller dependency connection(s): <br />
-discovery_key: (optional) a key to retrieve the connection from IDiscovery protocol: connection protocol: http or https host: host name or IP address port: port number uri: resource URI or connection string with all parameters in it</p>
+<ul>
+<li>base_route: base route for remote URI</li>
+<li>route: status route(default: "status")</li>
+</ul>
+<p>dependencies:</p><ul>
+<li>endpoint: override for HTTP Endpoint dependency</li>
+<li>controller: override for Controller dependency</li>
+</ul>
+<p>connection(s): <br />
+- discovery_key: (optional) a key to retrieve the connection from <a href="https://rawgit.com/pip-services-dotnet/pip-services-components-dotnet/master/doc/api/interface_pip_services_1_1_components_1_1_connect_1_1_i_discovery.html">IDiscovery</a></p><ul>
+<li>protocol: connection protocol: http or https</li>
+<li>host: host name or IP address</li>
+<li>port: port number</li>
+<li>uri: resource URI or connection string with all parameters in it</li>
+</ul>
 <h3>References</h3>
 <ul>
-<li>*:logger:*:*:1.0 (optional) ILogger components to pass log messages</li>
-<li>*:counters:*:*:1.0 (optional) ICounters components to pass collected measurements</li>
-<li>*:discovery:*:*:1.0 (optional) IDiscovery services</li>
-<li>*:endpoint:http:*:1.0 (optional) <a class="el" href="class_pip_services_1_1_rpc_1_1_services_1_1_http_endpoint.html" title="Used for creating HTTP endpoints. An endpoint is a URL, at which a given service can be accessed by a...">HttpEndpoint</a> reference </li>
+<li>*:logger:*:*:1.0 (optional) <a href="https://rawgit.com/pip-services-dotnet/pip-services-components-dotnet/master/doc/api/interface_pip_services_1_1_components_1_1_log_1_1_i_logger.html">ILogger</a> components to pass log messages</li>
+<li>*:counters:*:*:1.0 (optional) <a href="https://rawgit.com/pip-services-dotnet/pip-services-components-dotnet/master/doc/api/interface_pip_services_1_1_components_1_1_count_1_1_i_counters.html">ICounters</a> components to pass collected measurements</li>
+<li>*:discovery:*:*:1.0 (optional) <a href="https://rawgit.com/pip-services-dotnet/pip-services-components-dotnet/master/doc/api/interface_pip_services_1_1_components_1_1_connect_1_1_i_discovery.html">IDiscovery</a> services to resolve connection</li>
+<li>*:endpoint:http:*:1.0 (optional) <a href="https://rawgit.com/pip-services-dotnet/pip-services-rpc-dotnet/master/doc/api/class_pip_services_1_1_rpc_1_1_services_1_1_http_endpoint.html">HttpEndpoint</a> reference </li>
 </ul>
 <div class="fragment"><div class="line">var service = <span class="keyword">new</span> StatusService();</div><div class="line">service.Configure(ConfigParams.FromTuples(</div><div class="line"><span class="stringliteral">&quot;connection.protocol&quot;</span>, <span class="stringliteral">&quot;http&quot;</span>,</div><div class="line"><span class="stringliteral">&quot;connection.host&quot;</span>, <span class="stringliteral">&quot;localhost&quot;</span>,</div><div class="line"><span class="stringliteral">&quot;connection.port&quot;</span>, 8080 ));</div><div class="line"></div><div class="line">service.Open(<span class="stringliteral">&quot;123&quot;</span>);</div><div class="line">Console.Out.WriteLine(<span class="stringliteral">&quot;The Status service is accessible at http://+:8080/status&quot;</span>);</div></div><!-- fragment --> </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="ad1404ada9ba7691f96d7a254e4a1d6b9"></a>

@@ -207,13 +207,26 @@ Static Private Attributes</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Abstract client that calls remove endpoints using HTTP/REST protocol. </p>
 <h3>Configuration parameters</h3>
-<p>base_route: base route for remote URI connection(s): <br />
-discovery_key: (optional) a key to retrieve the connection from IDiscovery protocol: connection protocol: http or https host: host name or IP address port: port number uri: resource URI or connection string with all parameters in it options: retries: number of retries(default: 3) connect_timeout: connection timeout in milliseconds(default: 10 sec) timeout: invocation timeout in milliseconds(default: 10 sec)</p>
+<ul>
+<li>base_route: base route for remote URI</li>
+</ul>
+<p>connection(s): <br />
+- discovery_key: (optional) a key to retrieve the connection from <a href="https://rawgit.com/pip-services-dotnet/pip-services-components-dotnet/master/doc/api/interface_pip_services_1_1_components_1_1_connect_1_1_i_discovery.html">IDiscovery</a></p><ul>
+<li>protocol: connection protocol: http or https</li>
+<li>host: host name or IP address</li>
+<li>port: port number</li>
+<li>uri: resource URI or connection string with all parameters in it</li>
+</ul>
+<p>options:</p><ul>
+<li>retries: number of retries(default: 3)</li>
+<li>connect_timeout: connection timeout in milliseconds(default: 10 sec)</li>
+<li>timeout: invocation timeout in milliseconds(default: 10 sec)</li>
+</ul>
 <h3>References</h3>
 <ul>
-<li>*:logger:*:*:1.0 (optional) ILogger components to pass log messages</li>
-<li>*:counters:*:*:1.0 (optional) ICounters components to pass collected measurements</li>
-<li>*:discovery:*:*:1.0 (optional) IDiscovery services to resolve connection </li>
+<li>*:logger:*:*:1.0 (optional) <a href="https://rawgit.com/pip-services-dotnet/pip-services-components-dotnet/master/doc/api/interface_pip_services_1_1_components_1_1_log_1_1_i_logger.html">ILogger</a> components to pass log messages</li>
+<li>*:counters:*:*:1.0 (optional) <a href="https://rawgit.com/pip-services-dotnet/pip-services-components-dotnet/master/doc/api/interface_pip_services_1_1_components_1_1_count_1_1_i_counters.html">ICounters</a> components to pass collected measurements</li>
+<li>*:discovery:*:*:1.0 (optional) <a href="https://rawgit.com/pip-services-dotnet/pip-services-components-dotnet/master/doc/api/interface_pip_services_1_1_components_1_1_connect_1_1_i_discovery.html">IDiscovery</a> services to resolve connection </li>
 </ul>
 <div class="fragment"><div class="line"><span class="keyword">class </span>MyRestClient: RestClient, IMyClient </div><div class="line">{</div><div class="line">    ...</div><div class="line"></div><div class="line">    <span class="keyword">public</span> MyData GetData(<span class="keywordtype">string</span> correlationId, <span class="keywordtype">string</span> <span class="keywordtype">id</span>)</div><div class="line">    {</div><div class="line">        var timing = this.<a class="code" href="class_pip_services_1_1_rpc_1_1_clients_1_1_rest_client.html#ac931c4927f0791b860b65396fd0511e1">Instrument</a>(correlationId, <span class="stringliteral">&#39;myclient.get_data&#39;</span>);</div><div class="line">        var result = this.ExecuteAsync&lt;MyData&gt;(correlationId, HttpMethod.Post, <span class="stringliteral">&quot;/get_data&quot;</span>, <span class="keyword">new</span> MyData(<span class="keywordtype">id</span>));</div><div class="line">        timing.EndTiming();</div><div class="line">        <span class="keywordflow">return</span> result;        </div><div class="line">&lt;br&gt;    }</div><div class="line">    ...</div><div class="line">}</div><div class="line"></div><div class="line">var client = <span class="keyword">new</span> MyRestClient();</div><div class="line">client.Configure(ConfigParams.fromTuples(</div><div class="line"><span class="stringliteral">&quot;connection.protocol&quot;</span>, <span class="stringliteral">&quot;http&quot;</span>,</div><div class="line"><span class="stringliteral">&quot;connection.host&quot;</span>, <span class="stringliteral">&quot;localhost&quot;</span>,</div><div class="line"><span class="stringliteral">&quot;connection.port&quot;</span>, 8080 ));</div><div class="line"></div><div class="line">var data = client.GetData(<span class="stringliteral">&quot;123&quot;</span>, <span class="stringliteral">&quot;1&quot;</span>);</div><div class="line">...</div></div><!-- fragment --> </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="ac1a6e2c2836ed3e10ae0a1e5d2d39b39"></a>
