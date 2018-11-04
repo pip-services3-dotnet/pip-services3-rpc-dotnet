@@ -8,15 +8,15 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.Extensions.DependencyInjection;
-using PipServices.Commons.Config;
-using PipServices.Commons.Errors;
-using PipServices.Commons.Refer;
-using PipServices.Commons.Run;
-using PipServices.Components.Count;
-using PipServices.Components.Log;
-using PipServices.Rpc.Connect;
+using PipServices3.Commons.Config;
+using PipServices3.Commons.Errors;
+using PipServices3.Commons.Refer;
+using PipServices3.Commons.Run;
+using PipServices3.Components.Count;
+using PipServices3.Components.Log;
+using PipServices3.Rpc.Connect;
 
-namespace PipServices.Rpc.Services
+namespace PipServices3.Rpc.Services
 {
     /// <summary>
     /// Used for creating HTTP endpoints. An endpoint is a URL, at which a given service can be accessed by a client. 

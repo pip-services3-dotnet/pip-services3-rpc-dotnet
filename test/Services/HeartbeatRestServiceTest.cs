@@ -2,12 +2,12 @@
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using PipServices.Commons.Config;
-using PipServices.Commons.Convert;
-using PipServices.Commons.Refer;
+using PipServices3.Commons.Config;
+using PipServices3.Commons.Convert;
+using PipServices3.Commons.Refer;
 using Xunit;
 
-namespace PipServices.Rpc.Services
+namespace PipServices3.Rpc.Services
 {
     public class HeartbeatRestServiceTest: IDisposable
     {

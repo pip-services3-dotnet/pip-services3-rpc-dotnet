@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-using PipServices.Commons.Commands;
-using PipServices.Commons.Run;
-using PipServices.Commons.Validate;
-using PipServices.Commons.Data;
+using PipServices3.Commons.Commands;
+using PipServices3.Commons.Run;
+using PipServices3.Commons.Validate;
+using PipServices3.Commons.Data;
 
-namespace PipServices.Rpc
+namespace PipServices3.Rpc
 {
     public class DummyCommandSet : CommandSet
     {

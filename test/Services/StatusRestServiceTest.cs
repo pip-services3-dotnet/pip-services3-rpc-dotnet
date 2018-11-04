@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
-using PipServices.Commons.Config;
-using PipServices.Commons.Convert;
-using PipServices.Commons.Refer;
-using PipServices.Components.Info;
+using PipServices3.Commons.Config;
+using PipServices3.Commons.Convert;
+using PipServices3.Commons.Refer;
+using PipServices3.Components.Info;
 using Xunit;
 
-namespace PipServices.Rpc.Services
+namespace PipServices3.Rpc.Services
 {
     public class StatusRestServiceTest : IDisposable
     {
@@ -27,8 +27,8 @@ namespace PipServices.Rpc.Services
             contextInfo.Description = "This is a test container";
 
             var references = References.FromTuples(
-                new Descriptor("pip-services", "context-info", "default", "default", "1.0"), contextInfo,
-                new Descriptor("pip-services", "status-service", "http", "default", "1.0"), _service
+                new Descriptor("pip-services3", "context-info", "default", "default", "1.0"), contextInfo,
+                new Descriptor("pip-services3", "status-service", "http", "default", "1.0"), _service
             );
             _service.SetReferences(references);
 

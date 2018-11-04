@@ -2,12 +2,12 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-using PipServices.Commons.Config;
-using PipServices.Commons.Refer;
-using PipServices.Rpc.Services;
+using PipServices3.Commons.Config;
+using PipServices3.Commons.Refer;
+using PipServices3.Rpc.Services;
 using Xunit;
 
-namespace PipServices.Rpc.Clients
+namespace PipServices3.Rpc.Clients
 {
     public sealed class DummyCommandableHttpClientTest : IDisposable
     {
@@ -34,9 +34,9 @@ namespace PipServices.Rpc.Clients
             _client = new DummyCommandableHttpClient();
 
             var references = References.FromTuples(
-                new Descriptor("pip-services-dummies", "controller", "default", "default", "1.0"), _ctrl,
-                new Descriptor("pip-services-dummies", "service", "rest", "default", "1.0"), _service,
-                new Descriptor("pip-services-dummies", "client", "rest", "default", "1.0"), _client
+                new Descriptor("pip-services3-dummies", "controller", "default", "default", "1.0"), _ctrl,
+                new Descriptor("pip-services3-dummies", "service", "rest", "default", "1.0"), _service,
+                new Descriptor("pip-services3-dummies", "client", "rest", "default", "1.0"), _client
             );
             _service.Configure(RestConfig);
             _client.Configure(RestConfig);

@@ -2,10 +2,10 @@
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using PipServices.Commons.Convert;
-using PipServices.Commons.Errors;
+using PipServices3.Commons.Convert;
+using PipServices3.Commons.Errors;
 
-namespace PipServices.Rpc.Services
+namespace PipServices3.Rpc.Services
 {
     /// <summary>
     /// Helper class that handles HTTP-based responses.
@@ -27,10 +27,10 @@ namespace PipServices.Rpc.Services
                 ex = ex2.InnerExceptions.Count > 0 ? ex2.InnerExceptions[0] : ex;
             }
 
-            if (ex is PipServices.Commons.Errors.ApplicationException)
+            if (ex is PipServices3.Commons.Errors.ApplicationException)
             {
                 response.ContentType = "application/json";
-                var ex3 = ex as PipServices.Commons.Errors.ApplicationException;
+                var ex3 = ex as PipServices3.Commons.Errors.ApplicationException;
                 response.StatusCode = ex3.Status;
                 var contentResult = JsonConverter.ToJson(ErrorDescriptionFactory.Create(ex3));
                 await response.WriteAsync(contentResult);

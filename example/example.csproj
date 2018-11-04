@@ -3,12 +3,12 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.1</TargetFramework>
-    <AssemblyName>PipServices.Rpc.Example</AssemblyName>
-    <RootNamespace>PipServices.Rpc</RootNamespace>
+    <AssemblyName>PipServices3.Rpc.Example</AssemblyName>
+    <RootNamespace>PipServices3.Rpc</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="PipServices.Commons" Version="3.0.2" />
+    <PackageReference Include="PipServices3.Commons" Version="3.0.6" />
   </ItemGroup>
 
   <ItemGroup>

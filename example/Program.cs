@@ -1,10 +1,10 @@
 ﻿using System;
-using PipServices.Commons.Config;
-using PipServices.Commons.Refer;
-using PipServices.Components.Log;
-using PipServices.Rpc.Services;
+using PipServices3.Commons.Config;
+using PipServices3.Commons.Refer;
+using PipServices3.Components.Log;
+using PipServices3.Rpc.Services;
 
-namespace PipServices.Rpc
+namespace PipServices3.Rpc
 {
     class Program
     {
@@ -21,9 +21,9 @@ namespace PipServices.Rpc
             ));
 
             service.SetReferences(References.FromTuples(
-                new Descriptor("pip-services-dummies", "controller", "default", "default", "1.0"), controller,
-                new Descriptor("pip-services-dummies", "service", "rest", "default", "1.0"), service,
-                new Descriptor("pip-services-commons", "logger", "console", "default", "1.0"), logger
+                new Descriptor("pip-services3-dummies", "controller", "default", "default", "1.0"), controller,
+                new Descriptor("pip-services3-dummies", "service", "rest", "default", "1.0"), service,
+                new Descriptor("pip-services3-commons", "logger", "console", "default", "1.0"), logger
             ));
 
             service.OpenAsync(null).Wait();

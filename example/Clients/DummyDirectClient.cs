@@ -1,14 +1,14 @@
 ﻿using System.Threading.Tasks;
-using PipServices.Commons.Data;
-using PipServices.Commons.Refer;
+using PipServices3.Commons.Data;
+using PipServices3.Commons.Refer;
 
-namespace PipServices.Rpc.Clients
+namespace PipServices3.Rpc.Clients
 {
     public class DummyDirectClient : DirectClient<IDummyController>, IDummyClient
     {
         public DummyDirectClient()
         {
-            _dependencyResolver.Put("controller", new Descriptor("pip-services-dummies", "controller", "*", "*", "*"));
+            _dependencyResolver.Put("controller", new Descriptor("pip-services3-dummies", "controller", "*", "*", "*"));
         }
 
         public async Task<DataPage<Dummy>> GetPageByFilterAsync(string correlationId, FilterParams filter, PagingParams paging)

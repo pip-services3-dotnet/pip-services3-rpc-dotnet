@@ -1,8 +1,8 @@
 ﻿using System.Threading;
-using PipServices.Commons.Data;
+using PipServices3.Commons.Data;
 using System.Threading.Tasks;
 
-namespace PipServices.Rpc
+namespace PipServices3.Rpc
 {
     public interface IDummyClient
     {

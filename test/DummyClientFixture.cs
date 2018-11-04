@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Xunit;
 
-namespace PipServices.Rpc
+namespace PipServices3.Rpc
 {
     public sealed class DummyClientFixture
     {

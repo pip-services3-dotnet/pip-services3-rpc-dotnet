@@ -1,13 +1,13 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using PipServices.Commons.Config;
-using PipServices.Commons.Errors;
-using PipServices.Commons.Refer;
-using PipServices.Commons.Run;
-using PipServices.Components.Count;
-using PipServices.Components.Log;
+using PipServices3.Commons.Config;
+using PipServices3.Commons.Errors;
+using PipServices3.Commons.Refer;
+using PipServices3.Commons.Run;
+using PipServices3.Components.Count;
+using PipServices3.Components.Log;
 
-namespace PipServices.Rpc.Clients
+namespace PipServices3.Rpc.Clients
 {
     /// <summary>
     /// Abstract client that calls controller directly in the same memory space.
@@ -22,8 +22,8 @@ namespace PipServices.Rpc.Clients
     /// 
     /// ### References ###
     /// 
-    /// - *:logger:*:*:1.0         (optional) <a href="https://rawgit.com/pip-services-dotnet/pip-services-components-dotnet/master/doc/api/interface_pip_services_1_1_components_1_1_log_1_1_i_logger.html">ILogger</a> components to pass log messages
-    /// - *:counters:*:*:1.0         (optional) <a href="https://rawgit.com/pip-services-dotnet/pip-services-components-dotnet/master/doc/api/interface_pip_services_1_1_components_1_1_count_1_1_i_counters.html">ICounters</a> components to pass collected measurements
+    /// - *:logger:*:*:1.0         (optional) <a href="https://rawgit.com/pip-services3-dotnet/pip-services3-components-dotnet/master/doc/api/interface_pip_services_1_1_components_1_1_log_1_1_i_logger.html">ILogger</a> components to pass log messages
+    /// - *:counters:*:*:1.0         (optional) <a href="https://rawgit.com/pip-services3-dotnet/pip-services3-components-dotnet/master/doc/api/interface_pip_services_1_1_components_1_1_count_1_1_i_counters.html">ICounters</a> components to pass collected measurements
     /// - *:controller:*:*:1.0     controller to call business methods
     /// </summary>
     /// <typeparam name="T">the class type</typeparam>

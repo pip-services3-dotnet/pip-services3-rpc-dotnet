@@ -1,8 +1,8 @@
 ﻿using System;
-using PipServices.Commons.Config;
+using PipServices3.Commons.Config;
 using Xunit;
 
-namespace PipServices.Rpc.Connect
+namespace PipServices3.Rpc.Connect
 {
     public class HttpConnectionResolverTest
     {

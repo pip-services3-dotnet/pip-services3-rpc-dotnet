@@ -1,7 +1,7 @@
-﻿using PipServices.Commons.Refer;
+﻿using PipServices3.Commons.Refer;
 using Xunit;
 
-namespace PipServices.Rpc.Clients
+namespace PipServices3.Rpc.Clients
 {
     public class DummyDirectClientTest
     {
@@ -15,7 +15,7 @@ namespace PipServices.Rpc.Clients
             _client = new DummyDirectClient();
 
             var references = References.FromTuples(
-                new Descriptor("pip-services-dummies", "controller", "default", "default", "1.0"), _ctrl
+                new Descriptor("pip-services3-dummies", "controller", "default", "default", "1.0"), _ctrl
             );
             _client.SetReferences(references);
 

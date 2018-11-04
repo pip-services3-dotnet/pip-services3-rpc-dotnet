@@ -1,8 +1,8 @@
 ﻿
-using PipServices.Commons.Convert;
-using PipServices.Commons.Validate;
+using PipServices3.Commons.Convert;
+using PipServices3.Commons.Validate;
 
-namespace PipServices.Rpc
+namespace PipServices3.Rpc
 {
     public class DummySchema : ObjectSchema
     {

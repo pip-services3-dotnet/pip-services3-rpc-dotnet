@@ -3,13 +3,13 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 
-using PipServices.Commons.Config;
-using PipServices.Commons.Convert;
-using PipServices.Commons.Refer;
+using PipServices3.Commons.Config;
+using PipServices3.Commons.Convert;
+using PipServices3.Commons.Refer;
 
 using Xunit;
 
-namespace PipServices.Rpc.Services
+namespace PipServices3.Rpc.Services
 {
     public sealed class DummyHttpEndpointTest : IDisposable
     {
@@ -34,8 +34,8 @@ namespace PipServices.Rpc.Services
             _httpEndpoint = new HttpEndpoint();
 
             var references = References.FromTuples(
-                new Descriptor("pip-services-dummies", "controller", "default", "default", "1.0"), _ctrl,
-                new Descriptor("pip-services", "endpoint", "http", "default", "1.0"), _httpEndpoint
+                new Descriptor("pip-services3-dummies", "controller", "default", "default", "1.0"), _ctrl,
+                new Descriptor("pip-services3", "endpoint", "http", "default", "1.0"), _httpEndpoint
             );
 
             _serviceV1.Configure(ConfigParams.FromTuples(

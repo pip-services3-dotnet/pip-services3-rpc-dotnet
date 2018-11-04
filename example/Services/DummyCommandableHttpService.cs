@@ -1,13 +1,13 @@
-﻿using PipServices.Commons.Refer;
+﻿using PipServices3.Commons.Refer;
 
-namespace PipServices.Rpc.Services
+namespace PipServices3.Rpc.Services
 {
     public sealed class DummyCommandableHttpService : CommandableHttpService
     {
         public DummyCommandableHttpService() 
             : base("dummy")
         {
-            _dependencyResolver.Put("controller", new Descriptor("pip-services-dummies", "controller", "default", "*", "1.0"));
+            _dependencyResolver.Put("controller", new Descriptor("pip-services3-dummies", "controller", "default", "*", "1.0"));
         }
     }
 }

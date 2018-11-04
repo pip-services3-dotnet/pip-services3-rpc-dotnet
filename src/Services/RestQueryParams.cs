@@ -1,8 +1,8 @@
 ﻿//using System.Collections.Generic;
-//using PipServices.Commons.Convert;
-//using PipServices.Commons.Data;
+//using PipServices3.Commons.Convert;
+//using PipServices3.Commons.Data;
 
-//namespace PipServices.Rpc.Services
+//namespace PipServices3.Rpc.Services
 //{
 //    public sealed class RestQueryParams : MultiValueDictionary<string, object>
 //    {

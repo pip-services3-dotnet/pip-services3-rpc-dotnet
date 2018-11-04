@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
-using PipServices.Commons.Data;
+using PipServices3.Commons.Data;
 
-namespace PipServices.Rpc
+namespace PipServices3.Rpc
 {
     public class Dummy : IStringIdentifiable
     {

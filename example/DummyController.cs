@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-using PipServices.Commons.Data;
-using PipServices.Commons.Commands;
-using PipServices.Commons.Errors;
+using PipServices3.Commons.Data;
+using PipServices3.Commons.Commands;
+using PipServices3.Commons.Errors;
 
-namespace PipServices.Rpc
+namespace PipServices3.Rpc
 {
     public sealed class DummyController : IDummyController, ICommandable
     {

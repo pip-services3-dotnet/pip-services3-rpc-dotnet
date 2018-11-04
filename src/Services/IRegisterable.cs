@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace PipServices.Rpc.Services
+namespace PipServices3.Rpc.Services
 {
     /// <summary>
     /// Interface to perform on-demand registrations.

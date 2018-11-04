@@ -37,7 +37,7 @@
 ## <a name="2.0.0"></a> 2.0.0 (2017-02-25)
 
 ### Breaking Changes
-* Migrated to pip-services-commons 2.0
+* Migrated to pip-services3-commons 2.0
 
 ## <a name="1.0.0"></a> 1.0.0 (2016-11-21)
 

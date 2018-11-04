@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
 
-using PipServices.Commons.Data;
+using PipServices3.Commons.Data;
 
-namespace PipServices.Rpc.Clients
+namespace PipServices3.Rpc.Clients
 {
     public sealed class DummyCommandableHttpClient : CommandableHttpClient, IDummyClient
     {

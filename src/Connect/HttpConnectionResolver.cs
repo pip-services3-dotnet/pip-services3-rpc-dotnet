@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using PipServices.Commons.Config;
-using PipServices.Commons.Errors;
-using PipServices.Commons.Refer;
-using PipServices.Components.Connect;
+using PipServices3.Commons.Config;
+using PipServices3.Commons.Errors;
+using PipServices3.Commons.Refer;
+using PipServices3.Components.Connect;
 
-namespace PipServices.Rpc.Connect
+namespace PipServices3.Rpc.Connect
 {
     /// <summary>
     /// Helper class to retrieve connections for HTTP-based services abd clients.
@@ -17,7 +17,7 @@ namespace PipServices.Rpc.Connect
     /// ### Configuration parameters ###
     /// 
     /// connection:
-    /// - discovery_key:               (optional) a key to retrieve the connection from <a href="https://rawgit.com/pip-services-dotnet/pip-services-components-dotnet/master/doc/api/interface_pip_services_1_1_components_1_1_connect_1_1_i_discovery.html">IDiscovery</a>
+    /// - discovery_key:               (optional) a key to retrieve the connection from <a href="https://rawgit.com/pip-services3-dotnet/pip-services3-components-dotnet/master/doc/api/interface_pip_services_1_1_components_1_1_connect_1_1_i_discovery.html">IDiscovery</a>
     /// - ...                          other connection parameters
     /// 
     /// connections:                   alternative to connection
@@ -28,7 +28,7 @@ namespace PipServices.Rpc.Connect
     /// 
     /// ### References ###
     /// 
-    /// - *:discovery:*:*:1.0            (optional) <a href="https://rawgit.com/pip-services-dotnet/pip-services-components-dotnet/master/doc/api/interface_pip_services_1_1_components_1_1_connect_1_1_i_discovery.html">IDiscovery</a> services
+    /// - *:discovery:*:*:1.0            (optional) <a href="https://rawgit.com/pip-services3-dotnet/pip-services3-components-dotnet/master/doc/api/interface_pip_services_1_1_components_1_1_connect_1_1_i_discovery.html">IDiscovery</a> services
     /// </summary>
     /// <example>
     /// <code>
