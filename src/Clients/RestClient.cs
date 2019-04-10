@@ -209,7 +209,7 @@ namespace PipServices3.Rpc.Clients
             return Task.CompletedTask;
         }
 
-        private static HttpContent CreateEntityContent(object value)
+        protected HttpContent CreateEntityContent(object value)
         {
             if (value == null) return null;
 
@@ -218,7 +218,7 @@ namespace PipServices3.Rpc.Clients
             return result;
         }
 
-        private Uri CreateRequestUri(string route)
+        protected Uri CreateRequestUri(string route)
         {
             var builder = new StringBuilder(_address);
 
@@ -240,7 +240,7 @@ namespace PipServices3.Rpc.Clients
             return result;
         }
 
-        private static string ConstructQueryString(NameValueCollection parameters)
+        protected string ConstructQueryString(NameValueCollection parameters)
         {
             StringBuilder builder = new StringBuilder();
 
@@ -457,29 +457,28 @@ namespace PipServices3.Rpc.Clients
             }
         }
 
-        private static async Task<string> ExtractContentEntityAsync(string correlationId, HttpContent content)
-        {
-            var value = await content.ReadAsStringAsync();
-
-            try
-            {
-                return value;
-            }
-            catch (Exception ex)
-            {
-                throw new BadRequestException(correlationId, null, "Unexpected protocol format", ex);
-            }
-        }
-
-        protected async Task<string> ExecuteStringAsync(
-            string correlationId, HttpMethod method, string route)
+        protected async Task<string> ExecuteStringAsync(string correlationId, HttpMethod method, string route)
         {
             route = AddCorrelationId(route, correlationId);
             var uri = CreateRequestUri(route);
 
             using (var response = await ExecuteRequestAsync(correlationId, method, uri))
             {
-                return await ExtractContentEntityAsync(correlationId, response.Content);
+                return await response.Content.ReadAsStringAsync();
+            }
+        }
+
+        protected async Task<string> ExecuteStringAsync(string correlationId, HttpMethod method, string route, object requestEntity)
+        {
+            route = AddCorrelationId(route, correlationId);
+            var uri = CreateRequestUri(route);
+
+            using (var requestContent = CreateEntityContent(requestEntity))
+            {
+                using (var response = await ExecuteRequestAsync(correlationId, method, uri, requestContent))
+                {
+                    return await response.Content.ReadAsStringAsync();
+                }
             }
         }
 

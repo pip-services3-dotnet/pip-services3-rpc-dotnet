@@ -1,6 +1,7 @@
 # Remove procedure calls for Pip.Services in .NET Changelog
 
-## <a name="3.0.0"></a> 3.0.0 (2018-08-23)
+## <a name="3.0.0-3.0.5"></a> 3.0.0-3.0.5 (2019-04-10)
+* **rest** Extended RestClient
 
 ### Breaking Changes
 * Moved to a separate package
