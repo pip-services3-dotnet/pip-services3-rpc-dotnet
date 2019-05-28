@@ -227,7 +227,7 @@ namespace PipServices3.Rpc.Services
         /// <returns></returns>
         public virtual Task CloseAsync(string correlationId)
         {
-            if (!IsOpen())
+            if (IsOpen())
             {
                 if (_endpoint == null)
                 {
