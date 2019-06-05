@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -304,6 +305,20 @@ namespace PipServices3.Rpc.Services
         {
             return HttpResponseSender.SendDeletedResultAsync(response, result);
         }
+        
+        private string AppendBaseRoute(string route) {
+            if (!string.IsNullOrEmpty(_baseRoute)) {
+                var baseRoute = _baseRoute;
+                if (string.IsNullOrEmpty(route))
+                    route = "/";
+                if (route[0] != '/')
+                    route = "/" + route;
+                if (baseRoute[0] != '/') baseRoute = '/' + baseRoute;
+                route = baseRoute + route;
+            }
+
+            return route;
+        }
 
         /// <summary>
         /// Registers a route in HTTP endpoint.
@@ -316,18 +331,29 @@ namespace PipServices3.Rpc.Services
         {
             if (_endpoint == null) return;
 
-            if (route[0] != '/')
-                route = "/" + route;
-
-            if (_baseRoute != null && _baseRoute.Length > 0) {
-                var baseRoute = _baseRoute;
-                if (baseRoute[0] != '/')
-                    baseRoute = "/" + baseRoute;
-                route = baseRoute + route;
-            }
-
+            route = AppendBaseRoute(route);
             _endpoint.RegisterRoute(method, route, action);
-        }    
+        }
+        
+        protected virtual void RegisterRouteWithAuth(string method, string route,
+            Func<HttpRequest, HttpResponse, ClaimsPrincipal, RouteData, Func<Task>, Task> autorize,
+            Func<HttpRequest, HttpResponse, ClaimsPrincipal, RouteData, Task> action)
+        {
+            if (_endpoint == null) return;
+
+            route = AppendBaseRoute(route);
+            _endpoint.RegisterRouteWithAuth(method, route, autorize, action);
+        }   
+        
+        public void RegisterInterceptor(string route,
+            Func<HttpRequest, HttpResponse, ClaimsPrincipal, RouteData,
+                Func<HttpRequest, HttpResponse, ClaimsPrincipal, RouteData, Task>, Task> action)
+        {
+            if (_endpoint == null) return;
+            
+            route = AppendBaseRoute(route);
+            _endpoint.RegisterInterceptor(route, action);
+        }
 
         public virtual void Register()
         { }

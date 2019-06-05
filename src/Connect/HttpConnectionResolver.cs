@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using PipServices3.Commons.Config;
 using PipServices3.Commons.Errors;
 using PipServices3.Commons.Refer;
+using PipServices3.Components.Auth;
 using PipServices3.Components.Connect;
 
 namespace PipServices3.Rpc.Connect
@@ -43,11 +44,17 @@ namespace PipServices3.Rpc.Connect
     /// var params = connectionResolver.ResolveAsync("123");
     /// </code>
     /// </example>
-    public class HttpConnectionResolver : IReferenceable, IConfigurable {
+    public class HttpConnectionResolver : IReferenceable, IConfigurable
+    {
         /// <summary>
         /// The base connection resolver.
         /// </summary>
         protected ConnectionResolver _connectionResolver = new ConnectionResolver();
+
+        /// <summary>
+        /// The base credential resolver.
+        /// </summary>
+        protected CredentialResolver _credentialResolver = new CredentialResolver();
 
         /// <summary>
         /// Sets references to dependent components.
@@ -56,6 +63,7 @@ namespace PipServices3.Rpc.Connect
         public void SetReferences(IReferences references)
         {
             _connectionResolver.SetReferences(references);
+            _credentialResolver.SetReferences(references);
         }
 
         /// <summary>
@@ -65,9 +73,10 @@ namespace PipServices3.Rpc.Connect
         public void Configure(ConfigParams config)
         {
             _connectionResolver.Configure(config);
+            _credentialResolver.Configure(config);
         }
 
-        private void ValidateConnection(string correlationId, ConnectionParams connection)
+        private void ValidateConnection(string correlationId, ConnectionParams connection, CredentialParams credential)
         {
             if (connection == null)
                 throw new ConfigException(correlationId, "NO_CONNECTION", "HTTP connection is not set");
@@ -77,10 +86,10 @@ namespace PipServices3.Rpc.Connect
                 return;
 
             var protocol = connection.GetProtocol("http");
-            if ("http" != protocol)
+            if ("http" != protocol && "https" != protocol)
             {
                 throw new ConfigException(
-                    correlationId, "WRONG_PROTOCOL", "Protocol is not supported by REST connection")
+                        correlationId, "WRONG_PROTOCOL", "Protocol is not supported by REST connection")
                     .WithDetails("protocol", protocol);
             }
 
@@ -91,9 +100,32 @@ namespace PipServices3.Rpc.Connect
             var port = connection.Port;
             if (port == 0)
                 throw new ConfigException(correlationId, "NO_PORT", "Connection port is not set");
+
+            // Check HTTPS credentials
+            if (protocol == "https")
+            {
+                // Check for credential
+                if (credential == null)
+                {
+                    throw new ConfigException(
+                        correlationId, "NO_CREDENTIAL", "SSL certificates are not configured for HTTPS protocol");
+                }
+
+                if (credential.GetAsNullableString("ssl_password") == null)
+                {
+                    throw new ConfigException(
+                        correlationId, "NO_SSL_PASSWORD", "SSL password is not configured in credentials");
+                }
+
+                if (credential.GetAsNullableString("ssl_pfx_file") == null)
+                {
+                    throw new ConfigException(
+                        correlationId, "NO_SSL_PFX_FILE", "SSL pfx file is not configured in credentials");
+                }
+            }
         }
 
-        private void UpdateConnection(ConnectionParams connection)
+        private void UpdateConnection(ConnectionParams connection, CredentialParams credential)
         {
             if (string.IsNullOrEmpty(connection.Uri))
             {
@@ -109,6 +141,15 @@ namespace PipServices3.Rpc.Connect
                 connection.Host = uri.Host;
                 connection.Port = uri.Port;
             }
+
+            if (connection.Protocol == "https")
+            {
+                connection.AddSection("credential", credential);
+            }
+            else
+            {
+                connection.AddSection("credential", new CredentialParams());
+            }
         }
 
         /// <summary>
@@ -120,8 +161,9 @@ namespace PipServices3.Rpc.Connect
         public async Task<ConnectionParams> ResolveAsync(string correlationId)
         {
             var connection = await _connectionResolver.ResolveAsync(correlationId);
-            ValidateConnection(correlationId, connection);
-            UpdateConnection(connection);
+            var credential = await _credentialResolver.LookupAsync(correlationId);
+            ValidateConnection(correlationId, connection, credential);
+            UpdateConnection(connection, credential);
             return connection;
         }
 
@@ -134,11 +176,13 @@ namespace PipServices3.Rpc.Connect
         public async Task<List<ConnectionParams>> ResolveAllAsync(string correlationId)
         {
             var connections = await _connectionResolver.ResolveAllAsync(correlationId);
+            var credential = await _credentialResolver.LookupAsync(correlationId);
             foreach (var connection in connections)
             {
-                ValidateConnection(correlationId, connection);
-                UpdateConnection(connection);
+                ValidateConnection(correlationId, connection, credential);
+                UpdateConnection(connection, credential);
             }
+
             return connections;
         }
 
@@ -150,10 +194,10 @@ namespace PipServices3.Rpc.Connect
         public async Task RegisterAsync(string correlationId)
         {
             var connection = await _connectionResolver.ResolveAsync(correlationId);
-            ValidateConnection(correlationId, connection);
+            var credential = await _credentialResolver.LookupAsync(correlationId);
+            ValidateConnection(correlationId, connection, credential);
 
             await _connectionResolver.RegisterAsync(correlationId, connection);
         }
-
     }
 }

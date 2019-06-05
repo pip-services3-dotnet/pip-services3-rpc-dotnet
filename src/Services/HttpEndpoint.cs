@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Net;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -31,6 +35,11 @@ namespace PipServices3.Rpc.Services
     /// - "connection.host" - the target host;
     /// - "connection.port" - the target port;
     /// - "connection.uri" - the target URI.
+    ///
+    /// credential - the HTTPS credentials:
+    /// - "credential.ssl_key_file" - the SSL private key in PEM
+    /// - "credential.ssl_crt_file" - the SSL certificate in PEM
+    /// - "credential.ssl_ca_file" - the certificate authorities (root cerfiticates) in PEM
     /// 
     /// ### References ###
     /// 
@@ -62,8 +71,12 @@ namespace PipServices3.Rpc.Services
             "connection.protocol", "http",
             "connection.host", "0.0.0.0",
             "connection.port", 3000,
-
+            "credential.ssl_key_file", null,
+            "credential.ssl_crt_file", null,
+            "credential.ssl_ca_file", null,
+            "options.maintenance_enabled", false,
             "options.request_max_size", 1024 * 1024,
+            "options.file_max_size", 200 * 1024 * 1024,
             "options.connect_timeout", 60000,
             "options.debug", true
         );
@@ -73,11 +86,15 @@ namespace PipServices3.Rpc.Services
         protected CompositeCounters _counters = new CompositeCounters();
         protected DependencyResolver _dependencyResolver = new DependencyResolver(_defaultConfig);
 
+        private bool _maintenanceEnabled;
+        private long _fileMaxSize = 200 * 1024 * 1024;
+
         protected IWebHost _server;
         protected RouteBuilder _routeBuilder;
         protected string _address;
 
         private IList<IRegisterable> _registrations = new List<IRegisterable>();
+        private List<Interceptor> _interceptors = new List<Interceptor>();
 
         /// <summary>
         /// Sets references to this endpoint's logger, counters, and connection resolver.
@@ -112,6 +129,9 @@ namespace PipServices3.Rpc.Services
             config = config.SetDefaults(_defaultConfig);
             _dependencyResolver.Configure(config);
             _connectionResolver.Configure(config);
+
+            _maintenanceEnabled = config.GetAsBooleanWithDefault("options.maintenance_enabled", _maintenanceEnabled);
+            _fileMaxSize = config.GetAsLongWithDefault("options.file_max_size", _fileMaxSize);
         }
 
         /// <summary>
@@ -141,11 +161,12 @@ namespace PipServices3.Rpc.Services
         /// resolver and creates a REST server(service) using the set options and parameters.
         /// </summary>
         /// <param name="correlationId">(optional) transaction id to trace execution through call chain.</param>
-        public async virtual Task OpenAsync(string correlationId)
+        public virtual async Task OpenAsync(string correlationId)
         {
             if (IsOpen()) return;
 
             var connection = await _connectionResolver.ResolveAsync(correlationId);
+            var credential = connection.GetSection("credential");
 
             var protocol = connection.Protocol;
             var host = connection.Host;
@@ -155,11 +176,27 @@ namespace PipServices3.Rpc.Services
             try
             {
                 var builder = new WebHostBuilder()
-                    .UseKestrel()
+                    .UseKestrel(options =>
+                    {
+                        if (protocol == "https")
+                        {
+                            var sslPfxFile = credential.GetAsNullableString("ssl_pfx_file");
+                            var sslPassword = credential.GetAsNullableString("ssl_pfx_file");
+                            
+                            
+                            options.Listen(IPAddress.Parse(host), port, listenOptions =>
+                            {
+                                listenOptions.UseHttps(sslPfxFile, sslPassword);
+                            });
+                        }
+                        else
+                        {
+                            options.Listen(IPAddress.Parse(host), port);
+                        }
+                    })
                     .ConfigureServices(ConfigureServices)
                     .Configure(ConfigureApplication)
-                    .UseContentRoot(Directory.GetCurrentDirectory())
-                    .UseUrls(_address);
+                    .UseContentRoot(Directory.GetCurrentDirectory());
 
                 _server = builder.Build();
 
@@ -212,8 +249,8 @@ namespace PipServices3.Rpc.Services
             services.AddCors(cors => cors.AddPolicy("CorsPolicy", builder =>
             {
                 builder.AllowAnyHeader()
-                       .AllowAnyMethod()
-                       .AllowAnyOrigin();
+                    .AllowAnyMethod()
+                    .AllowAnyOrigin();
             }));
         }
 
@@ -259,18 +296,84 @@ namespace PipServices3.Rpc.Services
         /// <param name="route">the route to register in this object's REST server (service).</param>
         /// <param name="action">the action to perform at the given route.</param>
         public void RegisterRoute(string method, string route,
-             Func<HttpRequest, HttpResponse, RouteData, Task> action)
+            Func<HttpRequest, HttpResponse, RouteData, Task> action)
         {
-            // Routes cannot start with '/'
-            if (route[0] == '/')
-                route = route.Substring(1);
+            route = FixRoute(route);
 
             if (_routeBuilder != null)
             {
                 method = method.ToUpperInvariant();
-                _routeBuilder.MapVerb(method, route, action);
+                _routeBuilder.MapVerb(method, route, context =>
+                {
+                    var interceptor = _interceptors.Find(i => route.StartsWith(i.Route));
+                    if (interceptor != null)
+                    {
+                        var nextAction = new Func<HttpRequest, HttpResponse, ClaimsPrincipal, RouteData, Task>(
+                            async (request, response, user, routeData) =>
+                            {
+                                await action(request, response, routeData);
+                            });
+
+                        return interceptor.Action.Invoke(context.Request, context.Response, null,
+                            context.GetRouteData(), nextAction);
+                    }
+
+                    return action.Invoke(context.Request, context.Response, context.GetRouteData());
+                });
             }
         }
 
+        private string FixRoute(string route)
+        {
+            // Routes cannot start with '/'
+            if (!string.IsNullOrEmpty(route) && route[0] == '/')
+                route = route.Substring(1);
+
+            return route;
+        }
+
+        public void RegisterRouteWithAuth(string method, string route,
+            Func<HttpRequest, HttpResponse, ClaimsPrincipal, RouteData,
+                Func<Task>, Task> authorize,
+            Func<HttpRequest, HttpResponse, ClaimsPrincipal, RouteData, Task> action)
+        {
+            route = FixRoute(route);
+            
+            if (authorize != null)
+            {
+                var nextAction = action;
+
+                action = (request, response, user, routeData) =>
+                {
+                    return authorize(request, response, user, routeData,
+                        async () => await nextAction(request, response, user, routeData));
+                };
+            }
+
+            if (_routeBuilder != null)
+            {
+                method = method.ToUpperInvariant();
+                _routeBuilder.MapVerb(method, route, context =>
+                {
+                    var interceptor = _interceptors.Find(i => route.StartsWith(i.Route));
+                    if (interceptor != null)
+                    {
+                        return interceptor.Action.Invoke(context.Request, context.Response, context.User,
+                            context.GetRouteData(),
+                            action);
+                    }
+
+                    return action.Invoke(context.Request, context.Response, context.User, context.GetRouteData());
+                });
+            }
+        }
+
+        public void RegisterInterceptor(string route,
+            Func<HttpRequest, HttpResponse, ClaimsPrincipal, RouteData,
+                Func<HttpRequest, HttpResponse, ClaimsPrincipal, RouteData, Task>, Task> action)
+        {
+            route = FixRoute(route);
+            _interceptors.Add(new Interceptor() {Action = action, Route = route});
+        }
     }
 }
