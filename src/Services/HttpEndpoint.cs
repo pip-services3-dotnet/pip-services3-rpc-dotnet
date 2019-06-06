@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Primitives;
 using PipServices3.Commons.Config;
 using PipServices3.Commons.Errors;
 using PipServices3.Commons.Refer;
@@ -178,11 +179,16 @@ namespace PipServices3.Rpc.Services
                 var builder = new WebHostBuilder()
                     .UseKestrel(options =>
                     {
+                        // Convert localhost to IP Address
+                        if (host == "localhost")
+                        {
+                            host = IPAddress.Loopback.ToString();
+                        }
+                        
                         if (protocol == "https")
                         {
                             var sslPfxFile = credential.GetAsNullableString("ssl_pfx_file");
                             var sslPassword = credential.GetAsNullableString("ssl_pfx_file");
-                            
                             
                             options.Listen(IPAddress.Parse(host), port, listenOptions =>
                             {
@@ -305,6 +311,8 @@ namespace PipServices3.Rpc.Services
                 method = method.ToUpperInvariant();
                 _routeBuilder.MapVerb(method, route, context =>
                 {
+                    AppendAdditionalParametersFromQuery(route, context.Request);
+                    
                     var interceptor = _interceptors.Find(i => route.StartsWith(i.Route));
                     if (interceptor != null)
                     {
@@ -320,6 +328,30 @@ namespace PipServices3.Rpc.Services
 
                     return action.Invoke(context.Request, context.Response, context.GetRouteData());
                 });
+            }
+        }
+
+        private void AppendAdditionalParametersFromQuery(string route, HttpRequest request)
+        {
+            if (route.Contains("{") && route.Contains("}"))
+            {
+                var splitRoute = route.Split('/');
+                var splitPath = request.Path.Value.Split('/').Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToArray();
+
+                for (var i = 0; i < splitRoute.Length; i++)
+                {
+                    if (splitPath.Length - 1 < i) break;
+                    
+                    var r = splitRoute[i];
+                    var p = splitPath[i];
+                    if (r.StartsWith("{") && r.EndsWith("}"))
+                    {
+                        var key = r.Substring(1).Substring(0, r.Length - 2);
+                        var value = p;
+                        
+                        request.Headers.Add(key, value);
+                    }
+                }
             }
         }
 
@@ -355,6 +387,8 @@ namespace PipServices3.Rpc.Services
                 method = method.ToUpperInvariant();
                 _routeBuilder.MapVerb(method, route, context =>
                 {
+                    AppendAdditionalParametersFromQuery(route, context.Request);
+                    
                     var interceptor = _interceptors.Find(i => route.StartsWith(i.Route));
                     if (interceptor != null)
                     {

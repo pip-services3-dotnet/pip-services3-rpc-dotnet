@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -6,9 +7,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Primitives;
 using PipServices3.Commons.Config;
+using PipServices3.Commons.Convert;
 using PipServices3.Commons.Data;
 using PipServices3.Commons.Errors;
 using PipServices3.Commons.Refer;
+using PipServices3.Commons.Run;
 using PipServices3.Components.Count;
 using PipServices3.Components.Log;
 
@@ -74,6 +77,30 @@ namespace PipServices3.Rpc.Services
             );
             return paging;
         }
+
+        protected Parameters GetParameters(HttpRequest request)
+        {
+            string body;
+
+            using (var streamReader = new StreamReader(request.Body))
+            {
+                body = streamReader.ReadToEnd();
+            }
+
+            var parameters = string.IsNullOrEmpty(body) ? new Parameters() : Parameters.FromJson(body);
+
+            foreach (var pair in request.Query)
+            {
+                parameters.Add(pair.Key, pair.Value[0]);
+            }
+            
+            foreach (var pair in request.Headers)
+            {
+                parameters.Add(pair.Key, pair.Value[0]);
+            }
+            
+            return parameters;
+        }
         
         protected SortParams GetSortParams(HttpRequest request)
         {
@@ -81,6 +108,7 @@ namespace PipServices3.Rpc.Services
             var parser = FilterParams.FromString(
                 request.Query.TryGetValue("sort", out StringValues sort) ? sort.ToString() : null
             );
+            
             foreach (var sortParam in parser)
             {
                 sortParams.Add(new SortField(sortParam.Value, Convert.ToBoolean(sortParam.Value)));
