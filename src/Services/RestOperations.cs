@@ -57,9 +57,7 @@ namespace PipServices3.Rpc.Services
         protected FilterParams GetFilterParams(HttpRequest request)
         {
             var filter = new FilterParams();
-            var parser = FilterParams.FromString(request.Query.TryGetValue("filter", out StringValues filterValues)
-                ? filterValues.ToString()
-                : null);
+            var parser = FilterParams.FromString(ExtractFromQuery("filter", request));
 
             foreach (var filterParam in parser)
             {
@@ -72,9 +70,9 @@ namespace PipServices3.Rpc.Services
         protected PagingParams GetPagingParams(HttpRequest request)
         {
             var paging = PagingParams.FromTuples(
-                "total", request.Query.TryGetValue("total", out StringValues total) ? total.ToString() : null,
-                "skip", request.Query.TryGetValue("skip", out StringValues skip) ? skip.ToString() : null,
-                "take", request.Query.TryGetValue("take", out StringValues take) ? take.ToString() : null
+                "total", ExtractFromQuery("total", request),
+                "skip", ExtractFromQuery("skip", request),
+                "take", ExtractFromQuery("take", request)
             );
             return paging;
         }
@@ -103,12 +101,17 @@ namespace PipServices3.Rpc.Services
             return parameters;
         }
 
+        private static string ExtractFromQuery(string parameter, HttpRequest request)
+        {
+            return request.Query.TryGetValue(parameter, out StringValues sortValues)
+                ? sortValues.ToString()
+                : string.Empty;
+        }
+
         protected SortParams GetSortParams(HttpRequest request)
         {
             var sort = new SortParams();
-            var parser = FilterParams.FromString(
-                request.Query.TryGetValue("sort", out StringValues sortValues) ? sortValues.ToString() : null
-            );
+            var parser = FilterParams.FromString(ExtractFromQuery("sort", request));
 
             foreach (var sortParam in parser)
             {
