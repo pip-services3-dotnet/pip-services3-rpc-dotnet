@@ -16,7 +16,7 @@ namespace PipServices3.Rpc.Services
         private static readonly ConfigParams RestConfig = ConfigParams.FromTuples(
             "connection.protocol", "http",
             "connection.host", "localhost",
-            "connection.port", 3003
+            "connection.port", 3005
             );
 
         private readonly DummyController _ctrl;
@@ -128,7 +128,7 @@ namespace PipServices3.Rpc.Services
             {
                 using (var content = new StringContent(JsonConverter.ToJson(request), Encoding.UTF8, "application/json"))
                 {
-                    var response = httpClient.PostAsync($"http://localhost:3003{route}", content).Result;
+                    var response = httpClient.PostAsync($"http://localhost:3005{route}", content).Result;
 
                     return response.Content.ReadAsStringAsync().Result;
                 }

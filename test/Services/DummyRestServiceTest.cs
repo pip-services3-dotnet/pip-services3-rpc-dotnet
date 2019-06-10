@@ -1,8 +1,10 @@
 using System;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using PipServices3.Commons.Config;
 using PipServices3.Commons.Convert;
+using PipServices3.Commons.Data;
 using PipServices3.Commons.Refer;
 using Xunit;
 
@@ -55,8 +57,12 @@ namespace PipServices3.Rpc.Services
             It_Should_Be_Opened();
 
             It_Should_Create_Dummy_Async();
-
+            
+            It_Should_Create_Dummy2_Async();
+            
             It_Should_Get_Dummy_Async();
+            
+            It_Should_Get_Dummies_Async();
 
             It_Should_Delete_Dummy_Async();
         }
@@ -104,6 +110,23 @@ namespace PipServices3.Rpc.Services
             Assert.Equal(newDummy.Key, resultDummy.Key);
             Assert.Equal(newDummy.Content, resultDummy.Content);
         }
+        
+        public void It_Should_Create_Dummy2_Async()
+        {
+            var newDummy = new Dummy("2", "Key 2", "Content 2");
+
+            var result = SendRequest("post", "/api/v1/dummies", new
+            {
+                dummy = newDummy
+            });
+
+            var resultDummy = JsonConverter.FromJson<Dummy>(result);
+
+            Assert.NotNull(resultDummy);
+            Assert.NotNull(resultDummy.Id);
+            Assert.Equal(newDummy.Key, resultDummy.Key);
+            Assert.Equal(newDummy.Content, resultDummy.Content);
+        }
 
         public void It_Should_Get_Dummy_Async()
         {
@@ -119,6 +142,31 @@ namespace PipServices3.Rpc.Services
             Assert.NotNull(resultDummy.Id);
             Assert.Equal(existingDummy.Key, resultDummy.Key);
             Assert.Equal(existingDummy.Content, resultDummy.Content);
+        }
+        
+        public void It_Should_Get_Dummies_Async()
+        {
+            var existingDummy = new Dummy("1", "Key 1", "Content 1");
+            
+            var result = SendRequest("get", $"/api/v1/dummies?filter=key={existingDummy.Key}", new
+            {
+            });
+
+            var resultDummies = JsonConverter.FromJson<DataPage<Dummy>>(result);
+
+            Assert.NotNull(resultDummies);
+            Assert.NotNull(resultDummies.Data);
+            Assert.Single(resultDummies.Data);
+            
+            result = SendRequest("get", $"/api/v1/dummies", new
+            {
+            });
+
+            resultDummies = JsonConverter.FromJson<DataPage<Dummy>>(result);
+
+            Assert.NotNull(resultDummies);
+            Assert.NotNull(resultDummies.Data);
+            Assert.Equal(2, resultDummies.Data.Count());
         }
 
         private static string SendRequest(string method, string route, dynamic request)

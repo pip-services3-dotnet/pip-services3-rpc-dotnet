@@ -65,6 +65,7 @@ namespace PipServices3.Rpc.Services
             {
                 filter.Set(filterParam.Key, filterParam.Value);
             }
+
             return filter;
         }
 
@@ -93,27 +94,28 @@ namespace PipServices3.Rpc.Services
             {
                 parameters.Add(pair.Key, pair.Value[0]);
             }
-            
+
             foreach (var pair in request.Headers)
             {
                 parameters.Add(pair.Key, pair.Value[0]);
             }
-            
+
             return parameters;
         }
-        
+
         protected SortParams GetSortParams(HttpRequest request)
         {
-            var sortParams = new SortParams();
+            var sort = new SortParams();
             var parser = FilterParams.FromString(
-                request.Query.TryGetValue("sort", out StringValues sort) ? sort.ToString() : null
+                request.Query.TryGetValue("sort", out StringValues sortValues) ? sortValues.ToString() : null
             );
-            
+
             foreach (var sortParam in parser)
             {
-                sortParams.Add(new SortField(sortParam.Value, Convert.ToBoolean(sortParam.Value)));
+                sort.Add(new SortField(sortParam.Value, Convert.ToBoolean(sortParam.Value)));
             }
-            return sortParams;
+
+            return sort;
         }
 
         protected async Task SendResultAsync(HttpResponse response, object result)
@@ -141,7 +143,7 @@ namespace PipServices3.Rpc.Services
             await HttpResponseSender.SendErrorAsync(response, error);
         }
 
-        protected async Task SendBadRequestAsync(HttpRequest request, HttpResponse response,  string message)
+        protected async Task SendBadRequestAsync(HttpRequest request, HttpResponse response, string message)
         {
             var correlationId = GetCorrelationId(request);
             var error = new BadRequestException(correlationId, "BAD_REQUEST", message)
@@ -215,7 +217,7 @@ namespace PipServices3.Rpc.Services
 
             if (method != null) await Task.FromResult(method.Invoke(this, parameters));
         }
-        
+
         public async Task<dynamic> InvokeWithResponseAsync(string operation, object[] parameters)
         {
             Type t = GetType();

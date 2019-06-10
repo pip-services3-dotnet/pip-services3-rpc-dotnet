@@ -32,6 +32,7 @@ namespace PipServices3.Rpc.Services
             var correlationId = GetCorrelationId(request);
             var filter = GetFilterParams(request);
             var paging = GetPagingParams(request);
+            var sort = GetSortParams(request);
 
             var result = await _controller.GetPageByFilterAsync(correlationId, filter, paging);
 

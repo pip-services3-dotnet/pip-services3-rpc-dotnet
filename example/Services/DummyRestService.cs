@@ -68,12 +68,6 @@ namespace PipServices3.Rpc.Services
                     await _operations.UpdateAsync(request, response, user, routeData);
                 });
             
-            RegisterRouteWithAuth("put", "/dummies/{id}", auth.Anybody(),
-                async (request, response, user, routeData) =>
-                {
-                    await _operations.UpdateAsync(request, response, user, routeData);
-                });
-            
             RegisterRouteWithAuth("delete", "/dummies/{id}", auth.Anybody(),
                 async (request, response, user, routeData) =>
                 {
