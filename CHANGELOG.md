@@ -1,5 +1,24 @@
 # Remove procedure calls for Pip.Services in .NET Changelog
 
+## <a name="3.0.6"></a> 3.0.6 (2019-06-11)
+* **rest** Extended RestService
+* **rest** Added RestOperations
+* **rest** Added Interceptor
+* **endpoint** Extend HttpEndpoint
+* **swagger** Added ISwaggerService
+* **status** Added AboutOperation
+* **status** Added HeartbeatOperations
+* **connect** Extend HttpConnectionResolver
+* **auth** Added BasicAuthorizer
+* **auth** Added OwnerAuthorizer
+* **auth** Added RoleAuthorizer
+* **test** Added DummyRestService
+* **test** Added DummyRestOperations
+* **test** Added DummyRestServiceTest
+
+### Features
+* Added RESTful support
+
 ## <a name="3.0.0-3.0.5"></a> 3.0.0-3.0.5 (2019-04-10)
 * **rest** Extended RestClient
 
