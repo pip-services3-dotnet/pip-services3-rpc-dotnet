@@ -184,8 +184,10 @@ namespace PipServices3.Rpc.Services
                             response = httpClient.GetAsync($"http://localhost:3003{route}").Result;
                             break;
                         case "post":
-                        case "put":
                             response = httpClient.PostAsync($"http://localhost:3003{route}", content).Result;
+                            break;
+                        case "put":
+                            response = httpClient.PutAsync($"http://localhost:3003{route}", content).Result;
                             break;
                         case "delete":
                             response = httpClient.DeleteAsync($"http://localhost:3003{route}").Result;
