@@ -115,7 +115,7 @@ namespace PipServices3.Rpc.Services
 
             foreach (var sortParam in parser)
             {
-                sort.Add(new SortField(sortParam.Value, Convert.ToBoolean(sortParam.Value)));
+                sort.Add(new SortField(sortParam.Key, Convert.ToBoolean(sortParam.Value)));
             }
 
             return sort;
