@@ -1,6 +1,6 @@
 # Remove procedure calls for Pip.Services in .NET Changelog
 
-## <a name="3.0.6"></a> 3.0.6 (2019-06-11)
+## <a name="3.0.7"></a> 3.0.7 (2019-07-08)
 * **rest** Extended RestService
 * **rest** Added RestOperations
 * **rest** Added Interceptor
