@@ -1,5 +1,8 @@
 # Remove procedure calls for Pip.Services in .NET Changelog
 
+## <a name="3.0.8"></a> 3.0.8 (2019-07-10)
+* **connect** Added https support without credentials to HttpConnectionResolver
+
 ## <a name="3.0.7"></a> 3.0.7 (2019-07-08)
 * **rest** Extended RestService
 * **rest** Added RestOperations
