@@ -111,16 +111,21 @@ namespace PipServices3.Rpc.Connect
                         correlationId, "NO_CREDENTIAL", "SSL certificates are not configured for HTTPS protocol");
                 }
 
-                if (credential.GetAsNullableString("ssl_password") == null)
+                // Sometimes when we use https we are on an internal network and do not want to have to deal with security.
+                // When we need a https connection and we don't want to pass credentials, set the value 'no_credentials_needed' in the config yml credentials section
+                if (credential.GetAsNullableString("internal_network") == null)
                 {
-                    throw new ConfigException(
-                        correlationId, "NO_SSL_PASSWORD", "SSL password is not configured in credentials");
-                }
+                    if (credential.GetAsNullableString("ssl_password") == null)
+                    {
+                        throw new ConfigException(
+                            correlationId, "NO_SSL_PASSWORD", "SSL password is not configured in credentials");
+                    }
 
-                if (credential.GetAsNullableString("ssl_pfx_file") == null)
-                {
-                    throw new ConfigException(
-                        correlationId, "NO_SSL_PFX_FILE", "SSL pfx file is not configured in credentials");
+                    if (credential.GetAsNullableString("ssl_pfx_file") == null)
+                    {
+                        throw new ConfigException(
+                            correlationId, "NO_SSL_PFX_FILE", "SSL pfx file is not configured in credentials");
+                    }
                 }
             }
         }
@@ -144,7 +149,8 @@ namespace PipServices3.Rpc.Connect
 
             if (connection.Protocol == "https")
             {
-                connection.AddSection("credential", credential);
+                connection.AddSection("credential",
+                    credential.GetAsNullableString("internal_network") == null ? credential : new CredentialParams());
             }
             else
             {
