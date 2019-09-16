@@ -1,18 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Primitives;
 using PipServices3.Commons.Config;
 using PipServices3.Commons.Errors;
 using PipServices3.Commons.Refer;
@@ -79,7 +78,8 @@ namespace PipServices3.Rpc.Services
             "options.request_max_size", 1024 * 1024,
             "options.file_max_size", 200 * 1024 * 1024,
             "options.connect_timeout", 60000,
-            "options.debug", true
+            "options.debug", true,
+            "options.response_compression", false
         );
 
         protected HttpConnectionResolver _connectionResolver = new HttpConnectionResolver();
@@ -89,6 +89,7 @@ namespace PipServices3.Rpc.Services
 
         private bool _maintenanceEnabled;
         private long _fileMaxSize = 200 * 1024 * 1024;
+        private bool _responseCompression = false;
 
         protected IWebHost _server;
         protected RouteBuilder _routeBuilder;
@@ -133,6 +134,7 @@ namespace PipServices3.Rpc.Services
 
             _maintenanceEnabled = config.GetAsBooleanWithDefault("options.maintenance_enabled", _maintenanceEnabled);
             _fileMaxSize = config.GetAsLongWithDefault("options.file_max_size", _fileMaxSize);
+            _responseCompression = config.GetAsBooleanWithDefault("options.response_compression", _responseCompression);
         }
 
         /// <summary>
@@ -251,7 +253,21 @@ namespace PipServices3.Rpc.Services
 
         private void ConfigureServices(IServiceCollection services)
         {
+            if (_responseCompression)
+            {
+                services.AddResponseCompression(options =>
+                {
+                    options.EnableForHttps = true;
+                });
+                
+                services.Configure<BrotliCompressionProviderOptions>(options =>
+                {
+                    options.Level = CompressionLevel.Fastest;
+                });
+            }
+            
             services.AddRouting();
+
             services.AddCors(cors => cors.AddPolicy("CorsPolicy", builder =>
             {
                 builder.AllowAnyHeader()
@@ -269,11 +285,17 @@ namespace PipServices3.Rpc.Services
             {
                 registration.Register();
             }
+            
+            if (_responseCompression)
+            {
+                applicationBuilder.UseResponseCompression();
+            }
 
             var routes = _routeBuilder.Build();
             applicationBuilder
                 .UseCors("CorsPolicy")
                 .UseRouter(routes);
+
             _routeBuilder = null;
         }
 

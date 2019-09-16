@@ -1,5 +1,8 @@
 # Remove procedure calls for Pip.Services in .NET Changelog
 
+## <a name="3.0.9"></a> 3.0.9 (2019-09-16)
+* **endpoint** Added response compression ability to HttpEndpoint
+
 ## <a name="3.0.8"></a> 3.0.8 (2019-07-10)
 * **connect** Added https support without credentials to HttpConnectionResolver
 

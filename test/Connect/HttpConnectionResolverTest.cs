@@ -27,7 +27,7 @@ namespace PipServices3.Rpc.Connect
             Assert.Equal(123, connection.Port);
             Assert.Equal("http://somewhere.com:123", connection.Uri);
         }
-
+        
         [Fact]
         public void TestHttpsWithCredentialsConnectionParams()
         {
@@ -133,5 +133,6 @@ namespace PipServices3.Rpc.Connect
             Assert.Equal(123, connection.Port);
             Assert.Equal("https://somewhere.com:123", connection.Uri);
         }
+    
     }
 }
