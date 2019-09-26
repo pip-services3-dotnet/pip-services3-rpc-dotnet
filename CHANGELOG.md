@@ -1,5 +1,8 @@
 # Remove procedure calls for Pip.Services in .NET Changelog
 
+## <a name="3.0.10"></a> 3.0.10 (2019-09-26)
+* **rest operations** Added fetching of files from request parameters
+
 ## <a name="3.0.9"></a> 3.0.9 (2019-09-16)
 * **endpoint** Added response compression ability to HttpEndpoint
 

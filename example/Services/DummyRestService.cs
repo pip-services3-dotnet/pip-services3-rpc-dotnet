@@ -56,6 +56,12 @@ namespace PipServices3.Rpc.Services
                     await _operations.CreateAsync(request, response, user, routeData);
                 });
             
+            RegisterRouteWithAuth("post", "/dummies/file", auth.Anybody(),
+                async (request, response, user, routeData) =>
+                {
+                    await _operations.CreateFromFileAsync(request, response, user, routeData);
+                });
+            
             RegisterRouteWithAuth("put", "/dummies", auth.Anybody(),
                 async (request, response, user, routeData) =>
                 {

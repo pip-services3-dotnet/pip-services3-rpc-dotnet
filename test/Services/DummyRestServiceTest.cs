@@ -115,10 +115,7 @@ namespace PipServices3.Rpc.Services
         {
             var newDummy = new Dummy("2", "Key 2", "Content 2");
 
-            var result = SendRequest("post", "/api/v1/dummies", new
-            {
-                dummy = newDummy
-            });
+            var result = SendRequest("post", "/api/v1/dummies/file", newDummy, true);
 
             var resultDummy = JsonConverter.FromJson<Dummy>(result);
 
@@ -169,14 +166,24 @@ namespace PipServices3.Rpc.Services
             Assert.Equal(2, resultDummies.Data.Count());
         }
 
-        private static string SendRequest(string method, string route, dynamic request)
+        private static string SendRequest(string method, string route, dynamic request, bool formData = false)
         {
             using (var httpClient = new HttpClient())
             {
-                using (var content =
-                    new StringContent(JsonConverter.ToJson(request), Encoding.UTF8, "application/json"))
+                HttpContent content;
+                if (formData)
                 {
-                    var response = new HttpResponseMessage();
+                    content = new MultipartFormDataContent()
+                    {
+                        {new StringContent(JsonConverter.ToJson(request)), "file", "test_file.json"}
+                    };
+                }
+                else
+                {
+                    content = new StringContent(JsonConverter.ToJson(request), Encoding.UTF8, "application/json");
+                }
+
+                var response = new HttpResponseMessage();
 
                     switch (method)
                     {
@@ -194,8 +201,7 @@ namespace PipServices3.Rpc.Services
                             break;
                     }
 
-                    return response.Content.ReadAsStringAsync().Result;
-                }
+                return response.Content.ReadAsStringAsync().Result;
             }
         }
     }

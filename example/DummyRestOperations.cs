@@ -1,4 +1,7 @@
+using System.IO;
+using System.Linq.Expressions;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -46,6 +49,31 @@ namespace PipServices3.Rpc.Services
             var parameters = GetParameters(request);
             var dummy = JsonConverter.FromJson<Dummy>(JsonConverter.ToJson(parameters.GetAsObject("dummy")));
 
+            var result = await _controller.CreateAsync(correlationId, dummy);
+
+            await SendResultAsync(response, result);
+        }
+        
+        public async Task CreateFromFileAsync(HttpRequest request, HttpResponse response, ClaimsPrincipal user,
+            RouteData routeData)
+        {
+            var correlationId = GetCorrelationId(request);
+            var parameters = GetParameters(request);
+            var dummyFile = parameters.RequestFiles.Count > 0 ? parameters.RequestFiles[0] : null;
+            
+            byte[] fileContent;
+
+            using (var memoryStream = new MemoryStream())
+            {
+                    await dummyFile.CopyToAsync(memoryStream);
+                    memoryStream.Seek(0, SeekOrigin.Begin);
+                    fileContent = new byte[memoryStream.Length];
+                    await memoryStream.ReadAsync(fileContent, 0, fileContent.Length);
+            }
+
+            var json = Encoding.UTF8.GetString(fileContent);
+            var dummy = JsonConverter.FromJson<Dummy>(json);
+            
             var result = await _controller.CreateAsync(correlationId, dummy);
 
             await SendResultAsync(response, result);

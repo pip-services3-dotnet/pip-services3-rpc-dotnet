@@ -34,7 +34,6 @@ namespace PipServices3.Rpc.Services
         /// </summary>
         protected DependencyResolver _dependencyResolver = new DependencyResolver();
 
-
         public void Configure(ConfigParams config)
         {
             _dependencyResolver.Configure(config);
@@ -77,17 +76,23 @@ namespace PipServices3.Rpc.Services
             return paging;
         }
 
-        protected Parameters GetParameters(HttpRequest request)
+        protected RestOperationParameters GetParameters(HttpRequest request)
         {
             string body;
 
+            var formCollection = request.HasFormContentType ? request.ReadFormAsync().Result : null;
+            
             using (var streamReader = new StreamReader(request.Body))
             {
                 body = streamReader.ReadToEnd();
             }
 
-            var parameters = string.IsNullOrEmpty(body) ? new Parameters() : Parameters.FromJson(body);
+            var parameters = string.IsNullOrEmpty(body) 
+                ? new RestOperationParameters() : RestOperationParameters.FromJson(body);
 
+            parameters.RequestBody = body;
+            parameters.RequestFiles = formCollection?.Files;
+            
             foreach (var pair in request.Query)
             {
                 parameters.Add(pair.Key, pair.Value[0]);
