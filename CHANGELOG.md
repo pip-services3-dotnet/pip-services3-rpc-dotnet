@@ -1,5 +1,8 @@
 # Remove procedure calls for Pip.Services in .NET Changelog
 
+## <a name="3.2.0"></a> 3.2.0 (2019-10-19)
+* **clients** Added instrumentation to error handling
+
 ## <a name="3.0.10"></a> 3.0.10 (2019-09-26)
 * **rest operations** Added fetching of files from request parameters
 

@@ -58,7 +58,7 @@ namespace PipServices3.Rpc.Clients
     ///         }
     ///         catch (Exception ex)
     ///         {
-    ///           this.InstrumentError(correlationId, ex, 'myclient.get_data', true);
+    ///           this.InstrumentError(correlationId, "myclient.get_data", ex, true);
     ///         }
     ///         finally
     ///         {
