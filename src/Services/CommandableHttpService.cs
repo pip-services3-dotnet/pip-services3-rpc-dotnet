@@ -84,6 +84,7 @@ namespace PipServices3.Rpc.Services
             {
                 RegisterRoute("post", command.Name, async (request, response, routeData) =>
                 {
+                    var correlationId = "";
                     try
                     {
                         var body = string.Empty;
@@ -94,7 +95,7 @@ namespace PipServices3.Rpc.Services
                         }
 
                         var parameters = string.IsNullOrEmpty(body) ? new Parameters() : Parameters.FromJson(body);
-                        var correlationId = request.Query.ContainsKey("correlation_id")
+                        correlationId = request.Query.ContainsKey("correlation_id")
                            ? request.Query["correlation_id"][0]
                            : parameters.GetAsStringWithDefault("correlation_id", string.Empty);
 
@@ -106,6 +107,7 @@ namespace PipServices3.Rpc.Services
                     }
                     catch (Exception ex)
                     {
+                        InstrumentError(correlationId, _baseRoute + '.' + command.Name, ex);
                         await SendErrorAsync(response, ex);
                     }
                 });

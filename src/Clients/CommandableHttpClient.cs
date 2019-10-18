@@ -89,7 +89,7 @@ namespace PipServices3.Rpc.Clients
             }
             catch (Exception ex)
             {
-                InstrumentError(correlationId, ex, _baseRoute + "." + route);
+                InstrumentError(correlationId, _baseRoute + "." + route, ex);
                 throw ex;
             }
             finally

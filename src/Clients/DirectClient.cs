@@ -175,10 +175,10 @@ namespace PipServices3.Rpc.Clients
         /// Adds instrumentation to error handling.
         /// </summary>
         /// <param name="correlationId">(optional) transaction id to trace execution through call chain.</param>
-        /// <param name="ex">Error that occured during the method call</param>
         /// <param name="methodName">a method name.</param>
+        /// <param name="ex">Error that occured during the method call</param>
         /// <param name="rethrow">True to throw the exception</param>
-        protected void InstrumentError(string correlationId, Exception ex, [CallerMemberName]string methodName = null, bool rethrow = false)
+        protected void InstrumentError(string correlationId, [CallerMemberName]string methodName = null, Exception ex = null, bool rethrow = false)
         {
             var typeName = GetType().Name;
             _logger.Error(correlationId, ex, "Failed to call {0} method of {1}", methodName, typeName);

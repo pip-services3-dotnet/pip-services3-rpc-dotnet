@@ -175,12 +175,29 @@ namespace PipServices3.Rpc.Services
         /// object that is used to end the time measurement.
         /// </summary>
         /// <param name="correlationId">(optional) transaction id to trace execution through call chain.</param>
-        /// <param name="name">a method name.</param>
+        /// <param name="methodName">a method name.</param>
         /// <returns>Timing object to end the time measurement.</returns>
-        protected Timing Instrument(string correlationId, string name)
+        protected Timing Instrument(string correlationId, string methodName)
         {
-            _logger.Trace(correlationId, "Executing {0} method", name);
-            return _counters.BeginTiming(name + ".exec_time");
+            _logger.Trace(correlationId, "Executing {0} method", methodName);
+            _counters.IncrementOne(methodName + "exec_count");
+            return _counters.BeginTiming(methodName + ".exec_time");
+        }
+
+        /// <summary>
+        /// Adds instrumentation to error handling.
+        /// </summary>
+        /// <param name="correlationId">(optional) transaction id to trace execution through call chain.</param>
+        /// <param name="methodName">a method name.</param>
+        /// <param name="ex">Error that occured during the method call</param>
+        /// <param name="rethrow">True to throw the exception</param>
+        protected void InstrumentError(string correlationId, string methodName, Exception ex, bool rethrow = false)
+        {
+            _logger.Error(correlationId, ex, "Failed to execute {0} method", methodName);
+            _counters.IncrementOne(methodName + ".exec_errors");
+
+            if (rethrow)
+                throw ex;
         }
 
         /// <summary>
