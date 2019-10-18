@@ -1,9 +1,10 @@
-﻿using PipServices3.Commons.Refer;
+﻿using System;
+using PipServices3.Commons.Refer;
 using Xunit;
 
 namespace PipServices3.Rpc.Clients
 {
-    public class DummyDirectClientTest
+    public class DummyDirectClientTest: IDisposable
     {
         private readonly DummyController _ctrl;
         private readonly DummyDirectClient _client;

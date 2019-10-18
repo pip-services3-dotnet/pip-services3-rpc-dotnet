@@ -17,7 +17,7 @@ namespace PipServices3.Rpc.Services
             "connection.protocol", "http",
             "connection.host", "localhost",
             "connection.port", 3005
-            );
+        );
 
         private readonly DummyController _ctrl;
         private readonly DummyCommandableHttpService _serviceV1;
@@ -65,19 +65,19 @@ namespace PipServices3.Rpc.Services
         {
             It_Should_Be_Opened();
 
-            It_Should_Create_Dummy_Async();
+            It_Should_Create_Dummy();
 
-            It_Should_Get_Dummy_Async();
+            It_Should_Get_Dummy();
 
-            It_Should_Ping_Dummy_Async();
+            It_Should_Ping_Dummy();
         }
 
-        public void It_Should_Be_Opened()
+        private void It_Should_Be_Opened()
         {
             Assert.True(_httpEndpoint.IsOpen());
         }
 
-        public void It_Should_Create_Dummy_Async()
+        private void It_Should_Create_Dummy()
         {
             var newDummy = new Dummy("1", "Key 1", "Content 1");
 
@@ -94,7 +94,7 @@ namespace PipServices3.Rpc.Services
             Assert.Equal(newDummy.Content, resultDummy.Content);
         }
 
-        public void It_Should_Get_Dummy_Async()
+        private void It_Should_Get_Dummy()
         {
             var existingDummy = new Dummy("1", "Key 1", "Content 1");
 
@@ -111,7 +111,7 @@ namespace PipServices3.Rpc.Services
             Assert.Equal(existingDummy.Content, resultDummy.Content);
         }
 
-        public void It_Should_Ping_Dummy_Async()
+        private void It_Should_Ping_Dummy()
         {
             var result = SendPostRequest("/api/v2/dummy/ping_dummy", new { });
 

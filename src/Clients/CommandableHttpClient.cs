@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace PipServices3.Rpc.Clients
@@ -81,9 +82,19 @@ namespace PipServices3.Rpc.Clients
         public Task<T> CallCommandAsync<T>(string route, string correlationId, object requestEntity)
             where T : class
         {
-            using (var timing = Instrument(correlationId, _baseRoute + "." + route))
+            var timing = Instrument(correlationId, _baseRoute + "." + route);
+            try
             {
                 return ExecuteAsync<T>(correlationId, HttpMethod.Post, route, requestEntity);
+            }
+            catch (Exception ex)
+            {
+                InstrumentError(correlationId, ex, _baseRoute + "." + route);
+                throw ex;
+            }
+            finally
+            {
+                timing.EndTiming();
             }
         }
     }

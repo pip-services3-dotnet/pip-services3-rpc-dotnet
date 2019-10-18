@@ -56,18 +56,18 @@ namespace PipServices3.Rpc.Services
         {
             It_Should_Be_Opened();
 
-            It_Should_Create_Dummy_Async();
+            It_Should_Create_Dummy();
             
-            It_Should_Create_Dummy2_Async();
+            It_Should_Create_Dummy2();
             
-            It_Should_Get_Dummy_Async();
+            It_Should_Get_Dummy();
             
-            It_Should_Get_Dummies_Async();
+            It_Should_Get_Dummies();
 
-            It_Should_Delete_Dummy_Async();
+            It_Should_Delete_Dummy();
         }
 
-        private void It_Should_Delete_Dummy_Async()
+        private void It_Should_Delete_Dummy()
         {
             var existingDummy = new Dummy("1", "Key 1", "Content 1");
 
@@ -89,12 +89,12 @@ namespace PipServices3.Rpc.Services
             Assert.Empty(result);
         }
 
-        public void It_Should_Be_Opened()
+        private void It_Should_Be_Opened()
         {
             Assert.True(_httpEndpoint.IsOpen());
         }
 
-        public void It_Should_Create_Dummy_Async()
+        private void It_Should_Create_Dummy()
         {
             var newDummy = new Dummy("1", "Key 1", "Content 1");
 
@@ -110,8 +110,8 @@ namespace PipServices3.Rpc.Services
             Assert.Equal(newDummy.Key, resultDummy.Key);
             Assert.Equal(newDummy.Content, resultDummy.Content);
         }
-        
-        public void It_Should_Create_Dummy2_Async()
+
+        private void It_Should_Create_Dummy2()
         {
             var newDummy = new Dummy("2", "Key 2", "Content 2");
 
@@ -125,7 +125,7 @@ namespace PipServices3.Rpc.Services
             Assert.Equal(newDummy.Content, resultDummy.Content);
         }
 
-        public void It_Should_Get_Dummy_Async()
+        private void It_Should_Get_Dummy()
         {
             var existingDummy = new Dummy("1", "Key 1", "Content 1");
 
@@ -140,8 +140,8 @@ namespace PipServices3.Rpc.Services
             Assert.Equal(existingDummy.Key, resultDummy.Key);
             Assert.Equal(existingDummy.Content, resultDummy.Content);
         }
-        
-        public void It_Should_Get_Dummies_Async()
+
+        private void It_Should_Get_Dummies()
         {
             var existingDummy = new Dummy("1", "Key 1", "Content 1");
             

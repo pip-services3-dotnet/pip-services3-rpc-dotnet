@@ -139,7 +139,7 @@ namespace PipServices3.Rpc.Services
       return JsonConverter.ToJson((object) this);
     }
 
-    public static RestOperationParameters FromTuples(params object[] tuples)
+    public static new RestOperationParameters FromTuples(params object[] tuples)
     {
       return new RestOperationParameters((IDictionary) AnyValueMap.FromTuples(tuples));
     }

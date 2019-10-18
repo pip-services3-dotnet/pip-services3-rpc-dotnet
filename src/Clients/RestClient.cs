@@ -52,8 +52,18 @@ namespace PipServices3.Rpc.Clients
     ///     public MyData GetData(string correlationId, string id)
     ///     {
     ///         var timing = this.Instrument(correlationId, 'myclient.get_data');
-    ///         var result = this.ExecuteAsync<MyData>(correlationId, HttpMethod.Post, "/get_data", new MyData(id));
-    ///         timing.EndTiming();
+    ///         try
+    ///         {
+    ///           var result = this.ExecuteAsync<MyData>(correlationId, HttpMethod.Post, "/get_data", new MyData(id));
+    ///         }
+    ///         catch (Exception ex)
+    ///         {
+    ///           this.InstrumentError(correlationId, ex, 'myclient.get_data', true);
+    ///         }
+    ///         finally
+    ///         {
+    ///           timing.EndTiming();
+    ///         }
     ///         return result;        
     ///     }
     ///     ...
@@ -153,7 +163,25 @@ namespace PipServices3.Rpc.Clients
         {
             var typeName = GetType().Name;
             _logger.Trace(correlationId, "Calling {0} method of {1}", methodName, typeName);
+            _counters.IncrementOne(typeName + "." + methodName + ".call_count");
             return _counters.BeginTiming(typeName + "." + methodName + ".call_time");
+        }
+
+        /// <summary>
+        /// Adds instrumentation to error handling.
+        /// </summary>
+        /// <param name="correlationId">(optional) transaction id to trace execution through call chain.</param>
+        /// <param name="ex">Error that occured during the method call</param>
+        /// <param name="methodName">a method name.</param>
+        /// <param name="rethrow">True to throw the exception</param>
+        protected void InstrumentError(string correlationId, Exception ex, [CallerMemberName]string methodName = null, bool rethrow = false)
+        {
+            var typeName = GetType().Name;
+            _logger.Error(correlationId, ex, "Failed to call {0} method of {1}", methodName, typeName);
+            _counters.IncrementOne(typeName + "." + methodName + ".call_errors");
+
+            if (rethrow)
+                throw ex;
         }
 
         /// <summary>
