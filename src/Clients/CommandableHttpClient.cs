@@ -79,13 +79,13 @@ namespace PipServices3.Rpc.Clients
         /// <param name="correlationId">(optional) transaction id to trace execution through call chain.</param>
         /// <param name="requestEntity">body object.</param>
         /// <returns>result of the command.</returns>
-        public Task<T> CallCommandAsync<T>(string route, string correlationId, object requestEntity)
+        public async Task<T> CallCommandAsync<T>(string route, string correlationId, object requestEntity)
             where T : class
         {
             var timing = Instrument(correlationId, _baseRoute + "." + route);
             try
             {
-                return ExecuteAsync<T>(correlationId, HttpMethod.Post, route, requestEntity);
+                return await ExecuteAsync<T>(correlationId, HttpMethod.Post, route, requestEntity);
             }
             catch (Exception ex)
             {

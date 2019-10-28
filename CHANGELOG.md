@@ -1,5 +1,9 @@
 # Remove procedure calls for Pip.Services in .NET Changelog
 
+## <a name="3.2.1"></a> 3.2.1 (2019-10-29)
+### Fixes
+* **clients** Added async and await to CallCommandAsync in CommandableHttpClient
+
 ## <a name="3.2.0"></a> 3.2.0 (2019-10-19)
 * **clients** Added instrumentation to error handling
 
