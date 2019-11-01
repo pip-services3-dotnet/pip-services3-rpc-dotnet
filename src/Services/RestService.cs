@@ -180,7 +180,7 @@ namespace PipServices3.Rpc.Services
         protected Timing Instrument(string correlationId, string methodName)
         {
             _logger.Trace(correlationId, "Executing {0} method", methodName);
-            _counters.IncrementOne(methodName + "exec_count");
+            _counters.IncrementOne(methodName + ".exec_count");
             return _counters.BeginTiming(methodName + ".exec_time");
         }
 

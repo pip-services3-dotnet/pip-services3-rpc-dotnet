@@ -1,5 +1,9 @@
 # Remove procedure calls for Pip.Services in .NET Changelog
 
+## <a name="3.2.2"></a> 3.2.2 (2019-11-01)
+### Fixes
+* **services** Fixed metrics naming in RestService
+
 ## <a name="3.2.1"></a> 3.2.1 (2019-10-29)
 ### Fixes
 * **clients** Added async and await to CallCommandAsync in CommandableHttpClient
