@@ -59,6 +59,8 @@ namespace PipServices3.Rpc.Services
             It_Should_Create_Dummy();
             
             It_Should_Create_Dummy2();
+
+            It_Should_Update_Dummy2();
             
             It_Should_Get_Dummy();
             
@@ -123,6 +125,20 @@ namespace PipServices3.Rpc.Services
             Assert.NotNull(resultDummy.Id);
             Assert.Equal(newDummy.Key, resultDummy.Key);
             Assert.Equal(newDummy.Content, resultDummy.Content);
+        }
+        
+        private void It_Should_Update_Dummy2()
+        {
+            var dummy = new Dummy("2", "Key 2", "Content 3");
+
+            var result = SendRequest("put", $"/api/v1/dummies/myOwnId", dummy);
+
+            var resultDummy = JsonConverter.FromJson<Dummy>(result);
+
+            Assert.NotNull(resultDummy);
+            Assert.NotNull(resultDummy.Id);
+            Assert.Equal(dummy.Key, resultDummy.Key);
+            Assert.Equal(dummy.Content, resultDummy.Content);
         }
 
         private void It_Should_Get_Dummy()

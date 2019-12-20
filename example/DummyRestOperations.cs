@@ -84,8 +84,8 @@ namespace PipServices3.Rpc.Services
         {
             var correlationId = GetCorrelationId(request);
             var parameters = GetParameters(request);
-            var dummy = JsonConverter.FromJson<Dummy>(JsonConverter.ToJson(parameters.GetAsObject("dummy")));
-
+            var dummy = JsonConverter.FromJson<Dummy>(parameters.RequestBody);
+            
             var result = await _controller.UpdateAsync(correlationId, dummy);
 
             await SendResultAsync(response, result);

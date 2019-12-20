@@ -1,5 +1,13 @@
 # Remove procedure calls for Pip.Services in .NET Changelog
 
+## <a name="3.2.4"></a> 3.2.4 (2019-12-21)
+### Fixes
+* **services** Fixed rest operations retrieving order
+
+## <a name="3.2.3"></a> 3.2.3 (2019-12-20)
+### Fixes
+* **services** Fixed rest operations retrieving
+
 ## <a name="3.2.2"></a> 3.2.2 (2019-11-01)
 ### Fixes
 * **services** Fixed metrics naming in RestService

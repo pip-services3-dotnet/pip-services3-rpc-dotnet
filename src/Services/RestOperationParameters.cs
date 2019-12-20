@@ -23,6 +23,9 @@ namespace PipServices3.Rpc.Services
 
     public string RequestBody = null;
     public IFormFileCollection RequestFiles = null;
+    public AnyValueMap Headers = new AnyValueMap();
+    public AnyValueMap BodyParameters = new AnyValueMap();
+    public AnyValueMap QueryParameters = new AnyValueMap();
 
     public override object Get(string path)
     {
@@ -139,7 +142,7 @@ namespace PipServices3.Rpc.Services
       return JsonConverter.ToJson((object) this);
     }
 
-    public static new RestOperationParameters FromTuples(params object[] tuples)
+    public new static RestOperationParameters FromTuples(params object[] tuples)
     {
       return new RestOperationParameters((IDictionary) AnyValueMap.FromTuples(tuples));
     }
@@ -155,6 +158,19 @@ namespace PipServices3.Rpc.Services
       if (nullableMap == null)
         return new RestOperationParameters();
       return new RestOperationParameters((IDictionary) nullableMap);
+    }
+    
+    public static RestOperationParameters FromBody(string json)
+    {
+      IDictionary<string, object> nullableMap = JsonConverter.ToNullableMap(json);
+      if (nullableMap == null)
+        return new RestOperationParameters();
+      var res = new RestOperationParameters((IDictionary) nullableMap)
+      {
+        BodyParameters = new AnyValueMap(nullableMap)
+      };
+
+      return res;
     }
 
     public static RestOperationParameters FromConfig(ConfigParams config)

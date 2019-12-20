@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Net;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -88,19 +89,21 @@ namespace PipServices3.Rpc.Services
             }
 
             var parameters = string.IsNullOrEmpty(body) 
-                ? new RestOperationParameters() : RestOperationParameters.FromJson(body);
+                ? new RestOperationParameters() : RestOperationParameters.FromBody(body);
 
             parameters.RequestBody = body;
             parameters.RequestFiles = formCollection?.Files;
             
             foreach (var pair in request.Query)
             {
-                parameters.Add(pair.Key, pair.Value[0]);
+                parameters.QueryParameters.Set(pair.Key, pair.Value[0]);
+                parameters.Set(pair.Key, pair.Value[0]);
             }
 
             foreach (var pair in request.Headers)
             {
-                parameters.Add(pair.Key, pair.Value[0]);
+                parameters.Headers.Set(pair.Key, pair.Value[0]);
+                parameters.Set(pair.Key, pair.Value[0]);
             }
 
             return parameters;
