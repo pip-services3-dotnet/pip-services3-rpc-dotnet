@@ -13,10 +13,14 @@ namespace PipServices3.Rpc.Build
     /// <a href="https://rawgit.com/pip-services3-dotnet/pip-services3-rpc-dotnet/master/doc/api/class_pip_services_1_1_rpc_1_1_services_1_1_heartbeat_rest_service.html">HeartbeatRestService</a>
     public class DefaultRpcFactory : Factory
     {
-        public static Descriptor Descriptor = new Descriptor("pip-services3", "factory", "rpc", "default", "1.0");
-        public static Descriptor HttpEndpointDescriptor = new Descriptor("pip-services3", "endpoint", "http", "*", "1.0");
-        public static Descriptor StatusServiceDescriptor = new Descriptor("pip-services3", "status-service", "http", "*", "1.0");
-        public static Descriptor HeartbeatServiceDescriptor = new Descriptor("pip-services3", "heartbeat-service", "http", "*", "1.0");
+        public static Descriptor Descriptor = new Descriptor("pip-services", "factory", "rpc", "default", "1.0");
+        public static Descriptor Descriptor3 = new Descriptor("pip-services3", "factory", "rpc", "default", "1.0");
+        public static Descriptor HttpEndpointDescriptor = new Descriptor("pip-services", "endpoint", "http", "*", "1.0");
+        public static Descriptor HttpEndpoint3Descriptor = new Descriptor("pip-services3", "endpoint", "http", "*", "1.0");
+        public static Descriptor StatusServiceDescriptor = new Descriptor("pip-services", "status-service", "http", "*", "1.0");
+        public static Descriptor StatusService3Descriptor = new Descriptor("pip-services3", "status-service", "http", "*", "1.0");
+        public static Descriptor HeartbeatServiceDescriptor = new Descriptor("pip-services", "heartbeat-service", "http", "*", "1.0");
+        public static Descriptor HeartbeatService3Descriptor = new Descriptor("pip-services3", "heartbeat-service", "http", "*", "1.0");
 
         /// <summary>
         /// Create a new instance of the factory.
@@ -24,8 +28,11 @@ namespace PipServices3.Rpc.Build
         public DefaultRpcFactory()
         {
             RegisterAsType(HttpEndpointDescriptor, typeof(HttpEndpoint));
+            RegisterAsType(HttpEndpoint3Descriptor, typeof(HttpEndpoint));
             RegisterAsType(StatusServiceDescriptor, typeof(StatusRestService));
+            RegisterAsType(StatusService3Descriptor, typeof(StatusRestService));
             RegisterAsType(HeartbeatServiceDescriptor, typeof(HeartbeatRestService));
+            RegisterAsType(HeartbeatService3Descriptor, typeof(HeartbeatRestService));
         }
     }
 }

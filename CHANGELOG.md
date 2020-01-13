@@ -1,5 +1,9 @@
 # Remove procedure calls for Pip.Services in .NET Changelog
 
+## <a name="3.2.5"></a> 3.2.5 (2020-01-13)
+### Breaking Changes
+* Added 'pip-services' descriptors
+
 ## <a name="3.2.4"></a> 3.2.4 (2019-12-21)
 ### Fixes
 * **services** Fixed rest operations retrieving order
