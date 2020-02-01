@@ -6,9 +6,9 @@
     <AssemblyName>PipServices3.Rpc</AssemblyName>
     <ApplicationIcon />
     <Win32Resource />
-    <Version>3.2.5</Version>
+    <Version>3.2.6</Version>
     <Authors>Sergey Seroukhov, Volodymyr Tkachenko, Alex Mazur, Alexey Dvoykin</Authors>
-    <Copyright>Conceptual Vision Consulting LLC. 2017-2019</Copyright>
+    <Copyright>Conceptual Vision Consulting LLC. 2017-2020</Copyright>
     <Description>Remove procedure calls for Pip.Services in .NET</Description>
     <Company>Conceptual Vision Consulting LLC.</Company>
     <Product>PipServices3.Rpc</Product>

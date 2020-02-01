@@ -116,6 +116,10 @@ namespace PipServices3.Rpc.Clients
         /// The number of retries.
         /// </summary>
         protected int _retries = 1;
+        /// <summary>
+        /// The invocation timeout (ms).
+        /// </summary>
+        protected int _timeout = 100000;
 
         /// <summary>
         /// The HTTP client.
@@ -137,6 +141,7 @@ namespace PipServices3.Rpc.Clients
             _options = _options.Override(config.GetSection("options"));
 
             _retries = config.GetAsIntegerWithDefault("options.retries", _retries);
+            _timeout = config.GetAsIntegerWithDefault("options.timeout", _timeout); ;
 
             _baseRoute = config.GetAsStringWithDefault("base_route", _baseRoute);
         }
@@ -216,6 +221,7 @@ namespace PipServices3.Rpc.Clients
                 UseCookies = true
             });
 
+            _client.Timeout = TimeSpan.FromMilliseconds(_timeout);
             _client.DefaultRequestHeaders.ConnectionClose = true;
 
             _logger.Debug(correlationId, "Connected via REST to {0}", _address);

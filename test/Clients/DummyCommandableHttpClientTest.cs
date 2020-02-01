@@ -12,7 +12,8 @@ namespace PipServices3.Rpc.Clients
     public sealed class DummyCommandableHttpClientTest : IDisposable
     {
         private static readonly ConfigParams RestConfig = ConfigParams.FromTuples(
-            "connection.uri", "http://localhost:3000"
+            "connection.uri", "http://localhost:3000",
+            "options.timeout", 15000
             //"connection.protocol", "http",
             //"connection.host", "localhost",
             //"connection.port", 3000
