@@ -1,5 +1,9 @@
 # Remove procedure calls for Pip.Services in .NET Changelog
 
+## <a name="3.3.0"></a> 3.3.0 (2020-05-26)
+### Breaking Changes
+* Migrated to .NET Core 3.1
+
 ## <a name="3.2.6"></a> 3.2.6 (2020-01-31)
 ### Fixes
 * **clients** Added invocation timeout for RestClient

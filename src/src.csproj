@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <RootNamespace>PipServices3.Rpc</RootNamespace>
     <AssemblyName>PipServices3.Rpc</AssemblyName>
     <ApplicationIcon />
     <Win32Resource />
-    <Version>3.2.6</Version>
+    <Version>3.3.0</Version>
     <Authors>Sergey Seroukhov, Volodymyr Tkachenko, Alex Mazur, Alexey Dvoykin</Authors>
     <Copyright>Conceptual Vision Consulting LLC. 2017-2020</Copyright>
     <Description>Remove procedure calls for Pip.Services in .NET</Description>
@@ -20,10 +20,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Cors" Version="2.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Cors" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.ResponseCompression" Version="2.2.0" />
-    <PackageReference Include="PipServices3.Commons" Version="3.0.6" />
-    <PackageReference Include="PipServices3.Components" Version="3.0.4" />
+    <PackageReference Include="PipServices3.Commons" Version="3.1.0" />
+    <PackageReference Include="PipServices3.Components" Version="3.1.0" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
   </ItemGroup>
 </Project>
