@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using PipServices3.Commons.Commands;
 using PipServices3.Commons.Run;
@@ -112,7 +113,23 @@ namespace PipServices3.Rpc.Services
                     }
                 });
             }
+
+            if (_swaggerEnable)
+            {
+                var openApiContent = OnCreateOpenApiSpec(commands);
+                RegisterOpenApiSpec(openApiContent);
+            }
         }
 
+        protected virtual string OnCreateOpenApiSpec(List<ICommand> commands)
+        {
+            var document = new CommandableSwaggerDocument(_baseRoute, commands)
+            {
+                InfoTitle = _swaggerName ?? "CommandableHttpService",
+                InfoDescription = _swaggerDescription ?? "Commandable microservice"
+            };
+
+            return document.ToString();
+        }
     }
 }

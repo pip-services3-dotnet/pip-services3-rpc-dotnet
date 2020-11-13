@@ -8,6 +8,6 @@ namespace PipServices3.Rpc.Services
         /// <summary>
         /// Perform required Swagger registration steps.
         /// </summary>
-        void RegisterSwagger();
+        void RegisterOpenApiSpec(string baseRoute, string content);
     }
 }

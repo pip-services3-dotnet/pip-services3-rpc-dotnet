@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,7 +14,8 @@ namespace PipServices3.Rpc.Clients
     {
         private static readonly ConfigParams RestConfig = ConfigParams.FromTuples(
             "connection.uri", "http://localhost:3000",
-            "options.timeout", 15000
+            "options.timeout", 15000,
+            "swagger.enable", "true"
             //"connection.protocol", "http",
             //"connection.host", "localhost",
             //"connection.port", 3000
@@ -60,6 +62,18 @@ namespace PipServices3.Rpc.Clients
             var task = _fixture.TestCrudOperations();
             task.Wait();
         }
+
+        [Fact]
+        public async Task TestOpenApiAsync()
+        {
+            var serviceUri = RestConfig.GetAsString("connection.uri");
+
+			using var httpClient = new HttpClient();
+			var response = await httpClient.GetAsync($"{serviceUri}/dummy/swagger");
+			var openApiContent = await response.Content.ReadAsStringAsync();
+
+			Assert.StartsWith("openapi:", openApiContent);
+		}
 
         [Fact]
         public void TestExceptionPropagation()

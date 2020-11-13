@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -103,10 +105,16 @@ namespace PipServices3.Rpc.Services
         /// </summary>
         protected string _baseRoute;
 
+        protected bool _swaggerEnable = false;
+        protected string _swaggerRoute = "swagger";
+        protected string _swaggerName = null;
+        protected string _swaggerDescription = null;
+
         private ConfigParams _config;
         private IReferences _references;
         private bool _localEndpoint;
         private bool _opened;
+
 
         /// <summary>
         /// Configures component by passing configuration parameters.
@@ -118,6 +126,11 @@ namespace PipServices3.Rpc.Services
             _dependencyResolver.Configure(config);
 
             _baseRoute = config.GetAsStringWithDefault("base_route", _baseRoute);
+
+            _swaggerEnable = config.GetAsBooleanWithDefault("swagger.enable", _swaggerEnable);
+            _swaggerRoute = config.GetAsStringWithDefault("swagger.route", _swaggerRoute);
+            _swaggerName = config.GetAsStringWithDefault("swagger.name", _swaggerName);
+            _swaggerDescription = config.GetAsStringWithDefault("swagger.description", _swaggerDescription);
         }
 
         /// <summary>
@@ -374,5 +387,26 @@ namespace PipServices3.Rpc.Services
 
         public virtual void Register()
         { }
+
+        protected virtual void RegisterOpenApiFromFile(string path)
+        {
+            var content = File.ReadAllText(path);
+            RegisterOpenApiSpec(content);
+        }
+
+        protected virtual void RegisterOpenApiSpec(string content)
+        {
+            if (_swaggerEnable)
+            {
+                var responseContent = content;
+
+                RegisterRoute(HttpMethods.Get, _swaggerRoute, async (request, response, routeData) =>
+                {
+                    response.ContentType = "application/json";
+                    response.StatusCode = (int)HttpStatusCode.OK;
+                    await response.WriteAsync(responseContent);
+                });
+            }
+        }
     }
 }

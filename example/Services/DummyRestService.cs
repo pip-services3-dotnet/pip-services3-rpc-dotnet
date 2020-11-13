@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using PipServices3.Commons.Config;
 using PipServices3.Commons.Refer;
 using PipServices3.Rpc.Auth;
 
@@ -12,8 +13,18 @@ namespace PipServices3.Rpc.Services
     {
         private DummyRestOperations _operations = new DummyRestOperations();
         private int _numberOfCalls = 0;
+        private string _openApiContent;
+        private string _openApiFile;
 
-        public override void SetReferences(IReferences references)
+        public override void Configure(ConfigParams config)
+		{
+			base.Configure(config);
+
+            _openApiContent = config.GetAsNullableString("openapi_content");
+            _openApiFile = config.GetAsNullableString("openapi_file");
+        }
+
+		public override void SetReferences(IReferences references)
         {
             base.SetReferences(references);
 
@@ -79,6 +90,12 @@ namespace PipServices3.Rpc.Services
                 {
                     await _operations.DeleteByIdAsync(request, response, user, routeData);
                 });
+
+			if (!string.IsNullOrWhiteSpace(_openApiContent))
+				RegisterOpenApiSpec(_openApiContent);
+
+            if (!string.IsNullOrWhiteSpace(_openApiFile))
+                RegisterOpenApiFromFile(_openApiFile);
         }
     }
 }
