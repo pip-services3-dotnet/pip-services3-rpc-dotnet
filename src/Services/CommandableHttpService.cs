@@ -64,6 +64,8 @@ namespace PipServices3.Rpc.Services
     /// </example>
     public class CommandableHttpService : RestService
     {
+        protected bool _swaggerAuto = false;
+
         /// <summary>
         /// Creates a new instance of the service.
         /// </summary>
@@ -74,10 +76,17 @@ namespace PipServices3.Rpc.Services
             _dependencyResolver.Put("controller", "none");
         }
 
-		/// <summary>
-		/// Registers all service routes in HTTP endpoint.
-		/// </summary>
-		public override void Register()
+        public override void Configure(ConfigParams config)
+        {
+            base.Configure(config);
+
+            _swaggerAuto = config.GetAsBooleanWithDefault("swagger.auto", true);
+        }
+
+        /// <summary>
+        /// Registers all service routes in HTTP endpoint.
+        /// </summary>
+        public override void Register()
         {
             var controller = _dependencyResolver.GetOneRequired<ICommandable>("controller");
             var commands = controller.GetCommandSet().Commands;
@@ -115,15 +124,12 @@ namespace PipServices3.Rpc.Services
                 });
             }
 
-            var swaggerConfig = _config.GetSection("swagger");
-            if (swaggerConfig != null)
+            if (_swaggerAuto)
             {
-                var swaggerEnable = swaggerConfig.GetAsBooleanWithDefault("enable", false);
-                if (swaggerEnable)
-                {
-                    var doc = new CommandableSwaggerDocument(_baseRoute, swaggerConfig, commands);
-                    RegisterOpenApiSpec(doc.ToString());
-                }
+                var swaggerConfig = _config.GetSection("swagger");
+
+                var doc = new CommandableSwaggerDocument(_baseRoute, swaggerConfig, commands);
+                RegisterOpenApiSpec(doc.ToString());
             }
         }
     }

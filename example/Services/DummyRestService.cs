@@ -97,10 +97,10 @@ namespace PipServices3.Rpc.Services
 				RegisterOpenApiSpec(_openApiContent);
 
             if (!string.IsNullOrWhiteSpace(_openApiFile))
-                RegisterOpenApiFromFile(_openApiFile);
+                RegisterOpenApiSpecFromFile(_openApiFile);
 
             if (!string.IsNullOrWhiteSpace(_openApiResource))
-                RegisterOpenApiFromResource(_openApiResource);
+                RegisterOpenApiSpecFromResource(_openApiResource);
         }
     }
 }

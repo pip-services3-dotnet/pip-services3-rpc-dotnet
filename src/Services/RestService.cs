@@ -386,13 +386,13 @@ namespace PipServices3.Rpc.Services
         public virtual void Register()
         { }
 
-        protected virtual void RegisterOpenApiFromFile(string path)
+        protected virtual void RegisterOpenApiSpecFromFile(string path)
         {
             var content = File.ReadAllText(path);
             RegisterOpenApiSpec(content);
         }
 
-        protected virtual void RegisterOpenApiFromResource(string name)
+        protected virtual void RegisterOpenApiSpecFromResource(string name)
         {
             var assembly = Assembly.GetCallingAssembly();
 

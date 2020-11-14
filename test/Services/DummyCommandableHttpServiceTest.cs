@@ -66,8 +66,8 @@ namespace PipServices3.Rpc.Services
         [Fact]
         public async Task TestOpenApiOverrideAsync()
         {
-            // override standard swagger document formation
-            var config = RestConfig.SetDefaults(ConfigParams.FromTuples("swagger.override", true));
+            // turn off and override standard swagger document formation
+            var config = RestConfig.SetDefaults(ConfigParams.FromTuples("swagger.auto", false));
 
             DummyCommandableHttpService service = CreateAndOpenService(config);
 
