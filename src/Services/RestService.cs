@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -107,10 +109,8 @@ namespace PipServices3.Rpc.Services
 
         protected bool _swaggerEnable = false;
         protected string _swaggerRoute = "swagger";
-        protected string _swaggerName = null;
-        protected string _swaggerDescription = null;
 
-        private ConfigParams _config;
+        protected ConfigParams _config;
         private IReferences _references;
         private bool _localEndpoint;
         private bool _opened;
@@ -129,8 +129,6 @@ namespace PipServices3.Rpc.Services
 
             _swaggerEnable = config.GetAsBooleanWithDefault("swagger.enable", _swaggerEnable);
             _swaggerRoute = config.GetAsStringWithDefault("swagger.route", _swaggerRoute);
-            _swaggerName = config.GetAsStringWithDefault("swagger.name", _swaggerName);
-            _swaggerDescription = config.GetAsStringWithDefault("swagger.description", _swaggerDescription);
         }
 
         /// <summary>
@@ -392,6 +390,21 @@ namespace PipServices3.Rpc.Services
         {
             var content = File.ReadAllText(path);
             RegisterOpenApiSpec(content);
+        }
+
+        protected virtual void RegisterOpenApiFromResource(string name)
+        {
+            var assembly = Assembly.GetCallingAssembly();
+
+            string path = assembly.GetManifestResourceNames()
+                    .Single(x => x.EndsWith(name));
+
+            using (Stream stream = assembly.GetManifestResourceStream(path))
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                var content = reader.ReadToEnd();
+                RegisterOpenApiSpec(content);
+            }
         }
 
         protected virtual void RegisterOpenApiSpec(string content)

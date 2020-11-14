@@ -30,9 +30,11 @@ namespace PipServices3.Rpc.Services
 
         private DummyRestService _service;
         private HttpEndpoint _httpEndpoint;
+        private HttpClient _httpClient;
 
         public DummyRestServiceTest()
         {
+            _httpClient = new HttpClient();
             _httpEndpoint = new HttpEndpoint();
             _service = CreateService(_httpEndpoint, ServiceConfig);
 
@@ -61,30 +63,30 @@ namespace PipServices3.Rpc.Services
         }
 
         [Fact]
-        public void It_Should_Perform_CRUD_Operations()
+        public async Task It_Should_Perform_CRUD_OperationsAsync()
         {
             It_Should_Be_Opened();
 
-            It_Should_Create_Dummy();
-            
-            It_Should_Create_Dummy2();
+            await It_Should_Create_DummyAsync();
 
-            It_Should_Update_Dummy2();
-            
-            It_Should_Get_Dummy();
-            
-            It_Should_Get_Dummies();
+            await It_Should_Create_Dummy2Async();
 
-            It_Should_Delete_Dummy();
+            await It_Should_Update_Dummy2Async();
+
+            await It_Should_Get_DummyAsync();
+
+            await It_Should_Get_DummiesAsync();
+
+            await It_Should_Delete_DummyAsync();
         }
 
         [Fact]
-        public void It_Should_Return_OpenApi_Content()
+        public async Task It_Should_Return_OpenApi_Content()
         {
             var baseRoute = ServiceConfig.GetAsString("base_route");
             var openApiContent = ServiceConfig.GetAsString("openapi_content");
 
-            var result = SendRequest("get", string.Format("{0}/swagger", baseRoute), new { });
+            var result = await SendRequestAsync("get", string.Format("{0}/swagger", baseRoute), new { });
             Assert.Equal(openApiContent, result);
         }
 
@@ -92,7 +94,7 @@ namespace PipServices3.Rpc.Services
         public async Task It_Should_Return_OpenApi_FileAsync()
         {
             // create temp file
-            var openApiContent = "swagger yaml or json content";
+            var openApiContent = "swagger yaml content from file";
             var fileName = Path.GetTempFileName();
 
             File.WriteAllText(fileName, openApiContent);
@@ -111,17 +113,40 @@ namespace PipServices3.Rpc.Services
             _httpEndpoint.Configure(RestConfig);
             await _httpEndpoint.OpenAsync(null);
 
-            var result = SendRequest("get", "/api/v1/swagger", new { });
+            var result = await SendRequestAsync("get", "/api/v1/swagger", new { });
             Assert.Equal(openApiContent, result);
 
             File.Delete(fileName);
         }
 
-        private void It_Should_Delete_Dummy()
+        [Fact]
+        public async Task It_Should_Return_OpenApi_ResourceAsync()
+        {
+            var openApiContent = "swagger yaml content from resource";
+
+            // recreate service with new configuration
+            await _httpEndpoint.CloseAsync(null);
+            await _service.CloseAsync(null);
+
+            _httpEndpoint = new HttpEndpoint();
+            _service = CreateService(_httpEndpoint, ConfigParams.FromTuples(
+                "base_route", "/api/v1",
+                "openapi_resource", "DummyRestServiceSwagger.yaml",  // for test only
+                "swagger.enable", "true"
+            ));
+
+            _httpEndpoint.Configure(RestConfig);
+            await _httpEndpoint.OpenAsync(null);
+
+            var result = await SendRequestAsync("get", "/api/v1/swagger", new { });
+            Assert.Equal(openApiContent, result);
+        }
+
+        private async Task It_Should_Delete_DummyAsync()
         {
             var existingDummy = new Dummy("1", "Key 1", "Content 1");
 
-            var result = SendRequest("delete", $"/api/v1/dummies/{existingDummy.Id}", new
+            var result = await SendRequestAsync("delete", $"/api/v1/dummies/{existingDummy.Id}", new
             {
             });
 
@@ -132,7 +157,7 @@ namespace PipServices3.Rpc.Services
             Assert.Equal(existingDummy.Key, resultDummy.Key);
             Assert.Equal(existingDummy.Content, resultDummy.Content);
 
-            result = SendRequest("get", $"/api/v1/dummies/{existingDummy.Id}", new
+            result = await SendRequestAsync("get", $"/api/v1/dummies/{existingDummy.Id}", new
             {
             });
 
@@ -144,11 +169,11 @@ namespace PipServices3.Rpc.Services
             Assert.True(_httpEndpoint.IsOpen());
         }
 
-        private void It_Should_Create_Dummy()
+        private async Task It_Should_Create_DummyAsync()
         {
             var newDummy = new Dummy("1", "Key 1", "Content 1");
 
-            var result = SendRequest("post", "/api/v1/dummies", new
+            var result = await SendRequestAsync("post", "/api/v1/dummies", new
             {
                 dummy = newDummy
             });
@@ -161,11 +186,11 @@ namespace PipServices3.Rpc.Services
             Assert.Equal(newDummy.Content, resultDummy.Content);
         }
 
-        private void It_Should_Create_Dummy2()
+        private async Task It_Should_Create_Dummy2Async()
         {
             var newDummy = new Dummy("2", "Key 2", "Content 2");
 
-            var result = SendRequest("post", "/api/v1/dummies/file", newDummy, true);
+            var result = await SendRequestAsync("post", "/api/v1/dummies/file", newDummy, true);
 
             var resultDummy = JsonConverter.FromJson<Dummy>(result);
 
@@ -175,11 +200,11 @@ namespace PipServices3.Rpc.Services
             Assert.Equal(newDummy.Content, resultDummy.Content);
         }
         
-        private void It_Should_Update_Dummy2()
+        private async Task It_Should_Update_Dummy2Async()
         {
             var dummy = new Dummy("2", "Key 2", "Content 3");
 
-            var result = SendRequest("put", $"/api/v1/dummies/myOwnId", dummy);
+            var result = await SendRequestAsync("put", $"/api/v1/dummies/myOwnId", dummy);
 
             var resultDummy = JsonConverter.FromJson<Dummy>(result);
 
@@ -189,11 +214,11 @@ namespace PipServices3.Rpc.Services
             Assert.Equal(dummy.Content, resultDummy.Content);
         }
 
-        private void It_Should_Get_Dummy()
+        private async Task It_Should_Get_DummyAsync()
         {
             var existingDummy = new Dummy("1", "Key 1", "Content 1");
 
-            var result = SendRequest("get", $"/api/v1/dummies/{existingDummy.Id}?correlation_id=test", new
+            var result = await SendRequestAsync("get", $"/api/v1/dummies/{existingDummy.Id}?correlation_id=test", new
             {
             });
 
@@ -205,11 +230,11 @@ namespace PipServices3.Rpc.Services
             Assert.Equal(existingDummy.Content, resultDummy.Content);
         }
 
-        private void It_Should_Get_Dummies()
+        private async Task It_Should_Get_DummiesAsync()
         {
             var existingDummy = new Dummy("1", "Key 1", "Content 1");
             
-            var result = SendRequest("get", $"/api/v1/dummies?filter=key={existingDummy.Key}", new
+            var result = await SendRequestAsync("get", $"/api/v1/dummies?filter=key={existingDummy.Key}", new
             {
             });
 
@@ -219,7 +244,7 @@ namespace PipServices3.Rpc.Services
             Assert.NotNull(resultDummies.Data);
             Assert.Single(resultDummies.Data);
             
-            result = SendRequest("get", $"/api/v1/dummies", new
+            result = await SendRequestAsync("get", $"/api/v1/dummies", new
             {
             });
 
@@ -230,43 +255,40 @@ namespace PipServices3.Rpc.Services
             Assert.Equal(2, resultDummies.Data.Count());
         }
 
-        private static string SendRequest(string method, string route, dynamic request, bool formData = false)
+        private async Task<string> SendRequestAsync(string method, string route, dynamic request, bool formData = false)
         {
-            using (var httpClient = new HttpClient())
+            HttpContent content;
+            if (formData)
             {
-                HttpContent content;
-                if (formData)
+                content = new MultipartFormDataContent()
                 {
-                    content = new MultipartFormDataContent()
-                    {
-                        {new StringContent(JsonConverter.ToJson(request)), "file", "test_file.json"}
-                    };
-                }
-                else
-                {
-                    content = new StringContent(JsonConverter.ToJson(request), Encoding.UTF8, "application/json");
-                }
-
-                var response = new HttpResponseMessage();
-
-                    switch (method)
-                    {
-                        case "get":
-                            response = httpClient.GetAsync($"http://localhost:3003{route}").Result;
-                            break;
-                        case "post":
-                            response = httpClient.PostAsync($"http://localhost:3003{route}", content).Result;
-                            break;
-                        case "put":
-                            response = httpClient.PutAsync($"http://localhost:3003{route}", content).Result;
-                            break;
-                        case "delete":
-                            response = httpClient.DeleteAsync($"http://localhost:3003{route}").Result;
-                            break;
-                    }
-
-                return response.Content.ReadAsStringAsync().Result;
+                    {new StringContent(JsonConverter.ToJson(request)), "file", "test_file.json"}
+                };
             }
+            else
+            {
+                content = new StringContent(JsonConverter.ToJson(request), Encoding.UTF8, "application/json");
+            }
+
+            var response = new HttpResponseMessage();
+
+                switch (method)
+                {
+                    case "get":
+                        response = await _httpClient.GetAsync($"http://localhost:3003{route}");
+                        break;
+                    case "post":
+                        response = await _httpClient.PostAsync($"http://localhost:3003{route}", content);
+                        break;
+                    case "put":
+                        response = await _httpClient.PutAsync($"http://localhost:3003{route}", content);
+                        break;
+                    case "delete":
+                        response = await _httpClient.DeleteAsync($"http://localhost:3003{route}");
+                        break;
+                }
+
+            return await response.Content.ReadAsStringAsync();
         }
     }
 }

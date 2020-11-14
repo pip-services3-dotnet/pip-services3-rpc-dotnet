@@ -1,4 +1,5 @@
 ﻿using PipServices3.Commons.Commands;
+using PipServices3.Commons.Config;
 using PipServices3.Commons.Validate;
 using System;
 using System.Collections.Generic;
@@ -29,10 +30,15 @@ namespace PipServices3.Rpc.Services
 		public string InfoLicenseName { get; set; }
 		public string InfoLicenseUrl { get; set; }
 
-		public CommandableSwaggerDocument(string baseRoute, List<ICommand> commands)
+		public CommandableSwaggerDocument(string baseRoute, ConfigParams config, List<ICommand> commands)
 		{
 			BaseRoute = baseRoute;
 			Commands = commands ?? new List<ICommand>();
+
+			config = config ?? new ConfigParams();
+
+			InfoTitle = config.GetAsStringWithDefault("name", "CommandableHttpService");
+			InfoDescription = config.GetAsStringWithDefault("description", "Commandable microservice");
 
 			// allowed types: array, boolean, integer, number, object, string
 			typeNames = new Dictionary<Type, string>
@@ -213,7 +219,7 @@ namespace PipServices3.Rpc.Services
 				}
 				else
 				{
-					WriteAsValue(indent, key, value);
+					WriteAsObject(indent, key, value);
 				}
 			}
 		}
@@ -233,7 +239,7 @@ namespace PipServices3.Rpc.Services
 			else builder.AppendLine(name);
 		}
 
-		protected void WriteAsValue(int indent, string name, object value)
+		protected void WriteAsObject(int indent, string name, object value)
 		{
 			if (value == null) return;
 

@@ -10,12 +10,11 @@ using Xunit;
 
 namespace PipServices3.Rpc.Clients
 {
-    public sealed class DummyCommandableHttpClientTest : IDisposable
+    public sealed class DummyCommandableHttpServiceTest : IDisposable
     {
         private static readonly ConfigParams RestConfig = ConfigParams.FromTuples(
             "connection.uri", "http://localhost:3000",
-            "options.timeout", 15000,
-            "swagger.enable", "true"
+            "options.timeout", 15000
             //"connection.protocol", "http",
             //"connection.host", "localhost",
             //"connection.port", 3000
@@ -28,7 +27,7 @@ namespace PipServices3.Rpc.Clients
 
         private readonly DummyCommandableHttpService _service;
 
-        public DummyCommandableHttpClientTest()
+        public DummyCommandableHttpServiceTest()
         {
             _ctrl = new DummyController();
 
@@ -62,18 +61,6 @@ namespace PipServices3.Rpc.Clients
             var task = _fixture.TestCrudOperations();
             task.Wait();
         }
-
-        [Fact]
-        public async Task TestOpenApiAsync()
-        {
-            var serviceUri = RestConfig.GetAsString("connection.uri");
-
-			using var httpClient = new HttpClient();
-			var response = await httpClient.GetAsync($"{serviceUri}/dummy/swagger");
-			var openApiContent = await response.Content.ReadAsStringAsync();
-
-			Assert.StartsWith("openapi:", openApiContent);
-		}
 
         [Fact]
         public void TestExceptionPropagation()

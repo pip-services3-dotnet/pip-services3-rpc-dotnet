@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using PipServices3.Commons.Commands;
+using PipServices3.Commons.Config;
 using PipServices3.Commons.Run;
 
 namespace PipServices3.Rpc.Services
@@ -73,10 +74,10 @@ namespace PipServices3.Rpc.Services
             _dependencyResolver.Put("controller", "none");
         }
 
-        /// <summary>
-        /// Registers all service routes in HTTP endpoint.
-        /// </summary>
-        public override void Register()
+		/// <summary>
+		/// Registers all service routes in HTTP endpoint.
+		/// </summary>
+		public override void Register()
         {
             var controller = _dependencyResolver.GetOneRequired<ICommandable>("controller");
             var commands = controller.GetCommandSet().Commands;
@@ -114,22 +115,16 @@ namespace PipServices3.Rpc.Services
                 });
             }
 
-            if (_swaggerEnable)
+            var swaggerConfig = _config.GetSection("swagger");
+            if (swaggerConfig != null)
             {
-                var openApiContent = OnCreateOpenApiSpec(commands);
-                RegisterOpenApiSpec(openApiContent);
+                var swaggerEnable = swaggerConfig.GetAsBooleanWithDefault("enable", false);
+                if (swaggerEnable)
+                {
+                    var doc = new CommandableSwaggerDocument(_baseRoute, swaggerConfig, commands);
+                    RegisterOpenApiSpec(doc.ToString());
+                }
             }
-        }
-
-        protected virtual string OnCreateOpenApiSpec(List<ICommand> commands)
-        {
-            var document = new CommandableSwaggerDocument(_baseRoute, commands)
-            {
-                InfoTitle = _swaggerName ?? "CommandableHttpService",
-                InfoDescription = _swaggerDescription ?? "Commandable microservice"
-            };
-
-            return document.ToString();
         }
     }
 }

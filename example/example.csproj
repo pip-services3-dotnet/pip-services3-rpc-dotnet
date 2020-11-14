@@ -15,4 +15,12 @@
     <Compile Remove="Rest\DummyCommandableHttpServiceV2.cs" />
     <Compile Remove="Rest\DummyCommandableHttpServiceV2.cs" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Services\DummyRestServiceSwagger.yaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Services\DummyRestServiceSwagger.yaml" />
+  </ItemGroup>
 </Project>

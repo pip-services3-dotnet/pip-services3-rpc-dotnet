@@ -15,6 +15,7 @@ namespace PipServices3.Rpc.Services
         private int _numberOfCalls = 0;
         private string _openApiContent;
         private string _openApiFile;
+        private string _openApiResource;
 
         public override void Configure(ConfigParams config)
 		{
@@ -22,6 +23,7 @@ namespace PipServices3.Rpc.Services
 
             _openApiContent = config.GetAsNullableString("openapi_content");
             _openApiFile = config.GetAsNullableString("openapi_file");
+            _openApiResource = config.GetAsNullableString("openapi_resource");
         }
 
 		public override void SetReferences(IReferences references)
@@ -96,6 +98,9 @@ namespace PipServices3.Rpc.Services
 
             if (!string.IsNullOrWhiteSpace(_openApiFile))
                 RegisterOpenApiFromFile(_openApiFile);
+
+            if (!string.IsNullOrWhiteSpace(_openApiResource))
+                RegisterOpenApiFromResource(_openApiResource);
         }
     }
 }
