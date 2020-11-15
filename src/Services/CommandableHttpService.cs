@@ -64,7 +64,7 @@ namespace PipServices3.Rpc.Services
     /// </example>
     public class CommandableHttpService : RestService
     {
-        protected bool _swaggerAuto = false;
+        protected bool _swaggerAuto = true;
 
         /// <summary>
         /// Creates a new instance of the service.
@@ -80,7 +80,7 @@ namespace PipServices3.Rpc.Services
         {
             base.Configure(config);
 
-            _swaggerAuto = config.GetAsBooleanWithDefault("swagger.auto", true);
+            _swaggerAuto = config.GetAsBooleanWithDefault("swagger.auto", _swaggerAuto);
         }
 
         /// <summary>
