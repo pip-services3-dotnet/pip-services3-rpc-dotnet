@@ -1,5 +1,13 @@
 # Remove procedure calls for Pip.Services in .NET Changelog
 
+## <a name="3.3.2-3.3.3"></a> 3.3.2-3.3.3 (2020-12-01)
+
+### Features
+* Added methods to support swagger
+### Fixes
+* Fixed descriptor (pip-services3->pip-services)
+
+
 ## <a name="3.3.1"></a> 3.3.1 (2020-06-26)
 
 ### Features

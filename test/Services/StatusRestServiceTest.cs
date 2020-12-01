@@ -27,8 +27,8 @@ namespace PipServices3.Rpc.Services
             contextInfo.Description = "This is a test container";
 
             var references = References.FromTuples(
-                new Descriptor("pip-services3", "context-info", "default", "default", "1.0"), contextInfo,
-                new Descriptor("pip-services3", "status-service", "http", "default", "1.0"), _service
+                new Descriptor("pip-services", "context-info", "default", "default", "1.0"), contextInfo,
+                new Descriptor("pip-services", "status-service", "http", "default", "1.0"), _service
             );
             _service.SetReferences(references);
 

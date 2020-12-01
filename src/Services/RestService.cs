@@ -83,7 +83,7 @@ namespace PipServices3.Rpc.Services
     {
         private static readonly ConfigParams _defaultConfig = ConfigParams.FromTuples(
             "base_route", "",
-            "dependencies.endpoint", "pip-services3:endpoint:http:*:1.0"
+            "dependencies.endpoint", "*:endpoint:http:*:1.0"
         );
 
         /// <summary>

@@ -74,7 +74,7 @@ namespace PipServices3.Rpc.Services
         /// </summary>
         public StatusRestService()
         {
-            _dependencyResolver.Put("context-info", new Descriptor("pip-services3", "context-info", "default", "*", "1.0"));
+            _dependencyResolver.Put("context-info", new Descriptor("pip-services", "context-info", "default", "*", "1.0"));
         }
 
         /// <summary>
