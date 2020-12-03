@@ -1,8 +1,5 @@
 var searchData=
 [
-  ['heartbeat',['Heartbeat',['../class_pip_services_1_1_rpc_1_1_services_1_1_heartbeat_rest_service.html#a263dbeff7770cf03c9faa2d045a33b8a',1,'PipServices3::Rpc::Services::HeartbeatRestService']]],
-  ['heartbeatrestservice',['HeartbeatRestService',['../class_pip_services_1_1_rpc_1_1_services_1_1_heartbeat_rest_service.html',1,'PipServices3.Rpc.Services.HeartbeatRestService'],['../class_pip_services_1_1_rpc_1_1_services_1_1_heartbeat_rest_service.html#adc3dbc6e4ab522d7c53ebb67b13f4f2a',1,'PipServices3.Rpc.Services.HeartbeatRestService.HeartbeatRestService()']]],
-  ['httpconnectionresolver',['HttpConnectionResolver',['../class_pip_services_1_1_rpc_1_1_connect_1_1_http_connection_resolver.html',1,'PipServices3::Rpc::Connect']]],
-  ['httpendpoint',['HttpEndpoint',['../class_pip_services_1_1_rpc_1_1_services_1_1_http_endpoint.html',1,'PipServices3::Rpc::Services']]],
-  ['httpresponsesender',['HttpResponseSender',['../class_pip_services_1_1_rpc_1_1_services_1_1_http_response_sender.html',1,'PipServices3::Rpc::Services']]]
+  ['executeasync',['ExecuteAsync',['../class_pip_services3_1_1_rpc_1_1_clients_1_1_rest_client.html#a056d31104da7e2b73b1bdb076fc1c444',1,'PipServices3.Rpc.Clients.RestClient.ExecuteAsync(string correlationId, HttpMethod method, string route)'],['../class_pip_services3_1_1_rpc_1_1_clients_1_1_rest_client.html#af1279f4db9b3678c23358574d8f37956',1,'PipServices3.Rpc.Clients.RestClient.ExecuteAsync(string correlationId, HttpMethod method, string route, object requestEntity)']]],
+  ['executeasync_3c_20t_20_3e',['ExecuteAsync&lt; T &gt;',['../class_pip_services3_1_1_rpc_1_1_clients_1_1_rest_client.html#a166b2aac15a45575dcfd76bd2099c26d',1,'PipServices3.Rpc.Clients.RestClient.ExecuteAsync&lt; T &gt;(string correlationId, HttpMethod method, string route)'],['../class_pip_services3_1_1_rpc_1_1_clients_1_1_rest_client.html#afd54f42351e1bea2e8cdd3e9af3f7281',1,'PipServices3.Rpc.Clients.RestClient.ExecuteAsync&lt; T &gt;(string correlationId, HttpMethod method, string route, object requestEntity)']]]
 ];

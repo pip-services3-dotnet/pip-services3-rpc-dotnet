@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['addcorrelationid',['AddCorrelationId',['../class_pip_services_1_1_rpc_1_1_clients_1_1_rest_client.html#ac1a6e2c2836ed3e10ae0a1e5d2d39b39',1,'PipServices3::Rpc::Clients::RestClient']]],
-  ['addfilterparams',['AddFilterParams',['../class_pip_services_1_1_rpc_1_1_clients_1_1_rest_client.html#a5cbe9065db4e41fbe9ec48f8e643e52b',1,'PipServices3::Rpc::Clients::RestClient']]],
-  ['addpagingparams',['AddPagingParams',['../class_pip_services_1_1_rpc_1_1_clients_1_1_rest_client.html#aaa95d5e4db2fe7396a55e00272955ca4',1,'PipServices3::Rpc::Clients::RestClient']]]
+  ['addcorrelationid',['AddCorrelationId',['../class_pip_services3_1_1_rpc_1_1_clients_1_1_rest_client.html#a8233825beaf3a397cccd8093e059966a',1,'PipServices3::Rpc::Clients::RestClient']]],
+  ['addfilterparams',['AddFilterParams',['../class_pip_services3_1_1_rpc_1_1_clients_1_1_rest_client.html#a8cbd2444ab8be2f31e24bb189b22675b',1,'PipServices3::Rpc::Clients::RestClient']]],
+  ['addpagingparams',['AddPagingParams',['../class_pip_services3_1_1_rpc_1_1_clients_1_1_rest_client.html#a39905371802f78182746330e62c60277',1,'PipServices3::Rpc::Clients::RestClient']]]
 ];
