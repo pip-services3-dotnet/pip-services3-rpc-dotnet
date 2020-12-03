@@ -383,6 +383,15 @@ namespace PipServices3.Rpc.Services
             _endpoint.RegisterInterceptor(route, action);
         }
 
+        protected virtual void RegisterSwaggerRoute(string method, string route,
+             Func<HttpRequest, HttpResponse, RouteData, Task> action)
+        {
+            if (_endpoint == null) return;
+
+            route = AppendBaseRoute(route);
+            _endpoint.RegisterSwaggerRoute(method, route, action);
+        }
+
         public virtual void Register()
         { }
 
@@ -413,7 +422,7 @@ namespace PipServices3.Rpc.Services
             {
                 var responseContent = content;
 
-                RegisterRoute(HttpMethods.Get, _swaggerRoute, async (request, response, routeData) =>
+                RegisterSwaggerRoute(HttpMethods.Get, _swaggerRoute, async (request, response, routeData) =>
                 {
                     response.ContentType = "application/json";
                     response.StatusCode = (int)HttpStatusCode.OK;

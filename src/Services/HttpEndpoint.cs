@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
 using PipServices3.Commons.Config;
 using PipServices3.Commons.Errors;
@@ -97,6 +98,7 @@ namespace PipServices3.Rpc.Services
 
         private IList<IRegisterable> _registrations = new List<IRegisterable>();
         private List<Interceptor> _interceptors = new List<Interceptor>();
+        private List<string> _swaggerRoutes = new List<string>();
 
         /// <summary>
         /// Sets references to this endpoint's logger, counters, and connection resolver.
@@ -186,12 +188,12 @@ namespace PipServices3.Rpc.Services
                         {
                             host = IPAddress.Loopback.ToString();
                         }
-                        
+
                         if (protocol == "https")
                         {
                             var sslPfxFile = credential.GetAsNullableString("ssl_pfx_file");
                             var sslPassword = credential.GetAsNullableString("ssl_pfx_file");
-                            
+
                             options.Listen(IPAddress.Parse(host), port, listenOptions =>
                             {
                                 listenOptions.UseHttps(sslPfxFile, sslPassword);
@@ -259,13 +261,13 @@ namespace PipServices3.Rpc.Services
                 {
                     options.EnableForHttps = true;
                 });
-                
+
                 services.Configure<BrotliCompressionProviderOptions>(options =>
                 {
                     options.Level = CompressionLevel.Fastest;
                 });
             }
-            
+
             services.AddRouting();
 
             services.AddCors(cors => cors.AddPolicy("CorsPolicy", builder =>
@@ -274,6 +276,11 @@ namespace PipServices3.Rpc.Services
                     .AllowAnyMethod()
                     .AllowAnyOrigin();
             }));
+
+            services.Configure<KestrelServerOptions>(options =>
+            {
+                options.AllowSynchronousIO = true; // Need to execution oprations from swagger
+            });
         }
 
         private void ConfigureApplication(IApplicationBuilder applicationBuilder)
@@ -285,7 +292,7 @@ namespace PipServices3.Rpc.Services
             {
                 registration.Register();
             }
-            
+
             if (_responseCompression)
             {
                 applicationBuilder.UseResponseCompression();
@@ -295,6 +302,18 @@ namespace PipServices3.Rpc.Services
             applicationBuilder
                 .UseCors("CorsPolicy")
                 .UseRouter(routes);
+
+            if (_swaggerRoutes.Any())
+            {
+                applicationBuilder
+                    .UseSwaggerUI(c =>
+                    {
+                        _swaggerRoutes.ForEach(a =>
+                        {
+                            c.SwaggerEndpoint(a, a);
+                        });
+                    });
+            }
 
             _routeBuilder = null;
         }
@@ -334,7 +353,7 @@ namespace PipServices3.Rpc.Services
                 _routeBuilder.MapVerb(method, route, context =>
                 {
                     AppendAdditionalParametersFromQuery(route, context.Request);
-                    
+
                     var interceptor = _interceptors.Find(i => route.StartsWith(i.Route));
                     if (interceptor != null)
                     {
@@ -363,14 +382,14 @@ namespace PipServices3.Rpc.Services
                 for (var i = 0; i < splitRoute.Length; i++)
                 {
                     if (splitPath.Length - 1 < i) break;
-                    
+
                     var r = splitRoute[i];
                     var p = splitPath[i];
                     if (r.StartsWith("{") && r.EndsWith("}"))
                     {
                         var key = r.Substring(1).Substring(0, r.Length - 2);
                         var value = p;
-                        
+
                         request.Headers.Add(key, value);
                     }
                 }
@@ -392,7 +411,7 @@ namespace PipServices3.Rpc.Services
             Func<HttpRequest, HttpResponse, ClaimsPrincipal, RouteData, Task> action)
         {
             route = FixRoute(route);
-            
+
             if (authorize != null)
             {
                 var nextAction = action;
@@ -410,7 +429,7 @@ namespace PipServices3.Rpc.Services
                 _routeBuilder.MapVerb(method, route, context =>
                 {
                     AppendAdditionalParametersFromQuery(route, context.Request);
-                    
+
                     var interceptor = _interceptors.Find(i => route.StartsWith(i.Route));
                     if (interceptor != null)
                     {
@@ -429,7 +448,14 @@ namespace PipServices3.Rpc.Services
                 Func<HttpRequest, HttpResponse, ClaimsPrincipal, RouteData, Task>, Task> action)
         {
             route = FixRoute(route);
-            _interceptors.Add(new Interceptor() {Action = action, Route = route});
+            _interceptors.Add(new Interceptor() { Action = action, Route = route });
+        }
+
+        public void RegisterSwaggerRoute(string method, string route,
+                Func<HttpRequest, HttpResponse, RouteData, Task> action)
+        {
+            RegisterRoute(method, route, action);
+            _swaggerRoutes.Add(route);
         }
     }
 }
