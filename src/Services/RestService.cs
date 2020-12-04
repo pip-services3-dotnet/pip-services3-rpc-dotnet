@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using PipServices3.Commons.Config;
+using PipServices3.Commons.Data;
 using PipServices3.Commons.Errors;
 using PipServices3.Commons.Refer;
 using PipServices3.Commons.Run;
@@ -333,7 +334,32 @@ namespace PipServices3.Rpc.Services
         {
             return HttpResponseSender.SendDeletedResultAsync(response, result);
         }
-        
+
+        protected string GetCorrelationId(HttpRequest request)
+        {
+            return HttpRequestHelper.GetCorrelationId(request);
+        }
+
+        protected FilterParams GetFilterParams(HttpRequest request)
+        {
+            return HttpRequestHelper.GetFilterParams(request);
+        }
+
+        protected PagingParams GetPagingParams(HttpRequest request)
+        {
+            return HttpRequestHelper.GetPagingParams(request);
+        }
+
+        protected SortParams GetSortParams(HttpRequest request)
+        {
+            return HttpRequestHelper.GetSortParams(request);
+        }
+
+        protected RestOperationParameters GetParameters(HttpRequest request)
+        {
+            return HttpRequestHelper.GetParameters(request);
+        }
+
         private string AppendBaseRoute(string route) {
             if (!string.IsNullOrEmpty(_baseRoute)) {
                 var baseRoute = _baseRoute;
@@ -383,6 +409,15 @@ namespace PipServices3.Rpc.Services
             _endpoint.RegisterInterceptor(route, action);
         }
 
+        protected virtual void RegisterSwaggerRoute(string method, string route,
+             Func<HttpRequest, HttpResponse, RouteData, Task> action)
+        {
+            if (_endpoint == null) return;
+
+            route = AppendBaseRoute(route);
+            _endpoint.RegisterSwaggerRoute(method, route, action);
+        }
+
         public virtual void Register()
         { }
 
@@ -413,7 +448,7 @@ namespace PipServices3.Rpc.Services
             {
                 var responseContent = content;
 
-                RegisterRoute(HttpMethods.Get, _swaggerRoute, async (request, response, routeData) =>
+                RegisterSwaggerRoute(HttpMethods.Get, _swaggerRoute, async (request, response, routeData) =>
                 {
                     response.ContentType = "application/json";
                     response.StatusCode = (int)HttpStatusCode.OK;

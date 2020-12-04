@@ -1,12 +1,17 @@
 # <img src="https://uploads-ssl.webflow.com/5ea5d3315186cf5ec60c3ee4/5edf1c94ce4c859f2b188094_logo.svg" alt="Pip.Services Logo" width="200"> <br/> Remote Procedure Calls for .NET Changelog
 
+## <a name="3.3.4"></a> 3.3.4 (2020-12-03)
+
+### Features
+* Added SwaggerUI based on Swashbuckle
+* Updated swagger document generation
+
 ## <a name="3.3.2-3.3.3"></a> 3.3.2-3.3.3 (2020-12-01)
 
 ### Features
 * Added methods to support swagger
 ### Fixes
 * Fixed descriptor (pip-services3->pip-services)
-
 
 ## <a name="3.3.1"></a> 3.3.1 (2020-06-26)
 
