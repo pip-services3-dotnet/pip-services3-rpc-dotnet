@@ -17,7 +17,8 @@ namespace PipServices3.Rpc
             service.Configure(ConfigParams.FromTuples(
                 "connection.protocol", "http",
                 "connection.host", "localhost",
-                "connection.port", 3000
+                "connection.port", 3000,
+                "swagger.enable", "true"
             ));
 
             service.SetReferences(References.FromTuples(

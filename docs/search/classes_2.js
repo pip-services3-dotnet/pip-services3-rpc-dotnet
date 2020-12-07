@@ -1,7 +1,6 @@
 var searchData=
 [
-  ['heartbeatrestservice',['HeartbeatRestService',['../class_pip_services_1_1_rpc_1_1_services_1_1_heartbeat_rest_service.html',1,'PipServices3::Rpc::Services']]],
-  ['httpconnectionresolver',['HttpConnectionResolver',['../class_pip_services_1_1_rpc_1_1_connect_1_1_http_connection_resolver.html',1,'PipServices3::Rpc::Connect']]],
-  ['httpendpoint',['HttpEndpoint',['../class_pip_services_1_1_rpc_1_1_services_1_1_http_endpoint.html',1,'PipServices3::Rpc::Services']]],
-  ['httpresponsesender',['HttpResponseSender',['../class_pip_services_1_1_rpc_1_1_services_1_1_http_response_sender.html',1,'PipServices3::Rpc::Services']]]
+  ['commandablehttpclient',['CommandableHttpClient',['../class_pip_services3_1_1_rpc_1_1_clients_1_1_commandable_http_client.html',1,'PipServices3::Rpc::Clients']]],
+  ['commandablehttpservice',['CommandableHttpService',['../class_pip_services3_1_1_rpc_1_1_services_1_1_commandable_http_service.html',1,'PipServices3::Rpc::Services']]],
+  ['commandableswaggerdocument',['CommandableSwaggerDocument',['../class_pip_services3_1_1_rpc_1_1_services_1_1_commandable_swagger_document.html',1,'PipServices3::Rpc::Services']]]
 ];

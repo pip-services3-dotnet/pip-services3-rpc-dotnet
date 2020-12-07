@@ -18,7 +18,7 @@ namespace PipServices3.Rpc.Connect
     /// ### Configuration parameters ###
     /// 
     /// connection:
-    /// - discovery_key:               (optional) a key to retrieve the connection from <a href="https://rawgit.com/pip-services3-dotnet/pip-services3-components-dotnet/master/doc/api/interface_pip_services_1_1_components_1_1_connect_1_1_i_discovery.html">IDiscovery</a>
+    /// - discovery_key:               (optional) a key to retrieve the connection from <a href="https://pip-services3-dotnet.github.io/pip-services3-components-dotnet/interface_pip_services_1_1_components_1_1_connect_1_1_i_discovery.html">IDiscovery</a>
     /// - ...                          other connection parameters
     /// 
     /// connections:                   alternative to connection
@@ -29,7 +29,7 @@ namespace PipServices3.Rpc.Connect
     /// 
     /// ### References ###
     /// 
-    /// - *:discovery:*:*:1.0            (optional) <a href="https://rawgit.com/pip-services3-dotnet/pip-services3-components-dotnet/master/doc/api/interface_pip_services_1_1_components_1_1_connect_1_1_i_discovery.html">IDiscovery</a> services
+    /// - *:discovery:*:*:1.0            (optional) <a href="https://pip-services3-dotnet.github.io/pip-services3-components-dotnet/interface_pip_services_1_1_components_1_1_connect_1_1_i_discovery.html">IDiscovery</a> services
     /// </summary>
     /// <example>
     /// <code>
