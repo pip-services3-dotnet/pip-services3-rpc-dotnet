@@ -80,7 +80,8 @@ namespace PipServices3.Rpc.Services
             "options.file_max_size", 200 * 1024 * 1024,
             "options.connect_timeout", 60000,
             "options.debug", true,
-            "options.response_compression", false
+            "options.response_compression", false,
+            "dependencies.swagger", "*:swagger:*:*:1.0"
         );
 
         protected HttpConnectionResolver _connectionResolver = new HttpConnectionResolver();
@@ -99,6 +100,7 @@ namespace PipServices3.Rpc.Services
         private IList<IRegisterable> _registrations = new List<IRegisterable>();
         private List<Interceptor> _interceptors = new List<Interceptor>();
         private List<string> _swaggerRoutes = new List<string>();
+        private ISwaggerService _swagger;
 
         /// <summary>
         /// Sets references to this endpoint's logger, counters, and connection resolver.
@@ -115,6 +117,8 @@ namespace PipServices3.Rpc.Services
             _counters.SetReferences(references);
             _dependencyResolver.SetReferences(references);
             _connectionResolver.SetReferences(references);
+
+            _swagger = _dependencyResolver.GetOneOptional<ISwaggerService>("swagger");
         }
 
         /// <summary>
@@ -303,16 +307,9 @@ namespace PipServices3.Rpc.Services
                 .UseCors("CorsPolicy")
                 .UseRouter(routes);
 
-            if (_swaggerRoutes.Any())
+            if (_swagger != null && _swaggerRoutes.Any())
             {
-                applicationBuilder
-                    .UseSwaggerUI(c =>
-                    {
-                        _swaggerRoutes.ForEach(a =>
-                        {
-                            c.SwaggerEndpoint(a, a);
-                        });
-                    });
+                _swagger.ConfigureApplication(applicationBuilder, _swaggerRoutes);
             }
 
             _routeBuilder = null;
