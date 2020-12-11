@@ -80,11 +80,12 @@ namespace PipServices3.Rpc.Services
     /// Console.Out.WriteLine("The REST service is running on port 8080");
     /// </code>
     /// </example>
-    public abstract class RestService: IOpenable, IConfigurable, IReferenceable, IUnreferenceable, IRegisterable
+    public abstract class RestService : IOpenable, IConfigurable, IReferenceable, IUnreferenceable, IRegisterable
     {
         private static readonly ConfigParams _defaultConfig = ConfigParams.FromTuples(
             "base_route", "",
-            "dependencies.endpoint", "*:endpoint:http:*:1.0"
+            "dependencies.endpoint", "*:endpoint:http:*:1.0",
+            "dependencies.swagger", "*:swagger-service:*:*:1.0"
         );
 
         /// <summary>
@@ -107,6 +108,11 @@ namespace PipServices3.Rpc.Services
         /// The base route.
         /// </summary>
         protected string _baseRoute;
+
+        /// <summary>
+        ///  The Swagger service
+        /// </summary>
+        protected ISwaggerService _swaggerService;
 
         protected bool _swaggerEnable = false;
         protected string _swaggerRoute = "swagger";
@@ -154,6 +160,8 @@ namespace PipServices3.Rpc.Services
 
             // Add registration callback to the endpoint
             _endpoint.Register(this);
+
+            _swaggerService = _dependencyResolver.GetOneOptional<ISwaggerService>("swagger");
         }
 
         /// <summary>
@@ -172,13 +180,13 @@ namespace PipServices3.Rpc.Services
         private HttpEndpoint CreateLocalEndpoint()
         {
             var endpoint = new HttpEndpoint();
-    
+
             if (_config != null)
                 endpoint.Configure(_config);
 
             if (_references != null)
                 endpoint.SetReferences(_references);
-    
+
             return endpoint;
         }
 
@@ -239,7 +247,7 @@ namespace PipServices3.Rpc.Services
 
             if (_localEndpoint)
             {
-                await _endpoint.OpenAsync(correlationId).ContinueWith(task => 
+                await _endpoint.OpenAsync(correlationId).ContinueWith(task =>
                 {
                     _opened = task.Exception == null;
                 });
@@ -360,8 +368,10 @@ namespace PipServices3.Rpc.Services
             return HttpRequestHelper.GetParameters(request);
         }
 
-        private string AppendBaseRoute(string route) {
-            if (!string.IsNullOrEmpty(_baseRoute)) {
+        private string AppendBaseRoute(string route)
+        {
+            if (!string.IsNullOrEmpty(_baseRoute))
+            {
                 var baseRoute = _baseRoute;
                 if (string.IsNullOrEmpty(route))
                     route = "/";
@@ -388,7 +398,7 @@ namespace PipServices3.Rpc.Services
             route = AppendBaseRoute(route);
             _endpoint.RegisterRoute(method, route, action);
         }
-        
+
         protected virtual void RegisterRouteWithAuth(string method, string route,
             Func<HttpRequest, HttpResponse, ClaimsPrincipal, RouteData, Func<Task>, Task> autorize,
             Func<HttpRequest, HttpResponse, ClaimsPrincipal, RouteData, Task> action)
@@ -397,25 +407,16 @@ namespace PipServices3.Rpc.Services
 
             route = AppendBaseRoute(route);
             _endpoint.RegisterRouteWithAuth(method, route, autorize, action);
-        }   
-        
+        }
+
         public void RegisterInterceptor(string route,
             Func<HttpRequest, HttpResponse, ClaimsPrincipal, RouteData,
                 Func<HttpRequest, HttpResponse, ClaimsPrincipal, RouteData, Task>, Task> action)
         {
             if (_endpoint == null) return;
-            
+
             route = AppendBaseRoute(route);
             _endpoint.RegisterInterceptor(route, action);
-        }
-
-        protected virtual void RegisterSwaggerRoute(string method, string route,
-             Func<HttpRequest, HttpResponse, RouteData, Task> action)
-        {
-            if (_endpoint == null) return;
-
-            route = AppendBaseRoute(route);
-            _endpoint.RegisterSwaggerRoute(method, route, action);
         }
 
         public virtual void Register()
@@ -447,13 +448,18 @@ namespace PipServices3.Rpc.Services
             if (_swaggerEnable)
             {
                 var responseContent = content;
-
-                RegisterSwaggerRoute(HttpMethods.Get, _swaggerRoute, async (request, response, routeData) =>
+             
+                RegisterRoute(HttpMethods.Get, _swaggerRoute, async (request, response, routeData) =>
                 {
                     response.ContentType = "application/json";
                     response.StatusCode = (int)HttpStatusCode.OK;
                     await response.WriteAsync(responseContent);
                 });
+
+                if (_swaggerService != null)
+                {
+                    _swaggerService.RegisterOpenApiSpec(_baseRoute, _swaggerRoute);
+                }
             }
         }
     }

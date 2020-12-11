@@ -80,8 +80,7 @@ namespace PipServices3.Rpc.Services
             "options.file_max_size", 200 * 1024 * 1024,
             "options.connect_timeout", 60000,
             "options.debug", true,
-            "options.response_compression", false,
-            "dependencies.swagger", "*:swagger:*:*:1.0"
+            "options.response_compression", false
         );
 
         protected HttpConnectionResolver _connectionResolver = new HttpConnectionResolver();
@@ -98,9 +97,8 @@ namespace PipServices3.Rpc.Services
         protected string _address;
 
         private IList<IRegisterable> _registrations = new List<IRegisterable>();
+        private IList<IInitializable> _initializations = new List<IInitializable>();
         private List<Interceptor> _interceptors = new List<Interceptor>();
-        private List<string> _swaggerRoutes = new List<string>();
-        private ISwaggerService _swagger;
 
         /// <summary>
         /// Sets references to this endpoint's logger, counters, and connection resolver.
@@ -117,8 +115,6 @@ namespace PipServices3.Rpc.Services
             _counters.SetReferences(references);
             _dependencyResolver.SetReferences(references);
             _connectionResolver.SetReferences(references);
-
-            _swagger = _dependencyResolver.GetOneOptional<ISwaggerService>("swagger");
         }
 
         /// <summary>
@@ -307,9 +303,9 @@ namespace PipServices3.Rpc.Services
                 .UseCors("CorsPolicy")
                 .UseRouter(routes);
 
-            if (_swagger != null && _swaggerRoutes.Any())
+            foreach (var initialization in _initializations)
             {
-                _swagger.ConfigureApplication(applicationBuilder, _swaggerRoutes);
+                initialization.Initialize(applicationBuilder);
             }
 
             _routeBuilder = null;
@@ -331,6 +327,17 @@ namespace PipServices3.Rpc.Services
         public void Unregister(IRegisterable registration)
         {
             _registrations.Remove(registration);
+        }
+
+
+        public void Initialize(IInitializable initialization)
+        {
+            _initializations.Add(initialization);
+        }
+
+        public void Uninitialize(IInitializable initialization)
+        {
+            _initializations.Remove(initialization);
         }
 
         /// <summary>
@@ -446,13 +453,6 @@ namespace PipServices3.Rpc.Services
         {
             route = FixRoute(route);
             _interceptors.Add(new Interceptor() { Action = action, Route = route });
-        }
-
-        public void RegisterSwaggerRoute(string method, string route,
-                Func<HttpRequest, HttpResponse, RouteData, Task> action)
-        {
-            RegisterRoute(method, route, action);
-            _swaggerRoutes.Add(route);
         }
     }
 }
