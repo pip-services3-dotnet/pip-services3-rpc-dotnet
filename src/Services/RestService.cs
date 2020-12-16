@@ -368,6 +368,12 @@ namespace PipServices3.Rpc.Services
             return HttpRequestHelper.GetParameters(request);
         }
 
+        public static T GetContextItem<T>(HttpRequest request, string name)
+            where T : class
+        {
+            return HttpRequestHelper.GetContextItem<T>(request, name);
+        }
+
         private string AppendBaseRoute(string route)
         {
             if (!string.IsNullOrEmpty(_baseRoute))

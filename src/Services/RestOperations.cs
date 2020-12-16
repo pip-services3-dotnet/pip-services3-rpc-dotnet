@@ -72,6 +72,12 @@ namespace PipServices3.Rpc.Services
             return HttpRequestHelper.GetSortParams(request);
         }
 
+        public static T GetContextItem<T>(HttpRequest request, string name)
+            where T : class
+        {
+            return HttpRequestHelper.GetContextItem<T>(request, name);
+        }
+
         protected async Task SendResultAsync(HttpResponse response, object result)
         {
             await HttpResponseSender.SendResultAsync(response, result);

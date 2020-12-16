@@ -93,5 +93,16 @@ namespace PipServices3.Rpc.Services
 
             return sort;
         }
+
+        public static T GetContextItem<T>(HttpRequest request, string name)
+            where T : class
+        {
+            if (request != null && request.HttpContext.Items.TryGetValue(name, out object item))
+            {
+                return item as T;
+            }
+
+            return null;
+        }
     }
 }
