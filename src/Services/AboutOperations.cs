@@ -49,8 +49,10 @@ namespace PipServices3.Rpc.Services
                 request.Headers.TryGetValue("x-forwarded-for", out StringValues ip)
                     ? ip.ToArray()[0]
                     : null;
-            about.client = new ExpandoObject();
-            about.client.user = JsonConverter.ToJson(user ?? new object());
+
+            // System.PlatformNotSupportedException: This instance contains state that cannot be serialized and deserialized on this platform.
+            //about.client = new ExpandoObject();
+            //about.client.user = JsonConverter.ToJson(user ?? new object());
 
             using (Stream ms = response.Body)
             {
@@ -59,7 +61,9 @@ namespace PipServices3.Rpc.Services
                 var sw = new StreamWriter(ms, Encoding.Unicode);
                 try
                 {
-                    ms.Seek(0, SeekOrigin.End);
+                    // Method Seek is not supported.
+                    //ms.Seek(0, SeekOrigin.End);
+
                     await sw.WriteAsync(jsonString);
                 }
                 finally
