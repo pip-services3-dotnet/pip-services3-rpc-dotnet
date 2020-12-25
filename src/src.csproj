@@ -6,7 +6,7 @@
     <AssemblyName>PipServices3.Rpc</AssemblyName>
     <ApplicationIcon />
     <Win32Resource />
-    <Version>3.3.9</Version>
+    <Version>3.3.10</Version>
     <Authors>Sergey Seroukhov, Volodymyr Tkachenko, Alex Mazur, Alexey Dvoykin, Danyil Tretiakov</Authors>
     <Copyright>Conceptual Vision Consulting LLC. 2017-2020</Copyright>
     <Description>Remove procedure calls for Pip.Services in .NET</Description>
@@ -26,4 +26,7 @@
     <PackageReference Include="PipServices3.Components" Version="3.1.4" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
   </ItemGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.1'">
+    <DefineConstants>NETSTANDARD2_1</DefineConstants>
+  </PropertyGroup>
 </Project>

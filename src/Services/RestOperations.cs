@@ -1,18 +1,13 @@
 using System;
-using System.IO;
-using System.Net;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Primitives;
+
 using PipServices3.Commons.Config;
-using PipServices3.Commons.Convert;
 using PipServices3.Commons.Data;
 using PipServices3.Commons.Errors;
 using PipServices3.Commons.Refer;
-using PipServices3.Commons.Run;
 using PipServices3.Components.Count;
 using PipServices3.Components.Log;
 
@@ -35,12 +30,12 @@ namespace PipServices3.Rpc.Services
         /// </summary>
         protected DependencyResolver _dependencyResolver = new DependencyResolver();
 
-        public void Configure(ConfigParams config)
+        public virtual void Configure(ConfigParams config)
         {
             _dependencyResolver.Configure(config);
         }
 
-        public void SetReferences(IReferences references)
+        public virtual void SetReferences(IReferences references)
         {
             _logger.SetReferences(references);
             _counters.SetReferences(references);
@@ -52,6 +47,11 @@ namespace PipServices3.Rpc.Services
             return HttpRequestHelper.GetCorrelationId(request);
         }
 
+        public static string GetId(HttpRequest request)
+        {
+            return HttpRequestHelper.ExtractFromQuery("id", request);
+        }
+
         protected FilterParams GetFilterParams(HttpRequest request)
         {
             return HttpRequestHelper.GetFilterParams(request);
@@ -60,6 +60,11 @@ namespace PipServices3.Rpc.Services
         protected PagingParams GetPagingParams(HttpRequest request)
         {
             return HttpRequestHelper.GetPagingParams(request);
+        }
+
+        protected static ProjectionParams GetProjectionParams(HttpRequest request)
+        {
+            return ProjectionParams.FromValues(HttpRequestHelper.ExtractFromQuery("projection", request));
         }
 
         protected RestOperationParameters GetParameters(HttpRequest request)

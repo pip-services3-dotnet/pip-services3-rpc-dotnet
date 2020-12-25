@@ -377,6 +377,10 @@ namespace PipServices3.Rpc.Clients
                         result = await _client.PutAsync(uri, content);
                     else if (method == HttpMethod.Delete)
                         result = await _client.DeleteAsync(uri);
+#if NETSTANDARD2_1
+                    else if (method == HttpMethod.Patch)
+                        result = await _client.PatchAsync(uri, content);
+#endif
                     else
                         throw new InvalidOperationException("Invalid request type");
 
@@ -537,6 +541,57 @@ namespace PipServices3.Rpc.Clients
                 using (var response = await ExecuteRequestAsync(correlationId, method, uri, requestContent))
                 {
                     return await ExtractContentEntityAsync<T>(correlationId, response.Content);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Safely executes a remote method via HTTP/REST protocol and logs execution time.
+        /// </summary>
+        /// <typeparam name="T">the class type</typeparam>
+        /// <param name="correlationId">(optional) transaction id to trace execution through call chain.</param>
+        /// <param name="method">HTTP method: "post", "put", "patch"</param>
+        /// <param name="route">a command route. Base route will be added to this route</param>
+        /// <param name="requestEntity">request body object.</param>
+        /// <returns>result object.</returns>
+        protected async Task<T> SafeExecuteAsync<T>(string correlationId, HttpMethod method, string route, object requestEntity)
+            where T : class
+        {
+            using (var timing = Instrument(correlationId, _baseRoute + "." + route))
+            {
+                try
+                {
+                    return await ExecuteAsync<T>(correlationId, method, route, requestEntity);
+                }
+                catch (Exception ex)
+                {
+                    InstrumentError(correlationId, _baseRoute + "." + route, ex);
+                    throw ex;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Safely executes a remote method via HTTP/REST protocol and logs execution time.
+        /// </summary>
+        /// <typeparam name="T">the class type</typeparam>
+        /// <param name="correlationId">(optional) transaction id to trace execution through call chain.</param>
+        /// <param name="method">HTTP method: "get", "delete"</param>
+        /// <param name="route">a command route. Base route will be added to this route</param>
+        /// <returns>result object.</returns>
+        protected async Task<T> SafeExecuteAsync<T>(string correlationId, HttpMethod method, string route)
+            where T : class
+        {
+            using (var timing = Instrument(correlationId, _baseRoute + "." + route))
+            {
+                try
+                {
+                    return await ExecuteAsync<T>(correlationId, method, route);
+                }
+                catch (Exception ex)
+                {
+                    InstrumentError(correlationId, _baseRoute + "." + route, ex);
+                    throw ex;
                 }
             }
         }
