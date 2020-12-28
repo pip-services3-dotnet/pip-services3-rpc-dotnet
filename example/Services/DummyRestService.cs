@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Routing;
 using PipServices3.Commons.Config;
 using PipServices3.Commons.Refer;
 using PipServices3.Rpc.Auth;
+using PipServices3.Rpc.Data;
+using TypeCode = PipServices3.Commons.Convert.TypeCode;
 
 namespace PipServices3.Rpc.Services
 {
@@ -18,15 +20,15 @@ namespace PipServices3.Rpc.Services
         private string _openApiResource;
 
         public override void Configure(ConfigParams config)
-		{
-			base.Configure(config);
+        {
+            base.Configure(config);
 
             _openApiContent = config.GetAsNullableString("openapi_content");
             _openApiFile = config.GetAsNullableString("openapi_file");
             _openApiResource = config.GetAsNullableString("openapi_resource");
         }
 
-		public override void SetReferences(IReferences references)
+        public override void SetReferences(IReferences references)
         {
             base.SetReferences(references);
 
@@ -48,59 +50,80 @@ namespace PipServices3.Rpc.Services
         public override void Register()
         {
             var auth = new BasicAuthorizer();
-            
+
             RegisterInterceptor("", IncrementNumberOfCallsAsync);
-            
-            RegisterRouteWithAuth("get", "/dummies", auth.Anybody(),
-                async (request, response, user, routeData) =>
-                {
-                    await _operations.GetPageByFilterAsync(request, response, user, routeData);
-                });
-            
-            RegisterRouteWithAuth("get", "/dummies/{id}", auth.Anybody(),
-                async (request, response, user, routeData) =>
-                {
-                    await _operations.GetByIdAsync(request, response, user, routeData);
-                });
-            
-            RegisterRouteWithAuth("post", "/dummies", auth.Anybody(),
-                async (request, response, user, routeData) =>
-                {
-                    await _operations.CreateAsync(request, response, user, routeData);
-                });
-            
-            RegisterRouteWithAuth("post", "/dummies/file", auth.Anybody(),
-                async (request, response, user, routeData) =>
-                {
-                    await _operations.CreateFromFileAsync(request, response, user, routeData);
-                });
-            
-            RegisterRouteWithAuth("put", "/dummies", auth.Anybody(),
-                async (request, response, user, routeData) =>
-                {
-                    await _operations.UpdateAsync(request, response, user, routeData);
-                });
-            
-            RegisterRouteWithAuth("put", "/dummies/{id}", auth.Anybody(),
-                async (request, response, user, routeData) =>
-                {
-                    await _operations.UpdateAsync(request, response, user, routeData);
-                });
-            
-            RegisterRouteWithAuth("delete", "/dummies/{id}", auth.Anybody(),
-                async (request, response, user, routeData) =>
-                {
-                    await _operations.DeleteByIdAsync(request, response, user, routeData);
-                });
 
-			if (!string.IsNullOrWhiteSpace(_openApiContent))
-				RegisterOpenApiSpec(_openApiContent);
+            var tags = new[] { "Dummy" };
+            var schema = new DummySchema();
 
-            if (!string.IsNullOrWhiteSpace(_openApiFile))
+            RegisterRouteWithAuthAndMetadata("get", "/dummies", auth.Anybody(), _operations.GetPageByFilterAsync, new RestRouteMetadata()
+                    .SetsTags(tags)
+                    .ReceivesCorrelationIdParam()
+                    .ReceivesOptionalQueryParam("filter", TypeCode.Object)
+                    .ReceivesOptionalQueryParam("paging", TypeCode.Object)
+                    .SendsDataPage200(schema)
+                );
+
+            RegisterRouteWithAuthAndMetadata("get", "/dummies/{id}", auth.Anybody(), _operations.GetByIdAsync, new RestRouteMetadata()
+                    .SetsTags(tags)
+                    .ReceivesCorrelationIdParam()
+                    .SendsData200(schema)
+                );
+
+            RegisterRouteWithAuthAndMetadata("post", "/dummies", auth.Anybody(), _operations.CreateAsync, new RestRouteMetadata()
+                    .SetsTags(tags)
+                    .ReceivesCorrelationIdParam()
+                    .ReceivesBodyFromSchema(schema)
+                    .SendsData200(schema)
+                    .SendsData400()
+                );
+
+            RegisterRouteWithAuthAndMetadata("post", "/dummies/file", auth.Anybody(), _operations.CreateFromFileAsync, new RestRouteMetadata()
+                    .SetsTags(tags)
+                    .ReceivesCorrelationIdParam()
+                    .ReceivesBodyFromSchema(null)
+                    .SendsData200(schema)
+                    .SendsData400()
+                );
+
+            RegisterRouteWithAuthAndMetadata("put", "/dummies", auth.Anybody(), _operations.UpdateAsync, new RestRouteMetadata()
+                    .SetsTags(tags)
+                    .ReceivesCorrelationIdParam()
+                    .ReceivesBodyFromSchema(schema)
+                    .SendsData200(schema)
+                    .SendsData400()
+                );
+
+            RegisterRouteWithAuthAndMetadata("put", "/dummies/{id}", auth.Anybody(), _operations.UpdateAsync, new RestRouteMetadata()
+                    .SetsTags(tags)
+                    .ReceivesCorrelationIdParam()
+                    .ReceivesBodyFromSchema(schema)
+                    .SendsData200(schema)
+                    .SendsData400()
+                );
+
+            RegisterRouteWithAuthAndMetadata("delete", "/dummies/{id}", auth.Anybody(), _operations.DeleteByIdAsync, new RestRouteMetadata()
+                    .SetsTags(tags)
+                    .ReceivesCorrelationIdParam()
+                    .SendsData200(schema)
+                );
+
+            if (!string.IsNullOrWhiteSpace(_openApiContent))
+            {
+                RegisterOpenApiSpec(_openApiContent);
+            }
+            else if (!string.IsNullOrWhiteSpace(_openApiFile))
+            {
                 RegisterOpenApiSpecFromFile(_openApiFile);
-
-            if (!string.IsNullOrWhiteSpace(_openApiResource))
+            }
+            else if (!string.IsNullOrWhiteSpace(_openApiResource))
+            {
                 RegisterOpenApiSpecFromResource(_openApiResource);
+            }
+            else
+            {
+                RegisterOpenApiSpecFromMetadata();
+            }
         }
     }
 }

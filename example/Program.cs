@@ -11,7 +11,8 @@ namespace PipServices3.Rpc
         static void Main(string[] args)
         {
             var controller = new DummyController();
-            var service = new DummyCommandableHttpService();
+            //var service = new DummyCommandableHttpService();
+            var service = new DummyRestService();
             var logger = new ConsoleLogger();
 
             service.Configure(ConfigParams.FromTuples(
