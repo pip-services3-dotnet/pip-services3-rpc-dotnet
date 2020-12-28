@@ -94,7 +94,7 @@ namespace PipServices3.Rpc.Services
 
                 foreach (var metadata in routeGroup)
                 {
-                    var tags = metadata.Tags.ToList();
+                    var tags = metadata.Tags?.ToList() ?? new List<string>();
 
                     if (!tags.Any())
                     {
@@ -125,7 +125,7 @@ namespace PipServices3.Rpc.Services
 
                     methodData.Add("responses", CreateResponsesData(metadata.Responses));
 
-                    pathData.Add(metadata.Method, methodData);
+                    pathData.Add(metadata.Method.ToLower(), methodData);
                 }
 
                 data.Add(path, pathData);
@@ -239,6 +239,14 @@ namespace PipServices3.Rpc.Services
         {
             var properties = new Dictionary<string, object>();
             var required = new List<string>();
+
+            if (schema.Properties == null)
+            {
+                return new Dictionary<string, object>
+                {
+                    { "properties", _objectType }
+                };
+            }
 
             foreach (var property in schema.Properties)
             {
