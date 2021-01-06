@@ -58,6 +58,7 @@ namespace PipServices3.Rpc.Services
 
             RegisterRouteWithAuthAndMetadata("get", "/dummies", auth.Anybody(), _operations.GetPageByFilterAsync, new RestRouteMetadata()
                     .SetsTags(tags)
+                    .UsesBearerAuthentication()
                     .ReceivesCorrelationIdParam()
                     .ReceivesOptionalQueryParam("filter", TypeCode.Object)
                     .ReceivesOptionalQueryParam("paging", TypeCode.Object)

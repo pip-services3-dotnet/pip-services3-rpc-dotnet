@@ -1,4 +1,5 @@
 ﻿using PipServices3.Commons.Convert;
+using PipServices3.Commons.Data;
 using PipServices3.Commons.Validate;
 
 using System.Collections.Generic;
@@ -13,6 +14,7 @@ namespace PipServices3.Rpc.Data
         public List<QueryParam> QueryParams { get; set; } = new List<QueryParam>();
         public ObjectSchema BodySchema { get; set; }
         public List<ResponseData> Responses { get; set; } = new List<ResponseData>();
+        public string Authentication { get; set; }
 
         public RestRouteMetadata SetsMethodAndRoute(string method, string route)
         {
@@ -97,6 +99,18 @@ namespace PipServices3.Rpc.Data
         public RestRouteMetadata SendsData400(ObjectSchema schema = null)
         {
             return SendsData(400, "Bad request", schema);
+        }
+
+        public RestRouteMetadata UsesBasicAuthentication()
+        {
+            Authentication = "basic";
+            return this;
+        }
+
+        public RestRouteMetadata UsesBearerAuthentication()
+        {
+            Authentication = "bearer";
+            return this;
         }
     }
 }

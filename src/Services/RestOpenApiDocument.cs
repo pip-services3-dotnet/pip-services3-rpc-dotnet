@@ -35,6 +35,8 @@ namespace PipServices3.Rpc.Services
             { "type", "object" }
         };
 
+        private Dictionary<string, bool> _auth = new Dictionary<string, bool>();
+
         public RestOpenApiDocument(string baseRoute, ConfigParams config, List<RestRouteMetadata> commands)
         {
             BaseRoute = baseRoute;
@@ -72,7 +74,8 @@ namespace PipServices3.Rpc.Services
                         },
                     }
                 },
-                {   "paths", CreatePathsData() }
+                {   "paths", CreatePathsData() },
+                {   "components", CreateComponentsData() }
             };
 
             WriteData(0, data);
@@ -124,6 +127,16 @@ namespace PipServices3.Rpc.Services
                     }
 
                     methodData.Add("responses", CreateResponsesData(metadata.Responses));
+
+                    if (!string.IsNullOrWhiteSpace(metadata.Authentication))
+                    {
+                        methodData.Add("security", new Dictionary<string, object>
+                        {
+                            {   $"- {metadata.Authentication}Auth", "[]" }
+                        });
+
+                        _auth[metadata.Authentication] = true;
+                    }
 
                     pathData.Add(metadata.Method.ToLower(), methodData);
                 }
@@ -336,7 +349,17 @@ namespace PipServices3.Rpc.Services
                     case TypeCode.Map:
                         return new Dictionary<string, object>
                         {
-                            { "type", "string" },
+                            { "type", "object" },
+                        };
+                    case TypeCode.Array:
+                        return new Dictionary<string, object>
+                        {
+                            { "type", "array" },
+                            { "items", new Dictionary<string, object>
+                                {
+                                    { "type", "object" },
+                                } 
+                            }
                         };
                     default:
                         return new Dictionary<string, object>
@@ -363,6 +386,28 @@ namespace PipServices3.Rpc.Services
             }
 
             return data;
+        }
+
+        private Dictionary<string, object> CreateComponentsData()
+        {
+            if (!_auth.Any())
+                return null;
+
+            var data = new Dictionary<string, object>();
+
+            foreach (var item in _auth)
+            {
+                data.Add($"{item.Key}Auth", new Dictionary<string, object>
+                {
+                    { "type", "http" },
+                    { "scheme", item.Key }
+                });
+            }
+
+            return new Dictionary<string, object>
+            {
+                {   "securitySchemes", data }
+            };
         }
 
         protected void WriteData(int indent, Dictionary<string, object> data, bool witFirsthHyphen = false)
@@ -412,19 +457,19 @@ namespace PipServices3.Rpc.Services
                         }
                     }
                 }
-                else if (value is List<Tuple<string, object>> tuple)
-                {
-                    WriteName(indent, key);
-                    indent++;
-                    foreach (var item in tuple)
-                    {
-                        if (item.Item2 != null && item.Item2 is Dictionary<string, object> tuple_dict)
-                        {
-                            WriteName(indent, item.Item1);
-                            WriteData(indent + 1, tuple_dict);
-                        }
-                    }
-                }
+                //else if (value is List<Tuple<string, object>> tuple)
+                //{
+                //    WriteName(indent, key);
+                //    indent++;
+                //    foreach (var item in tuple)
+                //    {
+                //        if (item.Item2 != null && item.Item2 is Dictionary<string, object> tuple_dict)
+                //        {
+                //            WriteName(indent, item.Item1);
+                //            WriteData(indent + 1, tuple_dict);
+                //        }
+                //    }
+                //}
                 else if (value is string str)
                 {
                     WriteAsString(indent, key, str);
@@ -472,7 +517,8 @@ namespace PipServices3.Rpc.Services
             if (value == null) return;
 
             var spaces = GetSpaces(indent);
-            _builder.Append(spaces).Append(name).Append(": '").Append(value).AppendLine("'");
+            if (!value.Equals("[]")) _builder.Append(spaces).Append(name).Append(": '").Append(value).AppendLine("'");
+            else _builder.Append(spaces).Append(name).Append(": ").Append(value).AppendLine("");
         }
 
         protected string GetSpaces(int length)
