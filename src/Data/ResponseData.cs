@@ -6,6 +6,6 @@ namespace PipServices3.Rpc.Data
     {
         public int StatusCode { get; set; }
         public string Description { get; set; }
-        public ObjectSchema Schema { get; set; }
+        public object Schema { get; set; }
     }
 }

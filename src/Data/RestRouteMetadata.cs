@@ -71,7 +71,7 @@ namespace PipServices3.Rpc.Data
             return this;
         }
 
-        public RestRouteMetadata SendsData(int statusCode, string description, ObjectSchema schema = null)
+        public RestRouteMetadata SendsData(int statusCode, string description, object schema = null)
         {
             Responses.Add(new ResponseData
             {
@@ -83,12 +83,12 @@ namespace PipServices3.Rpc.Data
             return this;
         }
 
-        public RestRouteMetadata SendsData200(ObjectSchema schema = null)
+        public RestRouteMetadata SendsData200(object schema = null)
         {
             return SendsData(200, "Success", schema);
         }
 
-        public RestRouteMetadata SendsDataPage200(ObjectSchema schema)
+        public RestRouteMetadata SendsDataPage200(object schema)
         {
             return SendsData(200, "Success", new ObjectSchema()
                 .WithRequiredProperty("total", TypeCode.Long)
@@ -96,7 +96,7 @@ namespace PipServices3.Rpc.Data
                 );
         }
 
-        public RestRouteMetadata SendsData400(ObjectSchema schema = null)
+        public RestRouteMetadata SendsData400(object schema = null)
         {
             return SendsData(400, "Bad request", schema);
         }

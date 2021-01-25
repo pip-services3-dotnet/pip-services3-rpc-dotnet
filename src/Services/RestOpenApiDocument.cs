@@ -212,9 +212,9 @@ namespace PipServices3.Rpc.Services
             return data;
         }
 
-        private Dictionary<string, object> CreateSchemaContentData(ObjectSchema schema, bool includeRequired)
+        private Dictionary<string, object> CreateSchemaContentData(object schema, bool includeRequired)
         {
-            if (schema == null || schema.Properties == null)
+            if (schema == null)
             {
                 return new Dictionary<string, object>
                 {
@@ -248,8 +248,20 @@ namespace PipServices3.Rpc.Services
             };
         }
 
-        private Dictionary<string, object> CreatePropertyData(ObjectSchema schema, bool includeRequired)
+        private Dictionary<string, object> CreatePropertyData(object @object, bool includeRequired)
         {
+            if (!(@object is ObjectSchema))
+            {
+                return CreatePropertyTypeData(@object);
+            }
+
+            var schema = @object as ObjectSchema;
+
+            if (schema.Properties == null)
+            {
+                return _objectType;
+            }
+
             var properties = new Dictionary<string, object>();
             var required = new List<string>();
 
@@ -272,18 +284,7 @@ namespace PipServices3.Rpc.Services
                 var propertyName = property.Name;
                 var propertyType = property.Type;
 
-                if (propertyType is ArraySchema)
-                {
-                    properties.Add(propertyName, new Dictionary<string, object>
-                    {
-                        { "type", "array" },
-                        { "items", CreatePropertyTypeData(((ArraySchema)propertyType).ValueType) }
-                    });
-                }
-                else
-                {
-                    properties.Add(propertyName, CreatePropertyTypeData(propertyType));
-                }
+                properties.Add(propertyName, CreatePropertyTypeData(propertyType));
 
                 if (includeRequired && property.IsRequired) required.Add(propertyName);
             }
@@ -301,17 +302,60 @@ namespace PipServices3.Rpc.Services
             return data;
         }
 
-        private Dictionary<string, object> CreatePropertyTypeData(object propertyType)
+        private Dictionary<string, object> CreatePropertyTypeData(object property)
         {
-            if (propertyType is ObjectSchema)
+            var propertyType = property.GetType();
+
+            //ObjectSchema
+            if (property is ObjectSchema)
             {
                 return _objectType
-                    .Union(CreatePropertyData((ObjectSchema)propertyType, false))
+                    .Union(CreatePropertyData((ObjectSchema)property, false))
                     .ToDictionary(k => k.Key, o => o.Value);
+            }
+            //ArraySchema
+            else if (property is ArraySchema)
+            {
+                var itemType = ((ArraySchema)property).ValueType;
+                return new Dictionary<string, object>
+                {
+                    { "type", "array" },
+                    { "items", itemType == null ? _objectType : CreatePropertyTypeData(itemType) }
+                };
+            }
+            //List<>
+            else if (propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(List<>))
+            {
+                var itemType = propertyType.GetGenericArguments()[0];
+                return new Dictionary<string, object>
+                {
+                    { "type", "array" },
+                    { "items", CreatePropertyTypeData(itemType) }
+                };
+            }
+            //Dictionary<,>
+            else if (propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(Dictionary<,>))
+            {
+                var keyType = propertyType.GetGenericArguments()[0];
+                var valueType = propertyType.GetGenericArguments()[1];
+                return new Dictionary<string, object>
+                {
+                    { "type", "object" },
+                    { "additionalProperties", CreatePropertyTypeData(valueType) }
+                };
+            }
+            //array (e.g. new string[] { })
+            else if (propertyType.IsArray)
+            {
+                return new Dictionary<string, object>
+                {
+                    { "type", "array" },
+                    { "items", CreatePropertyTypeData(propertyType.GetElementType()) }
+                };
             }
             else
             {
-                var typeCode = (propertyType is TypeCode) ? (TypeCode)propertyType : TypeConverter.ToTypeCode(propertyType as Type);
+                var typeCode = (property is TypeCode) ? (TypeCode)property : TypeConverter.ToTypeCode(property as Type);
                 typeCode = typeCode == TypeCode.Unknown ? TypeCode.Object : typeCode;
 
                 switch (typeCode)
@@ -350,16 +394,13 @@ namespace PipServices3.Rpc.Services
                         return new Dictionary<string, object>
                         {
                             { "type", "object" },
+                            { "additionalProperties", _objectType }
                         };
                     case TypeCode.Array:
                         return new Dictionary<string, object>
                         {
                             { "type", "array" },
-                            { "items", new Dictionary<string, object>
-                                {
-                                    { "type", "object" },
-                                } 
-                            }
+                            { "items", _objectType }
                         };
                     default:
                         return new Dictionary<string, object>
@@ -457,19 +498,6 @@ namespace PipServices3.Rpc.Services
                         }
                     }
                 }
-                //else if (value is List<Tuple<string, object>> tuple)
-                //{
-                //    WriteName(indent, key);
-                //    indent++;
-                //    foreach (var item in tuple)
-                //    {
-                //        if (item.Item2 != null && item.Item2 is Dictionary<string, object> tuple_dict)
-                //        {
-                //            WriteName(indent, item.Item1);
-                //            WriteData(indent + 1, tuple_dict);
-                //        }
-                //    }
-                //}
                 else if (value is string str)
                 {
                     WriteAsString(indent, key, str);
