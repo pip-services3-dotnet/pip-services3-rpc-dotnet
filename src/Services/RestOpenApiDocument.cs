@@ -125,6 +125,10 @@ namespace PipServices3.Rpc.Services
                             methodData.Add("requestBody", bodyData);
                         }
                     }
+                    else if (metadata.NeedsFile)
+                    {
+                        methodData.Add("requestBody", CreateFileContentData());
+                    }
 
                     methodData.Add("responses", CreateResponsesData(metadata.Responses));
 
@@ -248,6 +252,41 @@ namespace PipServices3.Rpc.Services
             };
         }
 
+        private Dictionary<string, object> CreateFileContentData()
+        {
+            return new Dictionary<string, object>
+            {
+                {   "content", new Dictionary<string, object>
+                    {
+                        {   "multipart/form-data", new Dictionary<string, object>
+                            {
+                                {   "schema", new Dictionary<string, object>
+                                    {
+                                        {   "type", "object" },
+                                        {   "properties", new Dictionary<string, object>
+                                            {
+                                                {   "filename", new Dictionary<string, object>
+                                                    {
+                                                        {   "type", "array" },
+                                                        {   "items", new Dictionary<string, object>
+                                                            {
+                                                                { "type", "string" },
+                                                                { "format", "binary" }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+        }
+
         private Dictionary<string, object> CreatePropertyData(object @object, bool includeRequired)
         {
             if (!(@object is ObjectSchema))
@@ -355,7 +394,8 @@ namespace PipServices3.Rpc.Services
             }
             else
             {
-                var typeCode = (property is TypeCode) ? (TypeCode)property : TypeConverter.ToTypeCode(property as Type);
+                var typeCode = (property is TypeCode) ? (TypeCode)property : 
+                    ((property as Type).Equals(typeof(byte)) ? TypeCode.Integer : TypeConverter.ToTypeCode(property as Type));
                 typeCode = typeCode == TypeCode.Unknown ? TypeCode.Object : typeCode;
 
                 switch (typeCode)

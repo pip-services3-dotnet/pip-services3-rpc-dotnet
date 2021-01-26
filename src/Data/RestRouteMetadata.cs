@@ -1,5 +1,4 @@
 ﻿using PipServices3.Commons.Convert;
-using PipServices3.Commons.Data;
 using PipServices3.Commons.Validate;
 
 using System.Collections.Generic;
@@ -13,6 +12,7 @@ namespace PipServices3.Rpc.Data
         public string[] Tags { get; set; }
         public List<QueryParam> QueryParams { get; set; } = new List<QueryParam>();
         public ObjectSchema BodySchema { get; set; }
+        public bool NeedsFile { get; set; }
         public List<ResponseData> Responses { get; set; } = new List<ResponseData>();
         public string Authentication { get; set; }
 
@@ -67,6 +67,13 @@ namespace PipServices3.Rpc.Data
         public RestRouteMetadata ReceivesBodyFromSchema(ObjectSchema schema)
         {
             BodySchema = schema;
+
+            return this;
+        }
+
+        public RestRouteMetadata ReceivesFile()
+        {
+            NeedsFile = true;
 
             return this;
         }

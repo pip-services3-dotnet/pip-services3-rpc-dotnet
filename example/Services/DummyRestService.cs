@@ -84,7 +84,7 @@ namespace PipServices3.Rpc.Services
             RegisterRouteWithAuthAndMetadata("post", "/dummies/file", auth.Anybody(), _operations.CreateFromFileAsync, new RestRouteMetadata()
                     .SetsTags(tags)
                     .ReceivesCorrelationIdParam()
-                    .ReceivesBodyFromSchema(null)
+                    .ReceivesFile()
                     .SendsData200(schema)
                     .SendsData400()
                 );
@@ -122,6 +122,7 @@ namespace PipServices3.Rpc.Services
                     .SendsData(115, "new byte[] { }", new byte[] { })
                     .SendsData(116, "new Dictionary< string, string >()", new Dictionary<string, string>())
                     .SendsData(117, "new Dictionary< string, bool >()", new Dictionary<string, bool>())
+                    .SendsData(118, "TypeCode.String", TypeCode.String)
                 );
 
             if (!string.IsNullOrWhiteSpace(_openApiContent))
