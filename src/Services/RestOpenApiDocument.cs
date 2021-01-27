@@ -394,8 +394,25 @@ namespace PipServices3.Rpc.Services
             }
             else
             {
-                var typeCode = (property is TypeCode) ? (TypeCode)property : 
-                    ((property as Type).Equals(typeof(byte)) ? TypeCode.Integer : TypeConverter.ToTypeCode(property as Type));
+                var typeCode = TypeCode.Object;
+
+                if (property is TypeCode)
+                {
+                    typeCode = (TypeCode)property;
+                }
+                else
+                {
+                    Type type = property as Type;
+                    if (type != null && type.Equals(typeof(byte)))
+                    {
+                        typeCode = TypeCode.Integer;
+                    }
+                    else
+                    {
+                        typeCode = TypeConverter.ToTypeCode(type);
+                    }
+                }
+
                 typeCode = typeCode == TypeCode.Unknown ? TypeCode.Object : typeCode;
 
                 switch (typeCode)
