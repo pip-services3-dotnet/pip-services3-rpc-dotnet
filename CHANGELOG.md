@@ -1,8 +1,9 @@
 # <img src="https://uploads-ssl.webflow.com/5ea5d3315186cf5ec60c3ee4/5edf1c94ce4c859f2b188094_logo.svg" alt="Pip.Services Logo" width="200"> <br/> Remote Procedure Calls for .NET Changelog
 
-## <a name="3.3.15-3.3.17"></a> 3.3.15-3.3.17 (2021-01-27)
+## <a name="3.3.15-3.3.18"></a> 3.3.15-3.3.18 (2021-02-16)
 
 ### Features
+* Extended RestClient to include CorrelationID into request headers
 * Upgraded OpenApiDoc to sends more types of responses
 
 ## <a name="3.3.12-3.3.14"></a> 3.3.12-3.3.14 (2021-01-06)

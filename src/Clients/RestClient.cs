@@ -89,7 +89,8 @@ namespace PipServices3.Rpc.Clients
             "options.request_max_size", 1024*1024,
             "options.connect_timeout", 60000,
             "options.retries", 1,
-            "options.debug", true
+            "options.debug", true,
+            "options.correlation_id_place", "query"
         );
 
         /// <summary>
@@ -131,6 +132,16 @@ namespace PipServices3.Rpc.Clients
         protected string _address;
 
         /// <summary>
+        /// The default headers to be added to every request.
+        /// </summary>
+        protected StringValueMap _headers = new StringValueMap();
+
+        /// <summary>
+        /// The place for adding correalationId: query - in query string, headers - in headers, both - in query and headers (default: query)
+        /// </summary>
+        protected string _correlationIdPlace = "query";
+
+        /// <summary>
         /// Configures component by passing configuration parameters.
         /// </summary>
         /// <param name="config">configuration parameters to be set.</param>
@@ -144,6 +155,7 @@ namespace PipServices3.Rpc.Clients
             _timeout = config.GetAsIntegerWithDefault("options.timeout", _timeout); ;
 
             _baseRoute = config.GetAsStringWithDefault("base_route", _baseRoute);
+            _correlationIdPlace = config.GetAsStringWithDefault("options.correlation_id_place", _correlationIdPlace);
         }
 
         /// <summary>
@@ -298,6 +310,16 @@ namespace PipServices3.Rpc.Clients
         /// <returns>invocation parameters with added correlation id.</returns>
         protected string AddCorrelationId(string route, string correlationId)
         {
+            if (_correlationIdPlace == "headers" || _correlationIdPlace == "both")
+            {
+                _headers["correlation_id"] = correlationId;
+            }
+
+            if (_correlationIdPlace != "query" && _correlationIdPlace != "both")
+            {
+                return route;
+            }
+
             var pos = route.IndexOf('?');
             var path = pos >= 0 ? route.Substring(0, pos) : route;
             var query = pos >= 0 ? route.Substring(pos) : "";
@@ -361,6 +383,15 @@ namespace PipServices3.Rpc.Clients
         {
             if (_client == null)
                 throw new InvalidOperationException("REST client is not configured");
+
+            // Set headers
+            foreach (var key in _headers.Keys)
+            {
+                if (!_client.DefaultRequestHeaders.Contains(key))
+                {
+                    _client.DefaultRequestHeaders.Add(key, _headers[key]);
+                }
+            }
 
             HttpResponseMessage result = null;
 
