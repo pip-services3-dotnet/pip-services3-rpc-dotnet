@@ -271,13 +271,20 @@ namespace PipServices3.Rpc.Clients
             if (!string.IsNullOrEmpty(_baseRoute))
             {
                 if (_baseRoute[0] != '/')
+                {
                     builder.Append('/');
+                }
                 builder.Append(_baseRoute);
             }
 
-            if (route[0] != '/')
-                builder.Append('/');
-            builder.Append(route);
+            if (!string.IsNullOrWhiteSpace(route))
+            {
+                if (route[0] != '/')
+                {
+                    builder.Append('/');
+                }
+                builder.Append(route);
+            }
 
             var uri = builder.ToString();
 
