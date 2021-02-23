@@ -279,7 +279,7 @@ namespace PipServices3.Rpc.Clients
 
             if (!string.IsNullOrWhiteSpace(route))
             {
-                if (route[0] != '/')
+                if (route[0] != '?' && route[0] != '/')
                 {
                     builder.Append('/');
                 }
@@ -360,6 +360,12 @@ namespace PipServices3.Rpc.Clients
             }
 
             query = ConstructQueryString(parameters);
+
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return path;
+            }
+
             return path + "?" + query;
         }
 
@@ -394,6 +400,12 @@ namespace PipServices3.Rpc.Clients
             }
 
             query = ConstructQueryString(parameters);
+
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return path;
+            }
+
             return path + "?" + query;
         }
 
