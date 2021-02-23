@@ -351,9 +351,12 @@ namespace PipServices3.Rpc.Clients
 
             var parameters = HttpUtility.ParseQueryString(query);
 
-            foreach (var key in filter.Keys)
+            if (filter != null)
             {
-                parameters[key] = filter[key];
+                foreach (var key in filter.Keys)
+                {
+                    parameters[key] = filter[key];
+                }
             }
 
             query = ConstructQueryString(parameters);
@@ -374,13 +377,22 @@ namespace PipServices3.Rpc.Clients
 
             var parameters = HttpUtility.ParseQueryString(query);
 
-            if (paging.Skip.HasValue)
-                parameters["skip"] = paging.Skip.Value.ToString();
-            if (paging.Take.HasValue)
-                parameters["take"] = paging.Take.Value.ToString();
-            if (paging.Total)
-                parameters["total"] = StringConverter.ToString(paging.Take);
- 
+            if (paging != null)
+            {
+                if (paging.Skip.HasValue)
+                {
+                    parameters["skip"] = paging.Skip.Value.ToString();
+                }
+                if (paging.Take.HasValue)
+                {
+                    parameters["take"] = paging.Take.Value.ToString();
+                }
+                if (paging.Total)
+                {
+                    parameters["total"] = StringConverter.ToString(paging.Take);
+                }
+            }
+
             query = ConstructQueryString(parameters);
             return path + "?" + query;
         }
