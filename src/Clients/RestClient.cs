@@ -619,7 +619,10 @@ namespace PipServices3.Rpc.Clients
         protected async Task<T> SafeExecuteAsync<T>(string correlationId, HttpMethod method, string route, object requestEntity)
             where T : class
         {
-            using (var timing = Instrument(correlationId, _baseRoute + "." + route))
+            var pos = !string.IsNullOrWhiteSpace(route) ? route.IndexOf('?') : -1;
+            var methodName = pos >= 0 ? route.Substring(0, pos) : route;
+
+            using (var timing = Instrument(correlationId, methodName))
             {
                 try
                 {
@@ -644,7 +647,10 @@ namespace PipServices3.Rpc.Clients
         protected async Task<T> SafeExecuteAsync<T>(string correlationId, HttpMethod method, string route)
             where T : class
         {
-            using (var timing = Instrument(correlationId, _baseRoute + "." + route))
+            var pos = !string.IsNullOrWhiteSpace(route) ? route.IndexOf('?') : -1;
+            var methodName = pos >= 0 ? route.Substring(0, pos) : route;
+
+            using (var timing = Instrument(correlationId, methodName))
             {
                 try
                 {
