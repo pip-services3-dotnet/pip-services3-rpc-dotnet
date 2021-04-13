@@ -140,13 +140,13 @@ namespace PipServices3.Rpc.Services
         }
 
         /// <summary>
-        /// Adds instrumentation to log calls and measure call time. It returns a Timing 
+        /// Adds instrumentation to log calls and measure call time. It returns a CounterTiming 
         /// object that is used to end the time measurement.
         /// </summary>
         /// <param name="correlationId">(optional) transaction id to trace execution through call chain.</param>
         /// <param name="name">a method name.</param>
-        /// <returns>Timing object to end the time measurement.</returns>
-        protected Timing Instrument(string correlationId, string name)
+        /// <returns>CounterTiming object to end the time measurement.</returns>
+        protected CounterTiming Instrument(string correlationId, string name)
         {
             _logger.Trace(correlationId, "Executing {0} method", name);
             return _counters.BeginTiming(name + ".exec_time");

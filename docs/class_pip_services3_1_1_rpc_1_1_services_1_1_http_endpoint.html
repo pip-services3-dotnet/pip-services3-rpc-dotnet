@@ -121,8 +121,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>RegisterInterceptor</
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
-<tr class="memitem:a234c1aa9687e6b38a13e01b09be4046e"><td class="memItemLeft" align="right" valign="top">Timing&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_pip_services3_1_1_rpc_1_1_services_1_1_http_endpoint.html#a234c1aa9687e6b38a13e01b09be4046e">Instrument</a> (string correlationId, string name)</td></tr>
-<tr class="memdesc:a234c1aa9687e6b38a13e01b09be4046e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds instrumentation to log calls and measure call time. It returns a Timing object that is used to end the time measurement.  <a href="#a234c1aa9687e6b38a13e01b09be4046e">More...</a><br /></td></tr>
+<tr class="memitem:a234c1aa9687e6b38a13e01b09be4046e"><td class="memItemLeft" align="right" valign="top">CounterTiming&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_pip_services3_1_1_rpc_1_1_services_1_1_http_endpoint.html#a234c1aa9687e6b38a13e01b09be4046e">Instrument</a> (string correlationId, string name)</td></tr>
+<tr class="memdesc:a234c1aa9687e6b38a13e01b09be4046e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds instrumentation to log calls and measure call time. It returns a CounterTiming object that is used to end the time measurement.  <a href="#a234c1aa9687e6b38a13e01b09be4046e">More...</a><br /></td></tr>
 <tr class="separator:a234c1aa9687e6b38a13e01b09be4046e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
@@ -289,7 +289,7 @@ Static Private Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">Timing PipServices3.Rpc.Services.HttpEndpoint.Instrument </td>
+          <td class="memname">CounterTiming PipServices3.Rpc.Services.HttpEndpoint.Instrument </td>
           <td>(</td>
           <td class="paramtype">string&#160;</td>
           <td class="paramname"><em>correlationId</em>, </td>
@@ -313,7 +313,7 @@ Static Private Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Adds instrumentation to log calls and measure call time. It returns a Timing object that is used to end the time measurement. </p>
+<p>Adds instrumentation to log calls and measure call time. It returns a CounterTiming object that is used to end the time measurement. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">correlationId</td><td>(optional) transaction id to trace execution through call chain.</td></tr>
@@ -321,7 +321,7 @@ Static Private Attributes</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section return"><dt>Returns</dt><dd>Timing object to end the time measurement.</dd></dl>
+<dl class="section return"><dt>Returns</dt><dd>CounterTiming object to end the time measurement.</dd></dl>
 
 </div>
 </div>
