@@ -663,6 +663,98 @@ namespace PipServices3.Rpc.Clients
                 }
             }
         }
+
+        /// <summary>
+        /// Calls a remote method via HTTP/REST protocol.
+        /// </summary>
+        /// <param name="correlationId">(optional) transaction id to trace execution through call chain.</param>
+        /// <param name="method">HTTP method: "get", "head", "post", "put", "delete"</param>
+        /// <param name="route">a command route. Base route will be added to this route</param>
+        protected async Task CallAsync(string correlationId, HttpMethod method, string route)
+        {
+            await ExecuteAsync(correlationId, method, route);
+        }
+
+        /// <summary>
+        /// Calls a remote method via HTTP/REST protocol.
+        /// </summary>
+        /// <param name="correlationId">(optional) transaction id to trace execution through call chain.</param>
+        /// <param name="method">HTTP method: "get", "head", "post", "put", "delete"</param>
+        /// <param name="route">a command route. Base route will be added to this route</param>
+        /// <param name="requestEntity">request body object.</param>
+        protected async Task CallAsync(string correlationId, HttpMethod method, string route, object requestEntity)
+        {
+            await ExecuteAsync(correlationId, method, route, requestEntity);
+        }
+
+        /// <summary>
+        /// Calls a remote method via HTTP/REST protocol.
+        /// </summary>
+        /// <typeparam name="T">the class type</typeparam>
+        /// <param name="correlationId">(optional) transaction id to trace execution through call chain.</param>
+        /// <param name="method">HTTP method: "get", "head", "post", "put", "delete"</param>
+        /// <param name="route">a command route. Base route will be added to this route</param>
+        /// <returns>result object.</returns>
+        protected async Task<T> CallAsync<T>(string correlationId, HttpMethod method, string route)
+            where T : class
+        {
+            return await ExecuteAsync<T>(correlationId, method, route);
+        }
+
+        protected async Task<string> CallStringAsync(string correlationId, HttpMethod method, string route)
+        {
+            return await ExecuteStringAsync(correlationId, method, route);
+        }
+
+        protected async Task<string> CallStringAsync(string correlationId, HttpMethod method, string route, object requestEntity)
+        {
+            return await ExecuteStringAsync(correlationId, method, route);
+        }
+
+        /// <summary>
+        /// Calls a remote method via HTTP/REST protocol.
+        /// </summary>
+        /// <typeparam name="T">the class type</typeparam>
+        /// <param name="correlationId">(optional) transaction id to trace execution through call chain.</param>
+        /// <param name="method">HTTP method: "get", "head", "post", "put", "delete"</param>
+        /// <param name="route">a command route. Base route will be added to this route</param>
+        /// <param name="requestEntity">request body object.</param>
+        /// <returns>result object.</returns>
+        protected async Task<T> CallAsync<T>(string correlationId, HttpMethod method, string route, object requestEntity)
+            where T : class
+        {
+            return await ExecuteAsync<T>(correlationId, method, route, requestEntity);
+        }
+
+        /// <summary>
+        /// Safely calls a remote method via HTTP/REST protocol and logs execution time.
+        /// </summary>
+        /// <typeparam name="T">the class type</typeparam>
+        /// <param name="correlationId">(optional) transaction id to trace execution through call chain.</param>
+        /// <param name="method">HTTP method: "post", "put", "patch"</param>
+        /// <param name="route">a command route. Base route will be added to this route</param>
+        /// <param name="requestEntity">request body object.</param>
+        /// <returns>result object.</returns>
+        protected async Task<T> SafeCallAsync<T>(string correlationId, HttpMethod method, string route, object requestEntity)
+            where T : class
+        {
+            return await SafeExecuteAsync<T>(correlationId, method, route, requestEntity);
+        }
+
+        /// <summary>
+        /// Safely calls a remote method via HTTP/REST protocol and logs execution time.
+        /// </summary>
+        /// <typeparam name="T">the class type</typeparam>
+        /// <param name="correlationId">(optional) transaction id to trace execution through call chain.</param>
+        /// <param name="method">HTTP method: "get", "delete"</param>
+        /// <param name="route">a command route. Base route will be added to this route</param>
+        /// <returns>result object.</returns>
+        protected async Task<T> SafeCallAsync<T>(string correlationId, HttpMethod method, string route)
+            where T : class
+        {
+            return await SafeExecuteAsync<T>(correlationId, method, route);
+        }
+
     }
 }
 
