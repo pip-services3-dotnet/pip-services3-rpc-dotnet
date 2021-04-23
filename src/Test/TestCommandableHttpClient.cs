@@ -23,7 +23,7 @@ namespace PipServices3.Rpc.Test
         public async new Task<T> CallCommandAsync<T>(string route, string correlationId, object requestEntity)
             where T : class
         {
-            return await CallCommandAsync<T>(route, correlationId, requestEntity);
+            return await base.CallCommandAsync<T>(route, correlationId, requestEntity);
         }
     }
 }
