@@ -99,6 +99,18 @@ namespace PipServices3.Rpc.Services
         private IList<IRegisterable> _registrations = new List<IRegisterable>();
         private IList<IInitializable> _initializations = new List<IInitializable>();
         private List<Interceptor> _interceptors = new List<Interceptor>();
+        private IList<string> _allowedHeaders = new List<string>{
+            //"Accept",
+            //"Content-Type",
+            //"Content-Length",
+            //"Accept-Encoding",
+            //"X-CSRF-Token",
+            //"Authorization",
+            "correlation_id",
+            //"access_token",
+        };
+
+        private IList<string> _allowedOrigins = new List<string> { };
 
         /// <summary>
         /// Sets references to this endpoint's logger, counters, and connection resolver.
@@ -137,6 +149,14 @@ namespace PipServices3.Rpc.Services
             _maintenanceEnabled = config.GetAsBooleanWithDefault("options.maintenance_enabled", _maintenanceEnabled);
             _fileMaxSize = config.GetAsLongWithDefault("options.file_max_size", _fileMaxSize);
             _responseCompression = config.GetAsBooleanWithDefault("options.response_compression", _responseCompression);
+
+            var corsParams = config.GetSection("cors-headers");
+            var headers = corsParams.GetSectionNames().ToList();
+            foreach (var key in headers)
+            {
+                var origin = corsParams.GetAsString(key);
+                AddCorsHeader(key, origin);
+            }
         }
 
         /// <summary>
@@ -272,14 +292,14 @@ namespace PipServices3.Rpc.Services
 
             services.AddCors(cors => cors.AddPolicy("CorsPolicy", builder =>
             {
-                builder.AllowAnyHeader()
+                builder.WithHeaders(_allowedHeaders.ToArray())
                     .AllowAnyMethod()
-                    .AllowAnyOrigin();
+                    .WithOrigins(_allowedOrigins.ToArray());
             }));
 
             services.Configure<KestrelServerOptions>(options =>
             {
-                options.AllowSynchronousIO = true; // Need to execution oprations from swagger
+                options.AllowSynchronousIO = true; // Need to execution operations from swagger
             });
         }
 
@@ -453,6 +473,26 @@ namespace PipServices3.Rpc.Services
         {
             route = FixRoute(route);
             _interceptors.Add(new Interceptor() { Action = action, Route = route });
+        }
+
+        /// <summary>
+        /// AddCORSHeader method adds allowed header, ignore if it already exist
+        /// must be call before to opening endpoint 
+        /// </summary>
+        /// <param name="header"></param>
+        /// <param name="origin"></param>
+        /// <returns></returns>
+        private void AddCorsHeader(string header, string origin)
+        {
+            if (!(string.IsNullOrEmpty(header) || _allowedHeaders.Contains(header)))
+            {
+                _allowedHeaders.Add(header);
+            }
+
+            if (!(string.IsNullOrEmpty(origin) || _allowedOrigins.Contains(origin)))
+            {
+                _allowedOrigins.Add(origin);
+            }
         }
     }
 }

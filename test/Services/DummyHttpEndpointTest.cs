@@ -16,7 +16,8 @@ namespace PipServices3.Rpc.Services
         private static readonly ConfigParams RestConfig = ConfigParams.FromTuples(
             "connection.protocol", "http",
             "connection.host", "localhost",
-            "connection.port", 3005
+            "connection.port", 3005,
+            "cors-headers.correlation_id", "*"
         );
 
         private readonly DummyController _ctrl;
