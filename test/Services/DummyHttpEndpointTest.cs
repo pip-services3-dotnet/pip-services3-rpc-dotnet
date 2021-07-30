@@ -17,7 +17,7 @@ namespace PipServices3.Rpc.Services
             "connection.protocol", "http",
             "connection.host", "localhost",
             "connection.port", 3005,
-            "cors-headers.correlation_id", "*"
+            "cors_headers", "correlation_id"
         );
 
         private readonly DummyController _ctrl;

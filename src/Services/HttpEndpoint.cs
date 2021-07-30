@@ -7,6 +7,7 @@ using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.ResponseCompression;
@@ -29,7 +30,8 @@ namespace PipServices3.Rpc.Services
     /// ### Configuration parameters ###
     /// 
     /// Parameters to pass to the <c>Configure()</c> method for component configuration:
-    /// 
+    /// cors_headers - a comma-separated list of allowed CORS headers
+    /// cors_origins - a comma-separated list of allowed CORS origins 
     /// connection(s) - the connection resolver's connections;
     /// - "connection.discovery_key" - the key to use for connection resolving in a discovery service;
     /// - "connection.protocol" - the connection's protocol;
@@ -99,18 +101,8 @@ namespace PipServices3.Rpc.Services
         private IList<IRegisterable> _registrations = new List<IRegisterable>();
         private IList<IInitializable> _initializations = new List<IInitializable>();
         private List<Interceptor> _interceptors = new List<Interceptor>();
-        private IList<string> _allowedHeaders = new List<string>{
-            //"Accept",
-            //"Content-Type",
-            //"Content-Length",
-            //"Accept-Encoding",
-            //"X-CSRF-Token",
-            //"Authorization",
-            "correlation_id",
-            //"access_token",
-        };
-
-        private IList<string> _allowedOrigins = new List<string> { };
+        private IList<string> _allowedHeaders = new List<string>();
+        private IList<string> _allowedOrigins = new List<string>();
 
         /// <summary>
         /// Sets references to this endpoint's logger, counters, and connection resolver.
@@ -150,12 +142,20 @@ namespace PipServices3.Rpc.Services
             _fileMaxSize = config.GetAsLongWithDefault("options.file_max_size", _fileMaxSize);
             _responseCompression = config.GetAsBooleanWithDefault("options.response_compression", _responseCompression);
 
-            var corsParams = config.GetSection("cors-headers");
-            var headers = corsParams.GetSectionNames().ToList();
-            foreach (var key in headers)
+            var headers = config.GetAsStringWithDefault("cors_headers", "").Split(',');
+            foreach (var header in headers.Where(h => !string.IsNullOrWhiteSpace(h)))
             {
-                var origin = corsParams.GetAsString(key);
-                AddCorsHeader(key, origin);
+                var h = header.Trim();
+                if (!_allowedHeaders.Contains(h))
+                    _allowedHeaders.Add(h);
+            }
+
+            var origins = config.GetAsStringWithDefault("cors_origins", "").Split(',');
+            foreach (var origin in origins.Where(o => !string.IsNullOrWhiteSpace(o)))
+            {
+                var o = origin.Trim();
+                if (!_allowedOrigins.Contains(o))
+                    _allowedOrigins.Add(o);
             }
         }
 
@@ -292,6 +292,8 @@ namespace PipServices3.Rpc.Services
 
             services.AddCors(cors => cors.AddPolicy("CorsPolicy", builder =>
             {
+                if (_allowedHeaders.Count == 0) _allowedHeaders.Add("*");
+                if (_allowedOrigins.Count == 0) _allowedOrigins.Add(CorsConstants.AnyOrigin);
                 builder.WithHeaders(_allowedHeaders.ToArray())
                     .AllowAnyMethod()
                     .WithOrigins(_allowedOrigins.ToArray());
@@ -473,26 +475,6 @@ namespace PipServices3.Rpc.Services
         {
             route = FixRoute(route);
             _interceptors.Add(new Interceptor() { Action = action, Route = route });
-        }
-
-        /// <summary>
-        /// AddCORSHeader method adds allowed header, ignore if it already exist
-        /// must be call before to opening endpoint 
-        /// </summary>
-        /// <param name="header"></param>
-        /// <param name="origin"></param>
-        /// <returns></returns>
-        private void AddCorsHeader(string header, string origin)
-        {
-            if (!(string.IsNullOrEmpty(header) || _allowedHeaders.Contains(header)))
-            {
-                _allowedHeaders.Add(header);
-            }
-
-            if (!(string.IsNullOrEmpty(origin) || _allowedOrigins.Contains(origin)))
-            {
-                _allowedOrigins.Add(origin);
-            }
         }
     }
 }
