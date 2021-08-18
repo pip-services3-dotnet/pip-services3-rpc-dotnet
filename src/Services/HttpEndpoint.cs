@@ -40,6 +40,8 @@ namespace PipServices3.Rpc.Services
     /// - "connection.uri" - the target URI.
     ///
     /// credential - the HTTPS credentials:
+    /// - "credential.ssl_pfx_file" - the name of a certificate file
+    /// - "credential.ssl_password" - the password required to access the X.509 certificate data
     /// - "credential.ssl_key_file" - the SSL private key in PEM
     /// - "credential.ssl_crt_file" - the SSL certificate in PEM
     /// - "credential.ssl_ca_file" - the certificate authorities (root cerfiticates) in PEM
@@ -74,6 +76,8 @@ namespace PipServices3.Rpc.Services
             "connection.protocol", "http",
             "connection.host", "0.0.0.0",
             "connection.port", 3000,
+            "credential.ssl_pfx_file", null,
+            "credential.ssl_password", null,
             "credential.ssl_key_file", null,
             "credential.ssl_crt_file", null,
             "credential.ssl_ca_file", null,
@@ -212,7 +216,7 @@ namespace PipServices3.Rpc.Services
                         if (protocol == "https")
                         {
                             var sslPfxFile = credential.GetAsNullableString("ssl_pfx_file");
-                            var sslPassword = credential.GetAsNullableString("ssl_pfx_file");
+                            var sslPassword = credential.GetAsNullableString("ssl_password");
 
                             options.Listen(IPAddress.Parse(host), port, listenOptions =>
                             {
