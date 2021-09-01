@@ -1,6 +1,6 @@
 {
     "name": "pip-services3-rpc-dotnet",
     "registry": "pipdevs",
-    "version": "3.4.5",
+    "version": "3.5.0",
     "build": 0
 }
