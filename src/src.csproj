@@ -6,7 +6,7 @@
     <AssemblyName>PipServices3.Rpc</AssemblyName>
     <ApplicationIcon />
     <Win32Resource />
-    <Version>3.5.0</Version>
+    <Version>3.5.1</Version>
     <Authors>Sergey Seroukhov, Volodymyr Tkachenko, Alex Mazur, Alexey Dvoykin, Danyil Tretiakov</Authors>
     <Copyright>Conceptual Vision Consulting LLC. 2017-2021</Copyright>
     <Description>Remove procedure calls for Pip.Services in .NET</Description>
@@ -19,9 +19,9 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
   <Choose>
-    <When Condition=" '$(TargetFramework)' == 'netstandard2.1'">
+    <When Condition=" '$(TargetFramework)' == 'netstandard2.0'">
       <PropertyGroup>
-        <DefineConstants>NETSTANDARD2_1</DefineConstants>
+        <DefineConstants>NETSTANDARD2_0</DefineConstants>
       </PropertyGroup>
     </When>
   </Choose>

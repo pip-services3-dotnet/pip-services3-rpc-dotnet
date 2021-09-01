@@ -439,7 +439,7 @@ namespace PipServices3.Rpc.Clients
                         result = await _client.PutAsync(uri, content);
                     else if (method == HttpMethod.Delete)
                         result = await _client.DeleteAsync(uri);
-#if NETSTANDARD2_1
+#if !NETSTANDARD2_0
                     else if (method == HttpMethod.Patch)
                         result = await _client.PatchAsync(uri, content);
 #endif
