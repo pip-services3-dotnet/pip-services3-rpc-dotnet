@@ -191,5 +191,40 @@ namespace PipServices3.Rpc.Services
             if (method != null) return await Task.FromResult(method.Invoke(this, parameters));
             else return null;
         }
+
+        protected virtual void HandleError(string correlationId, string methodName, Exception ex)
+        {
+            _logger.Error(correlationId, ex, $"Failed to execute {methodName}");
+        }
+
+        protected virtual CounterTiming Instrument(string correlationId, string methodName, string message = "")
+        {
+            _logger.Trace(correlationId, $"Executed {methodName} {message}");
+            return _counters.BeginTiming(methodName + ".exec_time");
+        }
+
+        protected virtual async Task SafeInvokeAsync(string methodName, HttpRequest request, HttpResponse response, Func<string, Task> invokeFunc)
+        {
+            var correlationId = GetCorrelationId(request);
+            using (var timing = Instrument(correlationId, methodName))
+            {
+                try
+                {
+                    await invokeFunc(correlationId);
+                }
+                catch (BadRequestException e)
+                {
+                    HandleError(correlationId, methodName, e);
+
+                    await SendBadRequestAsync(request, response, $"Incorrect body: {e.Message}");
+                }
+                catch (Exception ex)
+                {
+                    HandleError(correlationId, methodName, ex);
+
+                    await SendErrorAsync(response, ex);
+                }
+            }
+        }
     }
 }
