@@ -89,7 +89,8 @@ namespace PipServices3.Rpc.Clients
             "options.request_max_size", 1024*1024,
             "options.connect_timeout", 60000,
             "options.retries", 1,
-            "options.debug", true
+            "options.debug", true,
+            "options.correlation_id_place", "query"
         );
 
         /// <summary>
@@ -131,6 +132,16 @@ namespace PipServices3.Rpc.Clients
         protected string _address;
 
         /// <summary>
+        /// The default headers to be added to every request.
+        /// </summary>
+        protected StringValueMap _headers = new StringValueMap();
+
+        /// <summary>
+        /// The place for adding correalationId: query - in query string, headers - in headers, both - in query and headers (default: query)
+        /// </summary>
+        protected string _correlationIdPlace = "query";
+
+        /// <summary>
         /// Configures component by passing configuration parameters.
         /// </summary>
         /// <param name="config">configuration parameters to be set.</param>
@@ -144,6 +155,7 @@ namespace PipServices3.Rpc.Clients
             _timeout = config.GetAsIntegerWithDefault("options.timeout", _timeout); ;
 
             _baseRoute = config.GetAsStringWithDefault("base_route", _baseRoute);
+            _correlationIdPlace = config.GetAsStringWithDefault("options.correlation_id_place", _correlationIdPlace);
         }
 
         /// <summary>
@@ -158,13 +170,13 @@ namespace PipServices3.Rpc.Clients
         }
 
         /// <summary>
-        /// Adds instrumentation to log calls and measure call time. It returns a Timing
+        /// Adds instrumentation to log calls and measure call time. It returns a CounterTiming
         /// object that is used to end the time measurement.
         /// </summary>
         /// <param name="correlationId">(optional) transaction id to trace execution through call chain.</param>
         /// <param name="methodName">a method name.</param>
-        /// <returns>Timing object to end the time measurement.</returns>
-        protected Timing Instrument(string correlationId, [CallerMemberName]string methodName = null)
+        /// <returns>CounterTiming object to end the time measurement.</returns>
+        protected CounterTiming Instrument(string correlationId, [CallerMemberName]string methodName = null)
         {
             var typeName = GetType().Name;
             _logger.Trace(correlationId, "Calling {0} method of {1}", methodName, typeName);
@@ -259,13 +271,20 @@ namespace PipServices3.Rpc.Clients
             if (!string.IsNullOrEmpty(_baseRoute))
             {
                 if (_baseRoute[0] != '/')
+                {
                     builder.Append('/');
+                }
                 builder.Append(_baseRoute);
             }
 
-            if (route[0] != '/')
-                builder.Append('/');
-            builder.Append(route);
+            if (!string.IsNullOrWhiteSpace(route))
+            {
+                if (route[0] != '?' && route[0] != '/')
+                {
+                    builder.Append('/');
+                }
+                builder.Append(route);
+            }
 
             var uri = builder.ToString();
 
@@ -298,6 +317,16 @@ namespace PipServices3.Rpc.Clients
         /// <returns>invocation parameters with added correlation id.</returns>
         protected string AddCorrelationId(string route, string correlationId)
         {
+            if (_correlationIdPlace == "headers" || _correlationIdPlace == "both")
+            {
+                _headers["correlation_id"] = correlationId;
+            }
+
+            if (_correlationIdPlace != "query" && _correlationIdPlace != "both")
+            {
+                return route;
+            }
+
             var pos = route.IndexOf('?');
             var path = pos >= 0 ? route.Substring(0, pos) : route;
             var query = pos >= 0 ? route.Substring(pos) : "";
@@ -322,12 +351,21 @@ namespace PipServices3.Rpc.Clients
 
             var parameters = HttpUtility.ParseQueryString(query);
 
-            foreach (var key in filter.Keys)
+            if (filter != null)
             {
-                parameters[key] = filter[key];
+                foreach (var key in filter.Keys)
+                {
+                    parameters[key] = filter[key];
+                }
             }
 
             query = ConstructQueryString(parameters);
+
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return path;
+            }
+
             return path + "?" + query;
         }
 
@@ -345,14 +383,29 @@ namespace PipServices3.Rpc.Clients
 
             var parameters = HttpUtility.ParseQueryString(query);
 
-            if (paging.Skip.HasValue)
-                parameters["skip"] = paging.Skip.Value.ToString();
-            if (paging.Take.HasValue)
-                parameters["take"] = paging.Take.Value.ToString();
-            if (paging.Total)
-                parameters["total"] = StringConverter.ToString(paging.Take);
- 
+            if (paging != null)
+            {
+                if (paging.Skip.HasValue)
+                {
+                    parameters["skip"] = paging.Skip.Value.ToString();
+                }
+                if (paging.Take.HasValue)
+                {
+                    parameters["take"] = paging.Take.Value.ToString();
+                }
+                if (paging.Total)
+                {
+                    parameters["total"] = StringConverter.ToString(paging.Take);
+                }
+            }
+
             query = ConstructQueryString(parameters);
+
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return path;
+            }
+
             return path + "?" + query;
         }
 
@@ -361,6 +414,15 @@ namespace PipServices3.Rpc.Clients
         {
             if (_client == null)
                 throw new InvalidOperationException("REST client is not configured");
+
+            // Set headers
+            foreach (var key in _headers.Keys)
+            {
+                if (!_client.DefaultRequestHeaders.Contains(key))
+                {
+                    _client.DefaultRequestHeaders.Add(key, _headers[key]);
+                }
+            }
 
             HttpResponseMessage result = null;
 
@@ -377,6 +439,10 @@ namespace PipServices3.Rpc.Clients
                         result = await _client.PutAsync(uri, content);
                     else if (method == HttpMethod.Delete)
                         result = await _client.DeleteAsync(uri);
+#if !NETSTANDARD2_0
+                    else if (method == HttpMethod.Patch)
+                        result = await _client.PatchAsync(uri, content);
+#endif
                     else
                         throw new InvalidOperationException("Invalid request type");
 
@@ -540,6 +606,155 @@ namespace PipServices3.Rpc.Clients
                 }
             }
         }
+
+        /// <summary>
+        /// Safely executes a remote method via HTTP/REST protocol and logs execution time.
+        /// </summary>
+        /// <typeparam name="T">the class type</typeparam>
+        /// <param name="correlationId">(optional) transaction id to trace execution through call chain.</param>
+        /// <param name="method">HTTP method: "post", "put", "patch"</param>
+        /// <param name="route">a command route. Base route will be added to this route</param>
+        /// <param name="requestEntity">request body object.</param>
+        /// <returns>result object.</returns>
+        protected async Task<T> SafeExecuteAsync<T>(string correlationId, HttpMethod method, string route, object requestEntity)
+            where T : class
+        {
+            var pos = !string.IsNullOrWhiteSpace(route) ? route.IndexOf('?') : -1;
+            var methodName = pos >= 0 ? route.Substring(0, pos) : route;
+
+            using (var timing = Instrument(correlationId, methodName))
+            {
+                try
+                {
+                    return await ExecuteAsync<T>(correlationId, method, route, requestEntity);
+                }
+                catch (Exception ex)
+                {
+                    InstrumentError(correlationId, _baseRoute + "." + route, ex);
+                    throw ex;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Safely executes a remote method via HTTP/REST protocol and logs execution time.
+        /// </summary>
+        /// <typeparam name="T">the class type</typeparam>
+        /// <param name="correlationId">(optional) transaction id to trace execution through call chain.</param>
+        /// <param name="method">HTTP method: "get", "delete"</param>
+        /// <param name="route">a command route. Base route will be added to this route</param>
+        /// <returns>result object.</returns>
+        protected async Task<T> SafeExecuteAsync<T>(string correlationId, HttpMethod method, string route)
+            where T : class
+        {
+            var pos = !string.IsNullOrWhiteSpace(route) ? route.IndexOf('?') : -1;
+            var methodName = pos >= 0 ? route.Substring(0, pos) : route;
+
+            using (var timing = Instrument(correlationId, methodName))
+            {
+                try
+                {
+                    return await ExecuteAsync<T>(correlationId, method, route);
+                }
+                catch (Exception ex)
+                {
+                    InstrumentError(correlationId, _baseRoute + "." + route, ex);
+                    throw ex;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Calls a remote method via HTTP/REST protocol.
+        /// </summary>
+        /// <param name="correlationId">(optional) transaction id to trace execution through call chain.</param>
+        /// <param name="method">HTTP method: "get", "head", "post", "put", "delete"</param>
+        /// <param name="route">a command route. Base route will be added to this route</param>
+        protected async Task CallAsync(string correlationId, HttpMethod method, string route)
+        {
+            await ExecuteAsync(correlationId, method, route);
+        }
+
+        /// <summary>
+        /// Calls a remote method via HTTP/REST protocol.
+        /// </summary>
+        /// <param name="correlationId">(optional) transaction id to trace execution through call chain.</param>
+        /// <param name="method">HTTP method: "get", "head", "post", "put", "delete"</param>
+        /// <param name="route">a command route. Base route will be added to this route</param>
+        /// <param name="requestEntity">request body object.</param>
+        protected async Task CallAsync(string correlationId, HttpMethod method, string route, object requestEntity)
+        {
+            await ExecuteAsync(correlationId, method, route, requestEntity);
+        }
+
+        /// <summary>
+        /// Calls a remote method via HTTP/REST protocol.
+        /// </summary>
+        /// <typeparam name="T">the class type</typeparam>
+        /// <param name="correlationId">(optional) transaction id to trace execution through call chain.</param>
+        /// <param name="method">HTTP method: "get", "head", "post", "put", "delete"</param>
+        /// <param name="route">a command route. Base route will be added to this route</param>
+        /// <returns>result object.</returns>
+        protected async Task<T> CallAsync<T>(string correlationId, HttpMethod method, string route)
+            where T : class
+        {
+            return await ExecuteAsync<T>(correlationId, method, route);
+        }
+
+        protected async Task<string> CallStringAsync(string correlationId, HttpMethod method, string route)
+        {
+            return await ExecuteStringAsync(correlationId, method, route);
+        }
+
+        protected async Task<string> CallStringAsync(string correlationId, HttpMethod method, string route, object requestEntity)
+        {
+            return await ExecuteStringAsync(correlationId, method, route);
+        }
+
+        /// <summary>
+        /// Calls a remote method via HTTP/REST protocol.
+        /// </summary>
+        /// <typeparam name="T">the class type</typeparam>
+        /// <param name="correlationId">(optional) transaction id to trace execution through call chain.</param>
+        /// <param name="method">HTTP method: "get", "head", "post", "put", "delete"</param>
+        /// <param name="route">a command route. Base route will be added to this route</param>
+        /// <param name="requestEntity">request body object.</param>
+        /// <returns>result object.</returns>
+        protected async Task<T> CallAsync<T>(string correlationId, HttpMethod method, string route, object requestEntity)
+            where T : class
+        {
+            return await ExecuteAsync<T>(correlationId, method, route, requestEntity);
+        }
+
+        /// <summary>
+        /// Safely calls a remote method via HTTP/REST protocol and logs execution time.
+        /// </summary>
+        /// <typeparam name="T">the class type</typeparam>
+        /// <param name="correlationId">(optional) transaction id to trace execution through call chain.</param>
+        /// <param name="method">HTTP method: "post", "put", "patch"</param>
+        /// <param name="route">a command route. Base route will be added to this route</param>
+        /// <param name="requestEntity">request body object.</param>
+        /// <returns>result object.</returns>
+        protected async Task<T> SafeCallAsync<T>(string correlationId, HttpMethod method, string route, object requestEntity)
+            where T : class
+        {
+            return await SafeExecuteAsync<T>(correlationId, method, route, requestEntity);
+        }
+
+        /// <summary>
+        /// Safely calls a remote method via HTTP/REST protocol and logs execution time.
+        /// </summary>
+        /// <typeparam name="T">the class type</typeparam>
+        /// <param name="correlationId">(optional) transaction id to trace execution through call chain.</param>
+        /// <param name="method">HTTP method: "get", "delete"</param>
+        /// <param name="route">a command route. Base route will be added to this route</param>
+        /// <returns>result object.</returns>
+        protected async Task<T> SafeCallAsync<T>(string correlationId, HttpMethod method, string route)
+            where T : class
+        {
+            return await SafeExecuteAsync<T>(correlationId, method, route);
+        }
+
     }
 }
 

@@ -1,4 +1,53 @@
-# <img src="https://uploads-ssl.webflow.com/5ea5d3315186cf5ec60c3ee4/5edf1c94ce4c859f2b188094_logo.svg" alt="Pip.Services Logo" width="200"> <br/> Remote Procedure Calls for .NET Changelog
+# <img src="https://uploads-ssl.webflow.com/5ea5d3315186cf5ec60c3ee4/5edf1c94ce4c859f2b188094_logo.svg" alt="Pip.Services Logo" width="200"> <br/> Remote Procedure Calls for Pip.Services in .NET Changelog
+
+## <a name="3.5.0-3.5.2"></a> 3.5.0-3.5.2 (2021-09-02)
+
+### Breaking Changes
+* Migrate to .NET Core 5.0
+
+### Features
+* Added to RestOperations SafeInvokeAsync, HandleError and Instrument methods
+
+## <a name="3.4.5"></a> 3.4.5 (2021-08-18)
+### Fixes
+* Fixed the HTTPS credentials
+
+## <a name="3.4.3-3.4.4"></a> 3.4.3-3.4.4 (2021-06-09) 
+### Features
+* Added CORS headers to HttpEndpoint
+
+## <a name="3.4.2"></a> 3.4.2 (2021-06-09) 
+
+### Features
+* Updated references
+
+## <a name="3.4.0"></a> 3.4.0 (2021-04-22)
+
+### Fixes
+* **test** Added TestRpcClient
+* **test** Added TestCommandableHttpClient
+
+## <a name="3.3.15-3.3.22"></a> 3.3.15-3.3.22 (2021-04-05)
+
+### Fixes
+* **clients** Fixed counter's method names
+* **clients** Fixed processing of empty routes
+* **clients** Fixed adding null filter/paging parameters
+
+### Features
+* Extended RestClient to include CorrelationID into request headers
+* Upgraded OpenApiDoc to sends more types of responses
+
+## <a name="3.3.12-3.3.14"></a> 3.3.12-3.3.14 (2021-01-06)
+
+### Features
+* Added rest route metadata to generate OpenApiSpec
+* Registering OpenApiSpec from metadata in RestService
+
+## <a name="3.3.8-3.3.10"></a> 3.3.8-3.3.10 (2020-12-25)
+### Features
+* Extended RestClient with PATCH method (only for netstandard2.1)
+* Added route builder helper
 
 ## <a name="3.3.7"></a> 3.3.7 (2020-12-11)
 

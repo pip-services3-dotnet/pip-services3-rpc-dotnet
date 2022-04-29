@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -14,6 +15,7 @@ using PipServices3.Commons.Refer;
 using PipServices3.Commons.Run;
 using PipServices3.Components.Count;
 using PipServices3.Components.Log;
+using PipServices3.Rpc.Data;
 
 namespace PipServices3.Rpc.Services
 {
@@ -117,6 +119,8 @@ namespace PipServices3.Rpc.Services
         protected bool _swaggerEnable = false;
         protected string _swaggerRoute = "swagger";
 
+        private List<RestRouteMetadata> _routesWithMetadata = new List<RestRouteMetadata>();
+
         protected ConfigParams _config;
         private IReferences _references;
         private bool _localEndpoint;
@@ -191,13 +195,13 @@ namespace PipServices3.Rpc.Services
         }
 
         /// <summary>
-        /// Adds instrumentation to log calls and measure call time. It returns a Timing
+        /// Adds instrumentation to log calls and measure call time. It returns a CounterTiming
         /// object that is used to end the time measurement.
         /// </summary>
         /// <param name="correlationId">(optional) transaction id to trace execution through call chain.</param>
         /// <param name="methodName">a method name.</param>
-        /// <returns>Timing object to end the time measurement.</returns>
-        protected Timing Instrument(string correlationId, string methodName)
+        /// <returns>CounterTiming object to end the time measurement.</returns>
+        protected CounterTiming Instrument(string correlationId, string methodName)
         {
             _logger.Trace(correlationId, "Executing {0} method", methodName);
             _counters.IncrementOne(methodName + ".exec_count");
@@ -397,12 +401,23 @@ namespace PipServices3.Rpc.Services
         /// <param name="route">a command route. Base route will be added to this route</param>
         /// <param name="action">an action function that is called when operation is invoked.</param>
         protected virtual void RegisterRoute(string method, string route,
-             Func<HttpRequest, HttpResponse, RouteData, Task> action)
+            Func<HttpRequest, HttpResponse, RouteData, Task> action)
         {
             if (_endpoint == null) return;
 
             route = AppendBaseRoute(route);
             _endpoint.RegisterRoute(method, route, action);
+        }
+
+        protected virtual void RegisterRouteWithMetadata(string method, string route,
+            Func<HttpRequest, HttpResponse, RouteData, Task> action,
+            RestRouteMetadata metadata)
+        {
+            if (_endpoint == null) return;
+
+            RegisterRoute(method, route, action);
+
+            _routesWithMetadata.Add(metadata.SetsMethodAndRoute(method, route));
         }
 
         protected virtual void RegisterRouteWithAuth(string method, string route,
@@ -413,6 +428,18 @@ namespace PipServices3.Rpc.Services
 
             route = AppendBaseRoute(route);
             _endpoint.RegisterRouteWithAuth(method, route, autorize, action);
+        }
+
+        protected virtual void RegisterRouteWithAuthAndMetadata(string method, string route,
+            Func<HttpRequest, HttpResponse, ClaimsPrincipal, RouteData, Func<Task>, Task> autorize,
+            Func<HttpRequest, HttpResponse, ClaimsPrincipal, RouteData, Task> action,
+            RestRouteMetadata metadata)
+        {
+            if (_endpoint == null) return;
+
+            RegisterRouteWithAuth(method, route, autorize, action);
+
+            _routesWithMetadata.Add(metadata.SetsMethodAndRoute(method, route));
         }
 
         public void RegisterInterceptor(string route,
@@ -449,12 +476,21 @@ namespace PipServices3.Rpc.Services
             }
         }
 
+        protected virtual void RegisterOpenApiSpecFromMetadata()
+        {
+            var swaggerConfig = _config.GetSection("swagger");
+
+            var doc = new RestOpenApiDocument(_baseRoute, swaggerConfig, _routesWithMetadata);
+
+            RegisterOpenApiSpec(doc.ToString());
+        }
+
         protected virtual void RegisterOpenApiSpec(string content)
         {
             if (_swaggerEnable)
             {
                 var responseContent = content;
-             
+
                 RegisterRoute(HttpMethods.Get, _swaggerRoute, async (request, response, routeData) =>
                 {
                     response.ContentType = "application/json";

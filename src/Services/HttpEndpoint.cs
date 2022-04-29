@@ -7,6 +7,7 @@ using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.ResponseCompression;
@@ -29,7 +30,8 @@ namespace PipServices3.Rpc.Services
     /// ### Configuration parameters ###
     /// 
     /// Parameters to pass to the <c>Configure()</c> method for component configuration:
-    /// 
+    /// cors_headers - a comma-separated list of allowed CORS headers
+    /// cors_origins - a comma-separated list of allowed CORS origins 
     /// connection(s) - the connection resolver's connections;
     /// - "connection.discovery_key" - the key to use for connection resolving in a discovery service;
     /// - "connection.protocol" - the connection's protocol;
@@ -38,6 +40,8 @@ namespace PipServices3.Rpc.Services
     /// - "connection.uri" - the target URI.
     ///
     /// credential - the HTTPS credentials:
+    /// - "credential.ssl_pfx_file" - the name of a certificate file
+    /// - "credential.ssl_password" - the password required to access the X.509 certificate data
     /// - "credential.ssl_key_file" - the SSL private key in PEM
     /// - "credential.ssl_crt_file" - the SSL certificate in PEM
     /// - "credential.ssl_ca_file" - the certificate authorities (root cerfiticates) in PEM
@@ -72,6 +76,8 @@ namespace PipServices3.Rpc.Services
             "connection.protocol", "http",
             "connection.host", "0.0.0.0",
             "connection.port", 3000,
+            "credential.ssl_pfx_file", null,
+            "credential.ssl_password", null,
             "credential.ssl_key_file", null,
             "credential.ssl_crt_file", null,
             "credential.ssl_ca_file", null,
@@ -99,6 +105,8 @@ namespace PipServices3.Rpc.Services
         private IList<IRegisterable> _registrations = new List<IRegisterable>();
         private IList<IInitializable> _initializations = new List<IInitializable>();
         private List<Interceptor> _interceptors = new List<Interceptor>();
+        private IList<string> _allowedHeaders = new List<string>();
+        private IList<string> _allowedOrigins = new List<string>();
 
         /// <summary>
         /// Sets references to this endpoint's logger, counters, and connection resolver.
@@ -137,16 +145,32 @@ namespace PipServices3.Rpc.Services
             _maintenanceEnabled = config.GetAsBooleanWithDefault("options.maintenance_enabled", _maintenanceEnabled);
             _fileMaxSize = config.GetAsLongWithDefault("options.file_max_size", _fileMaxSize);
             _responseCompression = config.GetAsBooleanWithDefault("options.response_compression", _responseCompression);
+
+            var headers = config.GetAsStringWithDefault("cors_headers", "").Split(',');
+            foreach (var header in headers.Where(h => !string.IsNullOrWhiteSpace(h)))
+            {
+                var h = header.Trim();
+                if (!_allowedHeaders.Contains(h))
+                    _allowedHeaders.Add(h);
+            }
+
+            var origins = config.GetAsStringWithDefault("cors_origins", "").Split(',');
+            foreach (var origin in origins.Where(o => !string.IsNullOrWhiteSpace(o)))
+            {
+                var o = origin.Trim();
+                if (!_allowedOrigins.Contains(o))
+                    _allowedOrigins.Add(o);
+            }
         }
 
         /// <summary>
-        /// Adds instrumentation to log calls and measure call time. It returns a Timing 
+        /// Adds instrumentation to log calls and measure call time. It returns a CounterTiming 
         /// object that is used to end the time measurement.
         /// </summary>
         /// <param name="correlationId">(optional) transaction id to trace execution through call chain.</param>
         /// <param name="name">a method name.</param>
-        /// <returns>Timing object to end the time measurement.</returns>
-        protected Timing Instrument(string correlationId, string name)
+        /// <returns>CounterTiming object to end the time measurement.</returns>
+        protected CounterTiming Instrument(string correlationId, string name)
         {
             _logger.Trace(correlationId, "Executing {0} method", name);
             return _counters.BeginTiming(name + ".exec_time");
@@ -192,7 +216,7 @@ namespace PipServices3.Rpc.Services
                         if (protocol == "https")
                         {
                             var sslPfxFile = credential.GetAsNullableString("ssl_pfx_file");
-                            var sslPassword = credential.GetAsNullableString("ssl_pfx_file");
+                            var sslPassword = credential.GetAsNullableString("ssl_password");
 
                             options.Listen(IPAddress.Parse(host), port, listenOptions =>
                             {
@@ -272,14 +296,16 @@ namespace PipServices3.Rpc.Services
 
             services.AddCors(cors => cors.AddPolicy("CorsPolicy", builder =>
             {
-                builder.AllowAnyHeader()
+                if (_allowedHeaders.Count == 0) _allowedHeaders.Add("*");
+                if (_allowedOrigins.Count == 0) _allowedOrigins.Add(CorsConstants.AnyOrigin);
+                builder.WithHeaders(_allowedHeaders.ToArray())
                     .AllowAnyMethod()
-                    .AllowAnyOrigin();
+                    .WithOrigins(_allowedOrigins.ToArray());
             }));
 
             services.Configure<KestrelServerOptions>(options =>
             {
-                options.AllowSynchronousIO = true; // Need to execution oprations from swagger
+                options.AllowSynchronousIO = true; // Need to execution operations from swagger
             });
         }
 

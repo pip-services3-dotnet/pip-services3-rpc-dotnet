@@ -14,9 +14,18 @@ namespace PipServices3.Rpc.Services
 
         public static string GetCorrelationId(HttpRequest request)
         {
-            return request.Query.TryGetValue("correlation_id", out StringValues correlationId)
+            var result = request.Query.TryGetValue("correlation_id", out StringValues correlationId)
                 ? correlationId.ToString()
                 : null;
+
+            if (string.IsNullOrWhiteSpace(result))
+            {
+                result = request.Headers.TryGetValue("correlation_id", out correlationId)
+                    ? correlationId.ToString()
+                    : null;
+            }
+
+            return result;
         }
 
         public static FilterParams GetFilterParams(HttpRequest request)

@@ -85,7 +85,7 @@ namespace PipServices3.Rpc.Connect
             if (!string.IsNullOrEmpty(uri))
                 return;
 
-            var protocol = connection.GetProtocol("http");
+            var protocol = connection.GetProtocolWithDefault("http");
             if ("http" != protocol && "https" != protocol)
             {
                 throw new ConfigException(
