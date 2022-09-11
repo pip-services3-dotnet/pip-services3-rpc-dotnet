@@ -25,6 +25,7 @@ namespace PipServices3.Rpc
             AddCommand(MakeCreateWithoutValidationCommand());
             AddCommand(MakeRaiseCommandSetExceptionCommand());
             AddCommand(MakeRaiseControllerExceptionCommand());
+            AddCommand(MakeCheckCorrelationIdCommand());
 
             // V2
             AddCommand(MakePingCommand());
@@ -144,6 +145,17 @@ namespace PipServices3.Rpc
                 async (correlationId, parameters) =>
                 {
                     return await _controller.PingAsync();
+                });
+        }
+
+        private ICommand MakeCheckCorrelationIdCommand()
+        {
+            return new Command(
+                "check_correlation_id",
+                new ObjectSchema(),
+                async (correlationId, parameters) =>
+                {
+                    return await _controller.CheckCorrelationId(correlationId);
                 });
         }
 

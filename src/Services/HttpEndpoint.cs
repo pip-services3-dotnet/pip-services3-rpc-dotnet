@@ -5,11 +5,13 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -18,6 +20,7 @@ using PipServices3.Commons.Config;
 using PipServices3.Commons.Errors;
 using PipServices3.Commons.Refer;
 using PipServices3.Commons.Run;
+using PipServices3.Commons.Validate;
 using PipServices3.Components.Count;
 using PipServices3.Components.Log;
 using PipServices3.Rpc.Connect;
@@ -375,6 +378,19 @@ namespace PipServices3.Rpc.Services
         public void RegisterRoute(string method, string route,
             Func<HttpRequest, HttpResponse, RouteData, Task> action)
         {
+            RegisterRoute(method, route, null, action);
+        }
+
+        /// <summary>
+        /// Registers an action in this objects REST server (service) by the given method and route.
+        /// </summary>
+        /// <param name="method">the HTTP method of the route.</param>
+        /// <param name="route">the route to register in this object's REST server (service).</param>
+        /// <param name="schema">the schema to use for parameter validation.</param>
+        /// <param name="action">the action to perform at the given route.</param>
+        public void RegisterRoute(string method, string route, Schema schema,
+            Func<HttpRequest, HttpResponse, RouteData, Task> action)
+        {
             route = FixRoute(route);
 
             if (_routeBuilder != null)
@@ -384,6 +400,29 @@ namespace PipServices3.Rpc.Services
                 {
                     AppendAdditionalParametersFromQuery(route, context.Request);
 
+                    // Add validation
+                    if (schema != null)
+                    {
+                        var nextAction = action;
+
+                        action = new Func<HttpRequest, HttpResponse, RouteData, Task>(
+                            async (request, response, routeData) =>
+                            {
+                                var parameters = GetRequestParameters(context.Request);
+                                var correlationId = HttpRequestHelper.GetCorrelationId(context.Request);
+                                var err = schema.ValidateAndReturnException(correlationId, parameters, false);
+
+                                if (err != null)
+                                {
+                                    await HttpResponseSender.SendErrorAsync(response, err);
+                                    return;
+                                }
+
+                                await nextAction(request, response, routeData);
+                            }
+                        );
+                    }
+                    
                     var interceptor = _interceptors.Find(i => route.StartsWith(i.Route));
                     if (interceptor != null)
                     {
@@ -400,6 +439,31 @@ namespace PipServices3.Rpc.Services
                     return action.Invoke(context.Request, context.Response, context.GetRouteData());
                 });
             }
+        }
+
+        private Parameters GetRequestParameters(HttpRequest req)
+        {
+            var body = string.Empty;
+
+            // Allows using several time the stream in ASP.Net Core
+            req.EnableRewind();
+
+            var streamReader = new StreamReader(req.Body);
+            body = streamReader.ReadToEnd();
+
+            // Rewind, so the core is not lost when it looks at the body for the request
+            req.Body.Seek(0, SeekOrigin.Begin);
+
+            var parameters = string.IsNullOrEmpty(body)
+                ? new Parameters() : Parameters.FromJson("{ \"body\":" + body + " }");
+
+            foreach (var pair in req.Query)
+                parameters.Set(pair.Key, pair.Value[0]);
+
+            foreach (var pair in req.Headers)
+                parameters.Set(pair.Key, pair.Value[0]);
+
+            return parameters;
         }
 
         private void AppendAdditionalParametersFromQuery(string route, HttpRequest request)
@@ -440,8 +504,17 @@ namespace PipServices3.Rpc.Services
                 Func<Task>, Task> authorize,
             Func<HttpRequest, HttpResponse, ClaimsPrincipal, RouteData, Task> action)
         {
+            RegisterRouteWithAuth(method, route, null, authorize, action);
+        }
+
+        public void RegisterRouteWithAuth(string method, string route, Schema schema,
+            Func<HttpRequest, HttpResponse, ClaimsPrincipal, RouteData,
+                Func<Task>, Task> authorize,
+            Func<HttpRequest, HttpResponse, ClaimsPrincipal, RouteData, Task> action)
+        {
             route = FixRoute(route);
 
+            // Add authorizer
             if (authorize != null)
             {
                 var nextAction = action;
@@ -451,6 +524,29 @@ namespace PipServices3.Rpc.Services
                     return authorize(request, response, user, routeData,
                         async () => await nextAction(request, response, user, routeData));
                 };
+            }
+
+            // Add validation
+            if (schema != null)
+            {
+                var nextAction = action;
+
+                action = new Func<HttpRequest, HttpResponse, ClaimsPrincipal, RouteData, Task>(
+                    async (request, response, userData, routeData) =>
+                    {
+                        var parameters = GetRequestParameters(request);
+                        var correlationId = HttpRequestHelper.GetCorrelationId(request);
+                        var err = schema.ValidateAndReturnException(correlationId, parameters, false);
+
+                        if (err != null) 
+                        {
+                            await HttpResponseSender.SendErrorAsync(response, err);
+                            return;
+                        }
+
+                        await nextAction(request, response, userData, routeData);
+                    }
+                );
             }
 
             if (_routeBuilder != null)

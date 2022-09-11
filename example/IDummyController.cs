@@ -12,6 +12,8 @@ namespace PipServices3.Rpc
         Task<Dummy> DeleteByIdAsync(string correlationId, string id);
         Task RaiseExceptionAsync(string correlationId);
 
+        Task<string> CheckCorrelationId(string correlationId);
+
         Task<bool> PingAsync();
     }
 }

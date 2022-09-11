@@ -36,6 +36,7 @@ namespace PipServices3.Rpc.Clients
     /// - retries:               number of retries(default: 3)
     /// - connect_timeout:       connection timeout in milliseconds(default: 10 sec)
     /// - timeout:               invocation timeout in milliseconds(default: 10 sec)
+    /// - correlation_id         place for adding correalationId, query - in query string, headers - in headers, both - in query and headers (default: query)
     /// 
     /// ### References ###
     /// 

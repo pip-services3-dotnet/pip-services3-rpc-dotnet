@@ -13,6 +13,7 @@ using PipServices3.Commons.Data;
 using PipServices3.Commons.Errors;
 using PipServices3.Commons.Refer;
 using PipServices3.Commons.Run;
+using PipServices3.Commons.Validate;
 using PipServices3.Components.Count;
 using PipServices3.Components.Log;
 using PipServices3.Rpc.Data;
@@ -406,7 +407,22 @@ namespace PipServices3.Rpc.Services
             if (_endpoint == null) return;
 
             route = AppendBaseRoute(route);
-            _endpoint.RegisterRoute(method, route, action);
+            _endpoint.RegisterRoute(method, route, null, action);
+        }
+
+        /// <summary>
+        /// Registers a route in HTTP endpoint.
+        /// </summary>
+        /// <param name="method">HTTP method: "get", "head", "post", "put", "delete"</param>
+        /// <param name="route">a command route. Base route will be added to this route</param>
+        /// <param name="action">an action function that is called when operation is invoked.</param>
+        protected virtual void RegisterRoute(string method, string route, Schema schema, 
+            Func<HttpRequest, HttpResponse, RouteData, Task> action)
+        {
+            if (_endpoint == null) return;
+
+            route = AppendBaseRoute(route);
+            _endpoint.RegisterRoute(method, route, schema, action);
         }
 
         protected virtual void RegisterRouteWithMetadata(string method, string route,
@@ -418,6 +434,16 @@ namespace PipServices3.Rpc.Services
             RegisterRoute(method, route, action);
 
             _routesWithMetadata.Add(metadata.SetsMethodAndRoute(method, route));
+        }
+
+        protected virtual void RegisterRouteWithAuth(string method, string route, Schema schema,
+            Func<HttpRequest, HttpResponse, ClaimsPrincipal, RouteData, Func<Task>, Task> autorize,
+            Func<HttpRequest, HttpResponse, ClaimsPrincipal, RouteData, Task> action)
+        {
+            if (_endpoint == null) return;
+
+            route = AppendBaseRoute(route);
+            _endpoint.RegisterRouteWithAuth(method, route, schema, autorize, action);
         }
 
         protected virtual void RegisterRouteWithAuth(string method, string route,

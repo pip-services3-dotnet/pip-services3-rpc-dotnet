@@ -54,6 +54,10 @@ namespace PipServices3.Rpc
             // Try to get deleted dummy
             dummy = await _client.GetOneByIdAsync("6", dummy1.Id);
             Assert.Null(dummy);
+
+            // Check correlation id
+            var result = await _client.CheckCorrelationId("test_cor_id");
+            Assert.Equal("test_cor_id", result);
         }
     }
 }

@@ -77,7 +77,7 @@ namespace PipServices3.Rpc
 
             lock(_lock)
             {
-                if (entity.Id == null)
+                if (string.IsNullOrEmpty(entity.Id))
                     entity.Id = IdGenerator.NextLong();
 
                 _entities.Add(entity);
@@ -121,6 +121,11 @@ namespace PipServices3.Rpc
                 }
             }
             return null;
+        }
+
+        public async Task<string> CheckCorrelationId(string correlationId)
+        {
+            return await Task.FromResult(correlationId);
         }
 
         public Task RaiseExceptionAsync(string correlationId)

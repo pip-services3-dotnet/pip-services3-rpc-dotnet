@@ -11,6 +11,7 @@ namespace PipServices3.Rpc
         Task<Dummy> CreateAsync(string correlationId, Dummy entity);
         Task<Dummy> UpdateAsync(string correlationId, Dummy entity);
         Task<Dummy> DeleteByIdAsync(string correlationId, string id);
+        Task<string> CheckCorrelationId(string correlationId);
         Task RaiseExceptionAsync(string correlationId);
     }
 }

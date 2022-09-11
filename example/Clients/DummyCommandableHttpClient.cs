@@ -73,5 +73,10 @@ namespace PipServices3.Rpc.Clients
         {
             return CallCommandAsync<object>("raise_exception", correlationId, null);
         }
+
+        public Task<string> CheckCorrelationId(string correlationId)
+        {
+            return CallCommandAsync<string>("check_correlation_id", correlationId, new { correlationId });
+        }
     }
 }

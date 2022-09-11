@@ -1,14 +1,11 @@
 using System.IO;
-using System.Linq.Expressions;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Primitives;
 using PipServices3.Commons.Convert;
 using PipServices3.Commons.Refer;
-using PipServices3.Commons.Run;
 
 namespace PipServices3.Rpc.Services
 {
@@ -112,6 +109,13 @@ namespace PipServices3.Rpc.Services
             
             var result = await _controller.DeleteByIdAsync(correlationId, id);
 
+            await SendResultAsync(response, result);
+        }
+
+        public async Task CheckCorrelationId(HttpRequest request, HttpResponse response, ClaimsPrincipal user,
+            RouteData routeData) 
+        {
+            var result = await _controller.CheckCorrelationId(GetCorrelationId(request));
             await SendResultAsync(response, result);
         }
     }

@@ -15,7 +15,7 @@ namespace PipServices3.Rpc.Clients
         private static readonly ConfigParams RestConfig = ConfigParams.FromTuples(
             "connection.uri", "http://localhost:3000",
             "options.timeout", 15000,
-            "options.correlation_id_place", "headers"
+            "options.correlation_id_place", "query"
             //"connection.protocol", "http",
             //"connection.host", "localhost",
             //"connection.port", 3000

@@ -7,16 +7,17 @@ namespace PipServices3.Rpc.Services
         private IDummyController _controller;
 
         public DummyCommandableHttpServiceV2() 
-            : base("Dummy")
+            : base("dummy")
         {
             _dependencyResolver.Put("controller", new Descriptor("pip-services3-dummies", "controller", "default", "*", "1.0"));
         }
 
-        public override void SetReferences(IReferences references)
+        public override void Register()
         {
-            base.SetReferences(references);
+            if (!_swaggerAuto && _swaggerEnable)
+                RegisterOpenApiSpec("swagger yaml content");
 
-            _controller = references.GetOneRequired<IDummyController>(new Descriptor("pip-services3-dummies", "controller", "default", "*", "1.0"));
+            base.Register();
         }
     }
 }

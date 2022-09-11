@@ -58,5 +58,13 @@ namespace PipServices3.Rpc.Clients
         {
             await _controller.RaiseExceptionAsync(correlationId);
         }
+
+        public async Task<string> CheckCorrelationId(string correlationId)
+        {
+            using (var timing = Instrument(correlationId, "dummy.check_correlation_id"))
+            {
+                return await _controller.CheckCorrelationId(correlationId);
+            }
+        }
     }
 }
