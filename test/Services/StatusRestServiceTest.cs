@@ -17,7 +17,7 @@ namespace PipServices3.Rpc.Services
             var config = ConfigParams.FromTuples(
                 "connection.protocol", "http",
                 "connection.host", "localhost",
-                "connection.port", "3001"
+                "connection.port", "3006"
             );
             _service = new StatusRestService();
             _service.Configure(config);
@@ -51,7 +51,7 @@ namespace PipServices3.Rpc.Services
         {
             using (var httpClient = new System.Net.Http.HttpClient())
             {
-                var response = await httpClient.GetAsync("http://localhost:3001" + route);
+                var response = await httpClient.GetAsync("http://localhost:3006" + route);
                 var responseValue = response.Content.ReadAsStringAsync().Result;
                 return JsonConverter.FromJson<T>(responseValue);
             }

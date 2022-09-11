@@ -17,7 +17,7 @@ namespace PipServices3.Rpc.Services
     [Collection("Sequential")]
     public class DummyRestServiceV2Test : IDisposable
     {
-        private static int testPort = 3000;
+        private static int testPort = 3004;
 
         private static readonly ConfigParams restConfig = ConfigParams.FromTuples(
             "connection.protocol", "http",
@@ -31,7 +31,7 @@ namespace PipServices3.Rpc.Services
         private HttpClient _httpClient;
 
         private readonly Dummy DUMMY1 = new(null, "Key 1", "Content 1");
-        private readonly Dummy DUMMY2 = new(null, "Key 1", "Content 1");
+        private readonly Dummy DUMMY2 = new(null, "Key 2", "Content 2");
 
         public DummyRestServiceV2Test()
         {

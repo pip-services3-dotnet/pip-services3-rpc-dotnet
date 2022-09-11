@@ -13,7 +13,7 @@ namespace PipServices3.Rpc.Services
 {
     public sealed class DummyCommandableHttpServiceV2Test
     {
-        private static int testPort = 3000;
+        private static int testPort = 3001;
 
         private static readonly ConfigParams restConfig = ConfigParams.FromTuples(
             "connection.protocol", "http",
@@ -23,7 +23,7 @@ namespace PipServices3.Rpc.Services
         );
 
         private readonly Dummy DUMMY1 = new(null, "Key 1", "Content 1");
-        private readonly Dummy DUMMY2 = new(null, "Key 1", "Content 1");
+        private readonly Dummy DUMMY2 = new(null, "Key 2", "Content 2");
 
         private DummyCommandableHttpServiceV2 _service;
         private HttpClient _httpClient;
@@ -75,7 +75,7 @@ namespace PipServices3.Rpc.Services
             Assert.Equal(dummy.Key, DUMMY2.Key);
             Assert.Equal(dummy.Content, DUMMY2.Content);
 
-            // Get all dummies // TODO add by filters
+            // Get all dummies
             result = await SendRequestAsync("/dummy/get_dummies", new
             {
             });
@@ -85,6 +85,19 @@ namespace PipServices3.Rpc.Services
             Assert.NotNull(page);
             Assert.NotNull(page.Data);
             Assert.Equal(2, page.Data.Count);
+
+            // Get with filters
+            result = await SendRequestAsync("/dummy/get_dummies", new
+            {
+                filter=FilterParams.FromTuples("key", dummy1.Key)
+            });
+
+            page = JsonConverter.FromJson<DataPage<Dummy>>(result);
+
+            Assert.NotNull(page);
+            Assert.NotNull(page.Data);
+            Assert.Single(page.Data);
+            Assert.Equal(dummy1.Key, page.Data[0].Key);
 
             // Update the dummy
             dummy1.Content = "Updated Content 1";

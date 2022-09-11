@@ -16,7 +16,7 @@ namespace PipServices3.Rpc.Services
         private static readonly ConfigParams RestConfig = ConfigParams.FromTuples(
             "connection.protocol", "http",
             "connection.host", "localhost",
-            "connection.port", 3005,
+            "connection.port", 3002,
             "cors_headers", "correlation_id"
         );
 
@@ -129,7 +129,7 @@ namespace PipServices3.Rpc.Services
             {
                 using (var content = new StringContent(JsonConverter.ToJson(request), Encoding.UTF8, "application/json"))
                 {
-                    var response = httpClient.PostAsync($"http://localhost:3005{route}", content).Result;
+                    var response = httpClient.PostAsync($"http://localhost:3002{route}", content).Result;
 
                     return response.Content.ReadAsStringAsync().Result;
                 }

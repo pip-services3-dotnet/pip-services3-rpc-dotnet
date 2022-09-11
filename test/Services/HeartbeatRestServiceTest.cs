@@ -18,7 +18,7 @@ namespace PipServices3.Rpc.Services
             var config = ConfigParams.FromTuples(
                 "connection.protocol", "http",
                 "connection.host", "localhost",
-                "connection.port", "3002"
+                "connection.port", "3005"
             );
             _service = new HeartbeatRestService();
             _service.Configure(config);
@@ -43,7 +43,7 @@ namespace PipServices3.Rpc.Services
         {
             using (var httpClient = new System.Net.Http.HttpClient())
             {
-                var response = await httpClient.GetAsync("http://localhost:3002" + route);
+                var response = await httpClient.GetAsync("http://localhost:3005" + route);
                 var responseValue = response.Content.ReadAsStringAsync().Result;
                 return JsonConverter.FromJson<T>(responseValue);
             }
