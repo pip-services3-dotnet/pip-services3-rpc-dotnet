@@ -5,7 +5,6 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;
@@ -310,6 +309,11 @@ namespace PipServices3.Rpc.Services
             {
                 options.AllowSynchronousIO = true; // Need to execution operations from swagger
             });
+
+            foreach (var initialization in _initializations)
+            {
+                initialization.ConfigureServices(services);
+            }
         }
 
         private void ConfigureApplication(IApplicationBuilder applicationBuilder)
@@ -334,7 +338,7 @@ namespace PipServices3.Rpc.Services
 
             foreach (var initialization in _initializations)
             {
-                initialization.Initialize(applicationBuilder);
+                initialization.ConfigureApplication(applicationBuilder);
             }
 
             _routeBuilder = null;
