@@ -5,6 +5,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;
@@ -452,11 +453,14 @@ namespace PipServices3.Rpc.Services
             // Allows using several time the stream in ASP.Net Core
             req.EnableRewind();
 
-            var streamReader = new StreamReader(req.Body);
-            body = streamReader.ReadToEnd();
+            using (var streamReader = new StreamReader(req.Body))
+            {
+                body = streamReader.ReadToEnd();
 
-            // Rewind, so the core is not lost when it looks at the body for the request
-            req.Body.Seek(0, SeekOrigin.Begin);
+                // Rewind, so the core is not lost when it looks at the body for the request
+                req.Body.Seek(0, SeekOrigin.Begin);
+            }
+                
 
             var parameters = string.IsNullOrEmpty(body)
                 ? new Parameters() : Parameters.FromJson("{ \"body\":" + body + " }");
