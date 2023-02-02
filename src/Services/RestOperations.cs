@@ -111,67 +111,62 @@ namespace PipServices3.Rpc.Services
         protected async Task SendBadRequestAsync(HttpRequest request, HttpResponse response, string message)
         {
             var correlationId = GetCorrelationId(request);
-            var error = new BadRequestException(correlationId, "BAD_REQUEST", message)
-            {
-                Status = StatusCodes.Status400BadRequest
-            };
+            var error = new BadRequestException(correlationId, "BAD_REQUEST", message);
             await SendErrorAsync(response, error);
         }
 
         protected async Task SendUnauthorizedAsync(HttpRequest request, HttpResponse response, string message)
         {
             var correlationId = GetCorrelationId(request);
-            var error = new BadRequestException(correlationId, "UNAUTHORIZED", message)
-            {
-                Status = StatusCodes.Status401Unauthorized
-            };
+            var error = new UnauthorizedException(correlationId, "UNAUTHORIZED", message);
             await SendErrorAsync(response, error);
         }
 
         protected async Task SendNotFoundAsync(HttpRequest request, HttpResponse response, string message)
         {
             var correlationId = GetCorrelationId(request);
-            var error = new BadRequestException(correlationId, "NOT_FOUND", message)
-            {
-                Status = StatusCodes.Status404NotFound
-            };
+            var error = new NotFoundException(correlationId, "NOT_FOUND", message);
             await SendErrorAsync(response, error);
         }
 
         protected async Task SendConflictAsync(HttpRequest request, HttpResponse response, string message)
         {
             var correlationId = GetCorrelationId(request);
-            var error = new BadRequestException(correlationId, "CONFLICT", message)
-            {
-                Status = StatusCodes.Status409Conflict
-            };
+            var error = new ConflictException(correlationId, "CONFLICT", message);
             await SendErrorAsync(response, error);
         }
 
         protected async Task SendSessionExpiredASync(HttpRequest request, HttpResponse response, string message)
         {
             var correlationId = GetCorrelationId(request);
-            var error = new BadRequestException(correlationId, "SESSION_EXPIRED", message) {Status = 440};
+            var error = new PipServices3.Commons.Errors.ApplicationException(correlationId, "SESSION_EXPIRED", message) 
+            {
+                Status = 440
+            };
             await SendErrorAsync(response, error);
         }
 
         protected async Task SendInternalErrorAsync(HttpRequest request, HttpResponse response, string message)
         {
             var correlationId = GetCorrelationId(request);
-            var error = new BadRequestException(correlationId, "INTERNAL", message)
-            {
-                Status = StatusCodes.Status500InternalServerError
-            };
+            var error = new InternalException(correlationId, "INTERNAL", message);
             await SendErrorAsync(response, error);
         }
 
         protected async Task SendServerUnavailableAsync(HttpRequest request, HttpResponse response, string message)
         {
             var correlationId = GetCorrelationId(request);
-            var error = new BadRequestException(correlationId, "SERVER_UNAVAILABLE", message)
+            var error = new PipServices3.Commons.Errors.ApplicationException(correlationId, "SERVER_UNAVAILABLE", message)
             {
                 Status = StatusCodes.Status503ServiceUnavailable
             };
+            await SendErrorAsync(response, error);
+        }
+
+        protected async Task SendTooManyRequestsAsync(HttpRequest request, HttpResponse response, string message)
+        {
+            var correlationId = GetCorrelationId(request);
+            var error = new TooManyRequestsException(correlationId, "TOO_MANY_REQUESTS", message);
             await SendErrorAsync(response, error);
         }
 

@@ -6,7 +6,7 @@
     <AssemblyName>PipServices3.Rpc</AssemblyName>
     <ApplicationIcon />
     <Win32Resource />
-    <Version>3.6.2</Version>
+    <Version>3.6.3</Version>
     <Authors>Sergey Seroukhov, Volodymyr Tkachenko, Alex Mazur, Alexey Dvoykin, Danyil Tretiakov</Authors>
     <Copyright>Conceptual Vision Consulting LLC. 2017-2022</Copyright>
     <Description>Remove procedure calls for Pip.Services in .NET</Description>
@@ -29,7 +29,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Cors" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.ResponseCompression" Version="2.2.0" />
-    <PackageReference Include="PipServices3.Commons" Version="3.4.0" />
+    <PackageReference Include="PipServices3.Commons" Version="3.4.1" />
     <PackageReference Include="PipServices3.Components" Version="3.5.0" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
   </ItemGroup>
