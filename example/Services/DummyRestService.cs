@@ -117,12 +117,13 @@ namespace PipServices3.Rpc.Services
                     .SendsData(110, "new DummySchema()", new DummySchema())
                     .SendsData(111, "new ArraySchema()", new ArraySchema())
                     .SendsData(112, "new ArraySchema(new DummySchema())", new ArraySchema(new DummySchema()))
-                    .SendsData(113, "new List< DummySchema >()", new List<DummySchema>())
-                    .SendsData(114, "new List< string >()", new List<string>())
+                    .SendsData(113, "new List<DummySchema>()", new List<DummySchema>())
+                    .SendsData(114, "new List<string>()", new List<string>())
                     .SendsData(115, "new byte[] { }", new byte[] { })
-                    .SendsData(116, "new Dictionary< string, string >()", new Dictionary<string, string>())
-                    .SendsData(117, "new Dictionary< string, bool >()", new Dictionary<string, bool>())
+                    .SendsData(116, "new Dictionary<string, string>()", new Dictionary<string, string>())
+                    .SendsData(117, "new Dictionary<string, bool>()", new Dictionary<string, bool>())
                     .SendsData(118, "TypeCode.String", TypeCode.String)
+                    .SendsData(119, "new MapSchema(TypeCode.String, new DummySchema())", new MapSchema(TypeCode.String, new DummySchema()))
                 );
 
             if (!string.IsNullOrWhiteSpace(_openApiContent))

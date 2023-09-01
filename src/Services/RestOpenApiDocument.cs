@@ -383,6 +383,18 @@ namespace PipServices3.Rpc.Services
                     { "additionalProperties", CreatePropertyTypeData(valueType) }
                 };
             }
+            //MapSchema
+            else if (property is MapSchema)
+            {
+                var mapSchema = property as MapSchema;
+                var keyType = mapSchema.KeyType;
+                var valueType = mapSchema.ValueType;
+                return new Dictionary<string, object>
+                {
+                    { "type", "object" },
+                    { "additionalProperties", CreatePropertyTypeData(valueType) }
+                };
+            }
             //array (e.g. new string[] { })
             else if (propertyType.IsArray)
             {
