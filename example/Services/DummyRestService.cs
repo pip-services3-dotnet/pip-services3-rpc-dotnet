@@ -124,6 +124,7 @@ namespace PipServices3.Rpc.Services
                     .SendsData(117, "new Dictionary<string, bool>()", new Dictionary<string, bool>())
                     .SendsData(118, "TypeCode.String", TypeCode.String)
                     .SendsData(119, "new MapSchema(TypeCode.String, new DummySchema())", new MapSchema(TypeCode.String, new DummySchema()))
+                    .SendsData(120, "new FilterParamsSchema()", new FilterParamsSchema())
                 );
 
             if (!string.IsNullOrWhiteSpace(_openApiContent))
