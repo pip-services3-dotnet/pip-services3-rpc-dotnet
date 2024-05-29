@@ -526,7 +526,7 @@ namespace PipServices3.Rpc.Clients
             }
         }
 
-        private static async Task<T> ExtractContentEntityAsync<T>(string correlationId, HttpContent content)
+        protected virtual async Task<T> ExtractContentEntityAsync<T>(string correlationId, HttpContent content)
         {
             var value = await content.ReadAsStringAsync();
 
