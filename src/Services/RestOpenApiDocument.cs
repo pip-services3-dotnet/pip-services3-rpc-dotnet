@@ -296,21 +296,13 @@ namespace PipServices3.Rpc.Services
 
             var schema = @object as ObjectSchema;
 
-            if (schema.Properties == null)
+            if (schema?.Properties == null)
             {
                 return _objectType;
             }
 
             var properties = new Dictionary<string, object>();
             var required = new List<string>();
-
-            if (schema.Properties == null)
-            {
-                return new Dictionary<string, object>
-                {
-                    { "properties", _objectType }
-                };
-            }
 
             foreach (var property in schema.Properties)
             {

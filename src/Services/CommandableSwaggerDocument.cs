@@ -134,6 +134,11 @@ namespace PipServices3.Rpc.Services
 
         private Dictionary<string, object> CreatePropertyData(ObjectSchema schema, bool includeRequired)
         {
+            if (schema?.Properties == null)
+            {
+                return _objectType;
+            }
+
             var properties = new Dictionary<string, object>();
             var required = new List<string>();
 
