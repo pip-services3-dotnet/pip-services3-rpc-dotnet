@@ -4,6 +4,8 @@
 
 ### Fixes
 * Fix CommandableSwaggerDocument to provide registering for empty schema
+* Change docker compose syntax
+
 ## <a name="3.7.2"></a> 3.7.2 (2024-05-29)
 
 ### Features
