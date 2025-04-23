@@ -5,7 +5,6 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;
@@ -49,6 +48,9 @@ namespace PipServices3.Rpc.Services
     /// - "credential.ssl_crt_file" - the SSL certificate in PEM
     /// - "credential.ssl_ca_file" - the certificate authorities (root cerfiticates) in PEM
     /// 
+    /// options:
+    /// - "options.request_max_size" - Kestrel maximum request body size, by default is 30,000,000 bytes (see <a href="https://learn.microsoft.com/en-us/aspnet/core/mvc/models/file-uploads?view=aspnetcore-8.0#kestrel-maximum-request-body-size">Kestrel maximum request body size</a>)
+    /// 
     /// ### References ###
     /// 
     /// A logger, counters, and a connection resolver can be referenced by passing the
@@ -85,7 +87,7 @@ namespace PipServices3.Rpc.Services
             "credential.ssl_crt_file", null,
             "credential.ssl_ca_file", null,
             "options.maintenance_enabled", false,
-            "options.request_max_size", 1024 * 1024,
+            "options.request_max_size", 30_000_000,
             "options.file_max_size", 200 * 1024 * 1024,
             "options.connect_timeout", 60000,
             "options.debug", true,
@@ -98,6 +100,7 @@ namespace PipServices3.Rpc.Services
         protected DependencyResolver _dependencyResolver = new DependencyResolver(_defaultConfig);
 
         private bool _maintenanceEnabled;
+        private long _requestMaxSize = 30_000_000;
         private long _fileMaxSize = 200 * 1024 * 1024;
         private bool _responseCompression = false;
 
@@ -146,6 +149,7 @@ namespace PipServices3.Rpc.Services
             _connectionResolver.Configure(config);
 
             _maintenanceEnabled = config.GetAsBooleanWithDefault("options.maintenance_enabled", _maintenanceEnabled);
+            _requestMaxSize = config.GetAsLongWithDefault("options.request_max_size", _requestMaxSize);
             _fileMaxSize = config.GetAsLongWithDefault("options.file_max_size", _fileMaxSize);
             _responseCompression = config.GetAsBooleanWithDefault("options.response_compression", _responseCompression);
 
@@ -230,6 +234,10 @@ namespace PipServices3.Rpc.Services
                         {
                             options.Listen(IPAddress.Parse(host), port);
                         }
+                    })
+                    .ConfigureKestrel(options =>
+                    {
+                        options.Limits.MaxRequestBodySize = _requestMaxSize;
                     })
                     .ConfigureServices(ConfigureServices)
                     .Configure(ConfigureApplication)

@@ -1,5 +1,10 @@
 # <img src="https://uploads-ssl.webflow.com/5ea5d3315186cf5ec60c3ee4/5edf1c94ce4c859f2b188094_logo.svg" alt="Pip.Services Logo" width="200"> <br/> Remote Procedure Calls for Pip.Services in .NET Changelog
 
+## <a name="3.7.4"></a> 3.7.4 (2025-04-23)
+
+### Features
+* Added request_max_size option to HttpEndpoint
+
 ## <a name="3.7.3"></a> 3.7.3 (2024-08-14)
 
 ### Fixes
