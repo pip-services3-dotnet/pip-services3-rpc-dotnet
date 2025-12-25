@@ -307,25 +307,8 @@ namespace PipServices3.Rpc.Services
 
             services.Configure<KestrelServerOptions>(options =>
             {
-                // Set max request body size from configuration
-                try
-                {
-                    options.Limits.MaxRequestBodySize = _requestMaxSize;
-                }
-                catch
-                {
-                    // ignore if not supported on some targets
-                }
-
-                // Allow synchronous IO if option exists
-                try
-                {
-                    options.AllowSynchronousIO = true; // Need to execution operations from swagger
-                }
-                catch
-                {
-                    // ignore if not supported
-                }
+                options.Limits.MaxRequestBodySize = _requestMaxSize;
+                options.AllowSynchronousIO = true; // Need to execution operations from swagger
             });
 
             foreach (var initialization in _initializations)
