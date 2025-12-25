@@ -235,10 +235,6 @@ namespace PipServices3.Rpc.Services
                             options.Listen(IPAddress.Parse(host), port);
                         }
                     })
-                    .ConfigureKestrel(options =>
-                    {
-                        options.Limits.MaxRequestBodySize = _requestMaxSize;
-                    })
                     .ConfigureServices(ConfigureServices)
                     .Configure(ConfigureApplication)
                     .UseContentRoot(Directory.GetCurrentDirectory());
@@ -296,11 +292,6 @@ namespace PipServices3.Rpc.Services
                 {
                     options.EnableForHttps = true;
                 });
-
-                services.Configure<BrotliCompressionProviderOptions>(options =>
-                {
-                    options.Level = CompressionLevel.Fastest;
-                });
             }
 
             services.AddRouting();
@@ -316,7 +307,25 @@ namespace PipServices3.Rpc.Services
 
             services.Configure<KestrelServerOptions>(options =>
             {
-                options.AllowSynchronousIO = true; // Need to execution operations from swagger
+                // Set max request body size from configuration
+                try
+                {
+                    options.Limits.MaxRequestBodySize = _requestMaxSize;
+                }
+                catch
+                {
+                    // ignore if not supported on some targets
+                }
+
+                // Allow synchronous IO if option exists
+                try
+                {
+                    options.AllowSynchronousIO = true; // Need to execution operations from swagger
+                }
+                catch
+                {
+                    // ignore if not supported
+                }
             });
 
             foreach (var initialization in _initializations)
