@@ -23,4 +23,8 @@
   <ItemGroup>
     <EmbeddedResource Include="Services\DummyRestServiceSwagger.yaml" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel.Core" Version="2.3.9" />
+  </ItemGroup>
 </Project>

@@ -2,7 +2,7 @@
     "name": "pip-services3-rpc-dotnet",
     "type": "module",
     "language": "dotnet",
-    "version": "3.8.1",
+    "version": "3.8.2",
     "build": 0,
     "registry": "pipservices",
     "artifacts": [
