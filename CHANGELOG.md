@@ -1,9 +1,10 @@
 # <img src="https://uploads-ssl.webflow.com/5ea5d3315186cf5ec60c3ee4/5edf1c94ce4c859f2b188094_logo.svg" alt="Pip.Services Logo" width="200"> <br/> Remote Procedure Calls for Pip.Services in .NET Changelog
 
-## <a name="3.8.1-3.8.2"></a> 3.8.1-3.8.2 (2026-01-12)
+## <a name="3.8.1-3.8.3"></a> 3.8.1-3.8.3 (2026-01-27)
 
 ### Breaking Changes
 * Migrate to .NET 10.0
+* Migrate from the deprecated IWebHost to IHost
 
 ## <a name="3.7.4"></a> 3.7.4 (2025-04-23)
 

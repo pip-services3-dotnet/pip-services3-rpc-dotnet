@@ -1,20 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.IO.Compression;
-using System.Linq;
-using System.Net;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
-using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using PipServices3.Commons.Config;
 using PipServices3.Commons.Errors;
 using PipServices3.Commons.Refer;
@@ -23,6 +14,13 @@ using PipServices3.Commons.Validate;
 using PipServices3.Components.Count;
 using PipServices3.Components.Log;
 using PipServices3.Rpc.Connect;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace PipServices3.Rpc.Services
 {
@@ -104,7 +102,11 @@ namespace PipServices3.Rpc.Services
         private long _fileMaxSize = 200 * 1024 * 1024;
         private bool _responseCompression = false;
 
+#if !NETSTANDARD2_0 && !NETSTANDARD2_1
+        protected IHost _server;
+#else
         protected IWebHost _server;
+#endif
         protected RouteBuilder _routeBuilder;
         protected string _address;
 
@@ -201,43 +203,31 @@ namespace PipServices3.Rpc.Services
         {
             if (IsOpen()) return;
 
-            var connection = await _connectionResolver.ResolveAsync(correlationId);
-            var credential = connection.GetSection("credential");
-
-            var protocol = connection.Protocol;
-            var host = connection.Host;
-            var port = connection.Port;
-            _address = protocol + "://" + host + ":" + port;
-
             try
             {
+#if !NETSTANDARD2_0 && !NETSTANDARD2_1
+                var builder = Host.CreateDefaultBuilder()
+                    .ConfigureWebHostDefaults(webBuilder =>
+                    {
+                        webBuilder
+                            .UseKestrel(options =>
+                            {
+                                SetKernelOpions(correlationId, options);
+                            })
+                            .ConfigureServices(ConfigureServices)
+                            .Configure(ConfigureApplication)
+                            .UseContentRoot(Directory.GetCurrentDirectory());
+                    });
+#else
                 var builder = new WebHostBuilder()
                     .UseKestrel(options =>
                     {
-                        // Convert localhost to IP Address
-                        if (host == "localhost")
-                        {
-                            host = IPAddress.Loopback.ToString();
-                        }
-
-                        if (protocol == "https")
-                        {
-                            var sslPfxFile = credential.GetAsNullableString("ssl_pfx_file");
-                            var sslPassword = credential.GetAsNullableString("ssl_password");
-
-                            options.Listen(IPAddress.Parse(host), port, listenOptions =>
-                            {
-                                listenOptions.UseHttps(sslPfxFile, sslPassword);
-                            });
-                        }
-                        else
-                        {
-                            options.Listen(IPAddress.Parse(host), port);
-                        }
+                        SetKernelOpions(correlationId, options);
                     })
                     .ConfigureServices(ConfigureServices)
                     .Configure(ConfigureApplication)
                     .UseContentRoot(Directory.GetCurrentDirectory());
+#endif
 
                 _server = builder.Build();
 
@@ -282,6 +272,38 @@ namespace PipServices3.Rpc.Services
             }
 
             return Task.Delay(0);
+        }
+
+        private void SetKernelOpions(string correlationId, KestrelServerOptions options)
+        {
+            var connection = _connectionResolver.ResolveAsync(correlationId).Result;
+            var credential = connection.GetSection("credential");
+
+            var protocol = connection.Protocol;
+            var host = connection.Host;
+            var port = connection.Port;
+            _address = protocol + "://" + host + ":" + port;
+
+            // Convert localhost to IP Address
+            if (host == "localhost")
+            {
+                host = IPAddress.Loopback.ToString();
+            }
+
+            if (protocol == "https")
+            {
+                var sslPfxFile = credential.GetAsNullableString("ssl_pfx_file");
+                var sslPassword = credential.GetAsNullableString("ssl_password");
+
+                options.Listen(IPAddress.Parse(host), port, listenOptions =>
+                {
+                    listenOptions.UseHttps(sslPfxFile, sslPassword);
+                });
+            }
+            else
+            {
+                options.Listen(IPAddress.Parse(host), port);
+            }
         }
 
         private void ConfigureServices(IServiceCollection services)
@@ -427,7 +449,7 @@ namespace PipServices3.Rpc.Services
                             }
                         );
                     }
-                    
+
                     var interceptor = _interceptors.Find(i => route.StartsWith(i.Route));
                     if (interceptor != null)
                     {
@@ -451,7 +473,8 @@ namespace PipServices3.Rpc.Services
             var body = string.Empty;
 
             // Allows using several time the stream in ASP.Net Core
-            req.EnableRewind();
+            //req.EnableRewind();
+            req.EnableBuffering();
 
             using (var streamReader = new StreamReader(req.Body))
             {
@@ -460,7 +483,7 @@ namespace PipServices3.Rpc.Services
                 // Rewind, so the core is not lost when it looks at the body for the request
                 req.Body.Seek(0, SeekOrigin.Begin);
             }
-                
+
 
             var parameters = string.IsNullOrEmpty(body)
                 ? new Parameters() : Parameters.FromJson("{ \"body\":" + body + " }");
@@ -546,7 +569,7 @@ namespace PipServices3.Rpc.Services
                         var correlationId = HttpRequestHelper.GetCorrelationId(request);
                         var err = schema.ValidateAndReturnException(correlationId, parameters, false);
 
-                        if (err != null) 
+                        if (err != null)
                         {
                             await HttpResponseSender.SendErrorAsync(response, err);
                             return;
