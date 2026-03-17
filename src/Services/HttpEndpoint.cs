@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
 using PipServices3.Commons.Config;
 using PipServices3.Commons.Errors;
 using PipServices3.Commons.Refer;
@@ -216,7 +218,11 @@ namespace PipServices3.Rpc.Services
                             })
                             .ConfigureServices(ConfigureServices)
                             .Configure(ConfigureApplication)
-                            .UseContentRoot(Directory.GetCurrentDirectory());
+                            .UseContentRoot(Directory.GetCurrentDirectory())
+                            .ConfigureLogging(logging =>
+                            {
+                                logging.AddFilter<ConsoleLoggerProvider>("Microsoft", Microsoft.Extensions.Logging.LogLevel.None);
+                            });
                     });
 #else
                 var builder = new WebHostBuilder()
