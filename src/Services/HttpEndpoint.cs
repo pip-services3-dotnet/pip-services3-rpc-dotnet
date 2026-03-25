@@ -22,6 +22,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace PipServices3.Rpc.Services
@@ -205,6 +206,13 @@ namespace PipServices3.Rpc.Services
         {
             if (IsOpen()) return;
 
+            var connection = await _connectionResolver.ResolveAsync(correlationId);
+            var credential = connection.GetSection("credential");
+            var protocol = connection.Protocol;
+            var host = connection.Host;
+            var port = connection.Port;
+            _address = protocol + "://" + host + ":" + port;
+
             try
             {
 #if !NETSTANDARD2_0 && !NETSTANDARD2_1
@@ -214,7 +222,7 @@ namespace PipServices3.Rpc.Services
                         webBuilder
                             .UseKestrel(options =>
                             {
-                                SetKernelOpions(correlationId, options);
+                                SetKernelOpions(host, port, protocol, credential, options);
                             })
                             .ConfigureServices(ConfigureServices)
                             .Configure(ConfigureApplication)
@@ -228,7 +236,7 @@ namespace PipServices3.Rpc.Services
                 var builder = new WebHostBuilder()
                     .UseKestrel(options =>
                     {
-                        SetKernelOpions(correlationId, options);
+                        SetKernelOpions(host, port, protocol, credential, options);
                     })
                     .ConfigureServices(ConfigureServices)
                     .Configure(ConfigureApplication)
@@ -280,16 +288,8 @@ namespace PipServices3.Rpc.Services
             return Task.Delay(0);
         }
 
-        private void SetKernelOpions(string correlationId, KestrelServerOptions options)
+        private void SetKernelOpions(string host, int port, string protocol, ConfigParams credential, KestrelServerOptions options)
         {
-            var connection = _connectionResolver.ResolveAsync(correlationId).Result;
-            var credential = connection.GetSection("credential");
-
-            var protocol = connection.Protocol;
-            var host = connection.Host;
-            var port = connection.Port;
-            _address = protocol + "://" + host + ":" + port;
-
             // Convert localhost to IP Address
             if (host == "localhost")
             {
@@ -478,18 +478,15 @@ namespace PipServices3.Rpc.Services
         {
             var body = string.Empty;
 
-            // Allows using several time the stream in ASP.Net Core
-            //req.EnableRewind();
             req.EnableBuffering();
 
-            using (var streamReader = new StreamReader(req.Body))
+            using (var memoryStream = new MemoryStream())
             {
-                body = streamReader.ReadToEnd();
-
-                // Rewind, so the core is not lost when it looks at the body for the request
-                req.Body.Seek(0, SeekOrigin.Begin);
+                req.Body.CopyTo(memoryStream);
+                body = Encoding.UTF8.GetString(memoryStream.ToArray());
             }
 
+            req.Body.Seek(0, SeekOrigin.Begin);
 
             var parameters = string.IsNullOrEmpty(body)
                 ? new Parameters() : Parameters.FromJson("{ \"body\":" + body + " }");

@@ -9,7 +9,6 @@ using PipServices3.Commons.Config;
 using PipServices3.Commons.Convert;
 using PipServices3.Commons.Data;
 using PipServices3.Commons.Refer;
-using PipServices3.Commons.Validate;
 using Xunit;
 
 namespace PipServices3.Rpc.Services
@@ -56,7 +55,7 @@ namespace PipServices3.Rpc.Services
             _service.CloseAsync(null).Wait();
         }
 
-        [Fact(Skip = "TODO: Doesn't work")]
+        [Fact]
         public async Task Test_CRUD_OperationsAsync()
         {
             // Create one dummy
@@ -140,7 +139,7 @@ namespace PipServices3.Rpc.Services
             Assert.Equal("INVALID_DATA", res["code"]);
         }
 
-        [Fact(Skip = "TODO: Doesn't work")]
+        [Fact]
         public async Task Test_Check_CorrelationIdAsync()
         {
             // check transmit correllationId over params
