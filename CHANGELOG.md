@@ -1,8 +1,9 @@
 # <img src="https://uploads-ssl.webflow.com/5ea5d3315186cf5ec60c3ee4/5edf1c94ce4c859f2b188094_logo.svg" alt="Pip.Services Logo" width="200"> <br/> Remote Procedure Calls for Pip.Services in .NET Changelog
 
-## <a name="3.8.5"></a> 3.8.5 (2026-03-25)
+## <a name="3.8.6"></a> 3.8.6 (2026-04-17)
 
 ### Fixes
+* Apply fix from JsonConverter.ToNullableMap
 * Fix logging openned address in HttpEndpoint
 * HttpEndpoint.GetRequestParameters refactoring.
 

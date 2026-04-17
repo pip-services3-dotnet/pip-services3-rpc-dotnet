@@ -245,3 +245,6 @@ ModelManifest.xml
 
 # VSCode directory
 .vscode/
+
+# JetBrains IDE
+.idea
