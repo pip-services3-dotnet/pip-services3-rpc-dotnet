@@ -81,6 +81,12 @@ namespace PipServices3.Rpc.Services
                     .SendsData400()
                 );
 
+            RegisterRouteWithAuthAndMetadata("post", "/dummies/array", auth.Anybody(), _operations.CreateAsync, new RestRouteMetadata()
+                    .SetsTags(tags)
+                    .ReceivesCorrelationIdParam()
+                    .ReceivesBodyFromSchema(new ArraySchema(schema))
+                );
+
             RegisterRouteWithAuthAndMetadata("post", "/dummies/file", auth.Anybody(), _operations.CreateFromFileAsync, new RestRouteMetadata()
                     .SetsTags(tags)
                     .ReceivesCorrelationIdParam()

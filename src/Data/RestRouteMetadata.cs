@@ -11,7 +11,7 @@ namespace PipServices3.Rpc.Data
         public string Route { get; set; }
         public string[] Tags { get; set; }
         public List<QueryParam> QueryParams { get; set; } = new List<QueryParam>();
-        public ObjectSchema BodySchema { get; set; }
+        public Schema BodySchema { get; set; }
         public bool NeedsFile { get; set; }
         public List<ResponseData> Responses { get; set; } = new List<ResponseData>();
         public string Authentication { get; set; }
@@ -64,7 +64,7 @@ namespace PipServices3.Rpc.Data
             return ReceivesOptionalQueryParam("correlation_id", TypeCode.String);
         }
 
-        public RestRouteMetadata ReceivesBodyFromSchema(ObjectSchema schema)
+        public RestRouteMetadata ReceivesBodyFromSchema(Schema schema)
         {
             BodySchema = schema;
 
